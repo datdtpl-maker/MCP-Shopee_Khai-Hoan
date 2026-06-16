@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.1.3"
+CURRENT_VERSION = "v2.1.4"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -162,8 +162,8 @@ HTML = r"""
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2.1.3">
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.1.3">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2.1.4">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.1.4">
   <title>MCP Shopee - Khải Hoàn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2082,7 +2082,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.1.3";
+  const CURRENT_VERSION = "v2.1.4";
   let promptsList = [];
   let categoriesList = ["Shopee", "Facebook", "General"];
   let editingCategories = [];
@@ -4672,6 +4672,19 @@ def api_chrome_gemini_status():
         return jsonify({"online": False, "message": "Chrome Debug Port 9223 chưa hoạt động."})
 
 
+def get_image_number_from_title(title: str) -> str:
+    if not title:
+        return "1"
+    title_clean = title.strip()
+    if title_clean == "Tạo ảnh Cover Shopee":
+        return "1"
+    import re
+    match = re.search(r'(?:Số\s+)?(\d+)', title_clean, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    return "1"
+
+
 def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, export_dir: str, sample_path: str | None = None, prompt_title: str | None = None):
     from playwright.sync_api import sync_playwright
     import os
@@ -4926,11 +4939,8 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                 header, encoded = image_base64_data.split(",", 1)
                 img_data = base64.b64decode(encoded)
                 
-                if prompt_title and prompt_title.strip() == "Tạo ảnh Cover Shopee":
-                    filename = "1.png"
-                else:
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"chatgpt_{timestamp}.png"
+                num = get_image_number_from_title(prompt_title)
+                filename = f"{num}.png"
                 
                 out_dir = Path(export_dir)
                 if not out_dir.exists():
@@ -5730,11 +5740,8 @@ def run_gemini_automation_thread(media_path: str | None, prompt_text: str, expor
                 
                 # File path
                 ext = "mp4" if found_type.startswith("video") else "png"
-                if prompt_title and prompt_title.strip() == "Tạo ảnh Cover Shopee":
-                    filename = f"1.{ext}"
-                else:
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"gemini_{timestamp}.{ext}"
+                num = get_image_number_from_title(prompt_title)
+                filename = f"{num}.{ext}"
                 
                 out_dir = Path(export_dir)
                 if not out_dir.exists():
@@ -5860,7 +5867,8 @@ def api_clear_cache():
             for ext in ("*.png", "*.jpg", "*.jpeg", "*.mp4", "*.webm"):
                 for f in out_dir.glob(ext):
                     name_lower = f.name.lower()
-                    if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or name_lower in ("1.png", "1.jpg", "1.jpeg", "1.mp4", "1.webm"):
+                    is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
+                    if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
                         try:
                             f.unlink()
                         except Exception:
@@ -5888,7 +5896,8 @@ def api_list_downloaded_images():
         for ext in ("*.png", "*.jpg", "*.jpeg", "*.mp4", "*.webm"):
             for f in out_dir.glob(ext):
                 name_lower = f.name.lower()
-                if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or name_lower in ("1.png", "1.jpg", "1.jpeg", "1.mp4", "1.webm"):
+                is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
+                if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
                     img_files.append(f)
                     
         img_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)

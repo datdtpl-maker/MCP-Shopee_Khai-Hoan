@@ -619,6 +619,19 @@ Mỗi viên nang cứng chứa:
             image_files = [f for f in insight_files if "image" in f["mime"]]
             video_files = [f for f in insight_files if "video" in f["mime"]]
             
+            # Sắp xếp ảnh sản phẩm tăng dần theo số thứ tự trong tên file
+            def get_file_number(img_item):
+                raw_name = img_item.get("name", "")
+                name_without_ext = os.path.splitext(raw_name)[0].strip()
+                try:
+                    decoded_name = convert_zicum.decode_drive_js_string(name_without_ext).strip()
+                except Exception:
+                    decoded_name = name_without_ext
+                match = re.search(r'\d+', decoded_name)
+                return int(match.group(0)) if match else 999999
+                
+            image_files.sort(key=get_file_number)
+            
             # Logic Ảnh bìa và Album ảnh: Ảnh nào có tên là số 1 thì làm ảnh bìa
             cover_image = ""
             album_images = []
