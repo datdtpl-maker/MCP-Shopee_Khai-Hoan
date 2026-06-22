@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.1.4"
+CURRENT_VERSION = "v2.2.0"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -162,8 +162,8 @@ HTML = r"""
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2.1.4">
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.1.4">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2.2.0">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.2.0">
   <title>MCP Shopee - Khải Hoàn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1492,6 +1492,32 @@ HTML = r"""
         
         <!-- Cột 2: Bảng điều khiển & Realtime Logs -->
         <div style="flex: 2; display: flex; flex-direction: column; gap: 24px;">
+          <!-- Panel Tự động tạo Insight AI -->
+          <section class="panel" style="padding: 20px; background: rgba(168, 85, 247, 0.05); border: 1.5px solid rgba(168, 85, 247, 0.2);">
+            <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(168, 85, 247, 0.15); padding-bottom: 12px; margin-bottom: 16px;">
+              <div>
+                <h3 style="margin: 0; color: #a855f7; display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #a855f7;"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                  Tự động soạn 5 bài viết Insight bằng AI
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted);">Tự động phân tích sản phẩm từ Notion, lên ý tưởng và tạo 5 trang con Insight đầy đủ nội dung.</p>
+              </div>
+              <button class="ghost" onclick="loadPendingProducts()" style="padding: 4px 8px; font-size: 12px; color: #a855f7; background: none; border: none; cursor: pointer; font-weight: 700;">Quét lại Notion</button>
+            </div>
+            <div class="panel-body" style="display: flex; gap: 16px; align-items: flex-end;">
+              <div style="flex: 1;">
+                <label for="shopeePendingProducts" style="font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text);">Chọn sản phẩm chờ viết bài</label>
+                <select id="shopeePendingProducts" style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
+                  <option value="">Đang tải danh sách từ Notion...</option>
+                </select>
+              </div>
+              <button type="button" class="btn-capture" onclick="generateProductInsights()" style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border: none; font-weight: 700; padding: 0 24px; border-radius: 8px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; height: 42px; font-size: 13.5px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" title="Tạo bài viết bằng AI">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                Tự động tạo 5 Insight (AI)
+              </button>
+            </div>
+          </section>
+
           <section class="panel" style="flex: 1; display: flex; flex-direction: column; height: 1040px; padding: 20px;">
             <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
               <div>
@@ -1777,6 +1803,7 @@ HTML = r"""
     loadShopeeConfig();
     loadShopeeExcelList();
     checkShopeeBotStatus();
+    loadPendingProducts();
   }
 
   async function loadShopeeConfig() {
@@ -1817,6 +1844,56 @@ HTML = r"""
       log({step: "shopee_sync", message: "Đã lưu cấu hình kết nối Notion & Telegram thành công!"});
     } catch(e) {
       alert("Lỗi lưu cấu hình: " + (e.error || e.message || JSON.stringify(e)));
+    }
+  }
+
+  async function loadPendingProducts() {
+    const select = document.getElementById("shopeePendingProducts");
+    select.innerHTML = '<option value="">Đang quét danh sách trên Notion...</option>';
+    try {
+      const products = await api("/api/shopee/products/pending");
+      select.innerHTML = "";
+      if (!products || products.length === 0) {
+        select.innerHTML = '<option value="">Không có sản phẩm nào chờ viết bài</option>';
+        return;
+      }
+      products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.title;
+        select.appendChild(opt);
+      });
+    } catch(e) {
+      console.error("Lỗi load sản phẩm pending:", e);
+      select.innerHTML = '<option value="">Lỗi quét sản phẩm từ Notion</option>';
+    }
+  }
+
+  async function generateProductInsights() {
+    const select = document.getElementById("shopeePendingProducts");
+    const pageId = select.value;
+    if (!pageId) {
+      alert("Vui lòng chọn một sản phẩm từ danh sách!");
+      return;
+    }
+    
+    const productTitle = select.options[select.selectedIndex].text;
+    if (!confirm(`Bạn có chắc chắn muốn AI tự động sinh 5 bài viết Insight cho sản phẩm "${productTitle}" không?`)) {
+      return;
+    }
+    
+    document.getElementById("shopeeSyncLogBox").innerHTML = "";
+    log({step: "shopee_sync", message: `Gửi yêu cầu sinh 5 bài viết AI cho sản phẩm: ${productTitle}...`});
+    startPoll();
+    
+    try {
+      const d = await api("/api/shopee/insights/generate", { page_id: pageId });
+      log({step: "shopee_sync", message: d.message});
+      // Tự động load lại danh sách sản phẩm sau 30 giây (khi tiến trình dự kiến hoàn tất)
+      setTimeout(loadPendingProducts, 30000);
+    } catch(e) {
+      log({step: "shopee_sync", message: "Lỗi sinh bài viết: " + (e.error || e.message || JSON.stringify(e))});
+      alert("Lỗi: " + (e.error || e.message || JSON.stringify(e)));
     }
   }
 
@@ -2082,7 +2159,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.1.4";
+  const CURRENT_VERSION = "v2.2.0";
   let promptsList = [];
   let categoriesList = ["Shopee", "Facebook", "General"];
   let editingCategories = [];
@@ -6416,6 +6493,100 @@ def api_stop_shopee_bot():
         return jsonify({"success": True, "message": "Đã gửi lệnh dừng Bot Telegram."})
     except Exception as exc:
         return error_response(exc, 500)
+
+
+shopee_generation_active = False
+
+@app.get("/api/shopee/products/pending")
+def api_get_pending_products():
+    try:
+        from notion_client import Client
+        env_file = SHOPEE_SYNC_ROOT / ".env"
+        if not env_file.exists():
+            return jsonify([])
+            
+        from dotenv import load_dotenv
+        load_dotenv(env_file, override=True)
+        
+        token = os.getenv("NOTION_TOKEN")
+        db_id = os.getenv("NOTION_DATABASE_ID")
+        if not token or not db_id:
+            return jsonify([])
+            
+        notion = Client(auth=token)
+        try:
+            from shopee_sync.src.notion_sync import call_notion_with_retry
+        except ImportError:
+            from src.notion_sync import call_notion_with_retry
+            
+        db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=db_id)
+        data_sources = db_meta.get("data_sources", [])
+        if not data_sources:
+            return jsonify([])
+            
+        data_source_id = data_sources[0].get("id")
+        res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
+        records = res.get("results", [])
+        
+        pending_items = []
+        for page in records:
+            properties = page.get("properties", {})
+            bai_viet = properties.get("Bài viết", {}).get("checkbox", False)
+            it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
+            
+            title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            
+            if title and not bai_viet and not it_status:
+                pending_items.append({
+                    "id": page.get("id"),
+                    "title": title
+                })
+        return jsonify(pending_items)
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/shopee/insights/generate")
+def api_generate_product_insights():
+    try:
+        global shopee_generation_active
+        if shopee_generation_active:
+            return jsonify({"success": False, "error": "Tiến trình tạo bài viết AI đang chạy, vui lòng đợi..."}), 400
+            
+        payload = request.json or {}
+        page_id = payload.get("page_id", "").strip()
+        if not page_id:
+            return jsonify({"success": False, "error": "Thiếu thông tin page_id sản phẩm."}), 400
+            
+        shopee_generation_active = True
+        add_event({"step": "shopee_sync", "message": f"Bắt đầu tiến trình sinh 5 Insight bằng AI cho sản phẩm..."})
+        
+        def run_generation_wrapper():
+            global shopee_generation_active
+            try:
+                try:
+                    from shopee_sync.src import insight_generator
+                except ImportError:
+                    from src import insight_generator
+                    
+                def callback(msg):
+                    add_event({"step": "shopee_sync", "message": f"[AI] {msg}"})
+                    
+                insight_generator.generate_and_create_insights(page_id, progress_callback=callback)
+                add_event({"step": "shopee_sync", "message": "🎉 Hoàn tất sinh bài viết thành công!"})
+            except Exception as e:
+                add_event({"step": "shopee_sync", "message": f"❌ Lỗi sinh bài viết AI: {str(e)}"})
+            finally:
+                shopee_generation_active = False
+                
+        t = threading.Thread(target=run_generation_wrapper, daemon=True)
+        t.start()
+        
+        return jsonify({"success": True, "message": "Tiến trình sinh 5 Insight AI đã bắt đầu chạy ngầm."})
+    except Exception as exc:
+        return error_response(exc, 500)
+
 
 @app.post("/api/shopee/sync/run")
 def api_run_shopee_sync():
