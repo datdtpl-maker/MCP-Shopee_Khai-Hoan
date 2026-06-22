@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.0"
+CURRENT_VERSION = "v2.2.1"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1054,7 +1054,325 @@ HTML = r"""
     .dropdown-content button svg {
       opacity: 0.8;
     }
-  </style>
+  
+    /* --- Styles for New AI Insight Shopee Integration --- */
+    .work-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .prompt-editor {
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--soft);
+      padding: 12px;
+    }
+    .prompt-editor summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 800;
+      list-style: none;
+    }
+    .prompt-editor summary::-webkit-details-marker {
+      display: none;
+    }
+    .prompt-editor summary strong {
+      color: var(--brand);
+      font-size: 0.78rem;
+    }
+    .prompt-editor .field {
+      margin-top: 12px;
+    }
+    .prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .field {
+      display: grid;
+      gap: 7px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .field-span-2 {
+      grid-column: 1 / -1;
+    }
+    .field input,
+    .field textarea,
+    .table-wrap input,
+    .table-wrap textarea {
+      width: 100%;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--text);
+      padding: 11px 12px;
+      font: inherit;
+      line-height: 1.4;
+    }
+    .field textarea,
+    .table-wrap textarea {
+      resize: vertical;
+    }
+    .field input:focus,
+    .field textarea:focus,
+    .table-wrap input:focus,
+    .table-wrap textarea:focus,
+    .paste-zone:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-glow);
+    }
+    .source-block {
+      display: grid;
+      gap: 12px;
+    }
+    /* --- Image Upload Zone Redesign --- */
+    .image-upload-zone {
+      position: relative;
+      border: 2px dashed var(--panel-border);
+      border-radius: 14px;
+      background: var(--soft);
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+      cursor: pointer;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .image-upload-zone:hover, .image-upload-zone:focus-within {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-glow);
+    }
+    .image-upload-zone.is-active {
+      border-color: var(--ok);
+      background: var(--okbg);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+    }
+    .upload-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, rgba(238,77,45,0.12) 0%, rgba(255,115,55,0.12) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      transition: transform 0.2s;
+    }
+    .image-upload-zone:hover .upload-icon {
+      transform: scale(1.1);
+    }
+    .upload-text {
+      text-align: center;
+    }
+    .upload-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .upload-text span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .upload-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .upload-chip {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--panel-border);
+      background: var(--soft);
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .upload-chip:hover { border-color: var(--brand); color: var(--brand); }
+    /* Preview khi có ảnh */
+    .image-preview-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--soft);
+      border-radius: 12px;
+    }
+    .image-preview-overlay img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--panel-border);
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .image-preview-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .image-preview-meta p {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .image-preview-meta span {
+      font-size: 11px;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    /* Legacy compat – keep these so old ids still work if referenced */
+    .chat-composer { display: none; }
+    .plus-button { display: none; }
+    .paste-zone { display: none; }
+    .paste-zone.is-active { display: none; }
+    .composer-copy { display: none; }
+    #paste-copy { display: none; }
+    #paste-copy.is-waiting::after { display: none; }
+    .inline-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      min-width: 0;
+    }
+    #image-preview {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+    .preview-meta {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+    #preview-label {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .result-panel {
+      margin-top: 16px;
+    }
+    .result-head {
+      align-items: center;
+    }
+    #product-name {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .empty-state {
+      padding: 22px;
+      border: 1px dashed var(--panel-border);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+    .summary-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .summary-strip span {
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      padding: 8px 12px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+    }
+    .table-wrap table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+      background: transparent;
+    }
+    .table-wrap th,
+    .table-wrap td {
+      padding: 12px;
+      border-bottom: 1px solid var(--panel-border);
+      vertical-align: top;
+    }
+    .table-wrap th {
+      background: var(--soft);
+      color: var(--text);
+      text-align: left;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+    }
+    .table-wrap td:first-child,
+    .table-wrap th:first-child {
+      width: 48px;
+    }
+    .table-wrap td textarea {
+      min-height: 120px;
+    }
+    .rewrite-cell {
+      display: grid;
+      gap: 8px;
+      min-width: 230px;
+    }
+    .rewrite-cell textarea {
+      min-height: 88px;
+    }
+    .rewrite-button {
+      width: fit-content;
+    }
+    .save-actions {
+      justify-content: flex-end;
+    }
+    @media (max-width: 1100px) {
+      .work-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+</style>
 </head>
 <body>
 <div class="shell">
@@ -1440,7 +1758,13 @@ HTML = r"""
           <button class="ghost" onclick="showCaptureDashboard()" style="min-height: 38px; padding: 8px 12px; background: none; border: none; color: var(--text); cursor: pointer;" title="Quay lại Bảng điều khiển">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           </button>
-          <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 22px; margin: 0;">Đồng bộ Shopee / BigSeller</h2>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 22px; margin: 0;">Đồng bộ Shopee / BigSeller</h2>
+            <button type="button" id="btnToggleConfig" class="secondary" onclick="toggleConfigColumn()" style="min-height: 32px; padding: 0 12px; font-size: 11px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); cursor: pointer;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              Hiện cấu hình
+            </button>
+          </div>
         </div>
         <div class="actions" style="display: flex; gap: 16px; align-items: center;">
           <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 8px 16px; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; border-radius: 99px;">
@@ -1454,7 +1778,7 @@ HTML = r"""
       
       <div class="workspace" style="display: flex; gap: 24px;">
         <!-- Cột 1: Cấu hình kết nối Notion / Telegram / API -->
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 24px; max-width: 450px; min-width: 320px;">
+        <div id="configSectionWrapper" style="display: none; flex-direction: column; gap: 24px; max-width: 450px; min-width: 320px; transition: all 0.3s ease;">
           <section class="panel">
             <div class="panel-head">
               <h3>Cấu hình Notion & Telegram</h3>
@@ -1491,69 +1815,266 @@ HTML = r"""
         </div>
         
         <!-- Cột 2: Bảng điều khiển & Realtime Logs -->
-        <div style="flex: 2; display: flex; flex-direction: column; gap: 24px;">
-          <!-- Panel Tự động tạo Insight AI -->
-          <section class="panel" style="padding: 20px; background: rgba(168, 85, 247, 0.05); border: 1.5px solid rgba(168, 85, 247, 0.2);">
-            <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(168, 85, 247, 0.15); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="flex: 2; display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+          
+          <!-- GIAO DIỆN TẠO INSIGHT VÀ REVIEW MỚI -->
+          <div class="work-grid">
+            <!-- Cột trái: Thông tin sản phẩm -->
+            <section class="panel" style="padding: 20px;">
+              <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
+                <h3 style="margin: 0; color: var(--brand);">Thông tin sản phẩm</h3>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Ghi vào database xử lý sản phẩm Shopee</p>
+              </div>
+
+              <div class="form-grid">
+                <!-- Dropdown Chọn sản phẩm từ Notion -->
+                <label class="field field-span-2">
+                  <span>Chọn sản phẩm từ Notion (Lấy thông tin nhanh)</span>
+                  <select id="shopeePendingProducts" onchange="onSelectPendingProduct(this.value)" style="width: 100%; border-radius: 8px; padding: 10px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
+                    <option value="">-- Tự nhập thủ công hoặc chọn từ danh sách Notion --</option>
+                  </select>
+                </label>
+
+                <!-- Hidden Input to store Notion product page ID if selected -->
+                <input type="hidden" id="productPageId" value="">
+
+                <label class="field field-span-2">
+                  <span>Tên sản phẩm</span>
+                  <input
+                    id="productNameInput"
+                    name="productName"
+                    type="text"
+                    placeholder="Ví dụ: Premiscab Permethrin Lotion 100ml"
+                    style="width: 100%;"
+                    required
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Giá sản phẩm</span>
+                  <input id="productPrice" name="productPrice" type="text" placeholder="Ví dụ: 129.000đ" />
+                </label>
+
+                <label class="field">
+                  <span>Phân loại</span>
+                  <input
+                    id="productClassification"
+                    name="productClassification"
+                    type="text"
+                    placeholder="Ví dụ: 100ml, combo, chai lớn"
+                  />
+                </label>
+
+                <label class="field field-span-2">
+                  <span>Biến thể / giá</span>
+                  <textarea
+                    id="productVariants"
+                    name="productVariants"
+                    rows="4"
+                    placeholder="100ml - 129.000đ&#10;200ml - 219.000đ"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Keyword</span>
+                  <input id="keywords" name="keywords" type="text" placeholder="Ví dụ: trị ghẻ, giảm ngứa" />
+                </label>
+
+                <label class="field">
+                  <span>Ghi chú bán hàng</span>
+                  <textarea
+                    id="useCases"
+                    name="useCases"
+                    rows="3"
+                    placeholder="Đối tượng dùng, công dụng, góc bán hàng muốn Gemini bám theo"
+                  ></textarea>
+                </label>
+
+                <details class="prompt-editor field-span-2">
+                  <summary>
+                    <span>Prompt tạo insight</span>
+                    <strong>Ẩn/hiện</strong>
+                  </summary>
+                  <label class="field">
+                    <span>Phần người dùng chỉnh</span>
+                    <textarea id="insightPrompt" name="insightPrompt" rows="8"></textarea>
+                  </label>
+                  <div class="prompt-actions">
+                    <button id="save-insight-prompt-button" class="ghost-button" type="button" onclick="saveInsightPrompt()">Lưu prompt</button>
+                    <button id="reset-insight-prompt-button" class="ghost-button" type="button" onclick="resetInsightPrompt()">Khôi phục mặc định</button>
+                    <span id="prompt-status" class="status muted" style="font-size: 11px; margin-top: 0;">Schema 5 insight vẫn khóa ở server</span>
+                  </div>
+                </details>
+              </div>
+            </section>
+
+            <!-- Cột phải: Ảnh & Gemini -->
+            <section class="panel" style="padding: 20px;">
+              <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
+                <h3 style="margin: 0; color: var(--brand);">Ảnh & Gemini</h3>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Dùng ảnh cùng thông tin sản phẩm để sinh 5 insight</p>
+              </div>
+
+              <!-- Image Upload Zone mới -->
+              <div class="source-block">
+                <!-- File input ẩn - đặt NGOÀI zone để tránh bị chặn -->
+                <input id="image" name="image" type="file" accept="image/*" onchange="onImageFileChange()" style="display:none;" />
+
+                <!-- Zone kéo thả / dán / chọn file -->
+                <div
+                  id="image-upload-zone"
+                  class="image-upload-zone"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Vùng tải ảnh sản phẩm"
+                  onpaste="onPasteZonePaste(event)"
+                  ondragover="event.preventDefault(); this.classList.add('is-active')"
+                  ondragleave="this.classList.remove('is-active')"
+                  ondrop="onDropZone(event)"
+                  onclick="if(document.getElementById('upload-placeholder').style.display !== 'none'){ document.getElementById('image').click(); }"
+                >
+                  <!-- Placeholder khi chưa có ảnh -->
+                  <div id="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div class="upload-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                    <div class="upload-text">
+                      <strong>Bấm để chọn ảnh hoặc kéo &amp; thả</strong>
+                      <span>Ctrl+V để dán · hỗ trợ JPG, PNG, WEBP</span>
+                    </div>
+                    <div class="upload-actions-row" onclick="event.stopPropagation()">
+                      <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()">📁 Chọn file</span>
+                      <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();">📋 Dán (Ctrl+V)</span>
+                    </div>
+                  </div>
+
+                  <!-- Preview overlay khi đã có ảnh -->
+                  <div id="image-preview-overlay" class="image-preview-overlay" style="display: none;" onclick="event.stopPropagation()">
+                    <img id="image-preview" alt="Preview ảnh sản phẩm" />
+                    <div class="image-preview-meta">
+                      <p id="preview-label">Ảnh đã sẵn sàng</p>
+                      <span id="paste-copy">✓ Sẵn sàng phân tích</span>
+                      <br/><br/>
+                      <button id="clear-image-button" class="ghost-button" type="button"
+                        onclick="event.stopPropagation(); clearImageState();"
+                        style="padding: 4px 10px; font-size: 11px; margin-top: 4px;">✕ Xóa ảnh</button>
+                    </div>
+                  </div>
+
+                  <!-- Ẩn paste-zone cũ nhưng giữ để JS còn reference -->
+                  <div id="paste-zone" style="display:none;" tabindex="-1"><div id="inline-preview" hidden></div></div>
+                </div>
+
+
+                <label class="field source-link-field">
+                  <span>Hoặc dán link ảnh</span>
+                  <input
+                    id="imageUrl"
+                    name="imageUrl"
+                    type="url"
+                    placeholder="https://drive.google.com/... hoặc link ảnh public"
+                    oninput="onImageUrlInput()"
+                  />
+                </label>
+              </div>
+
+              <div class="actions" style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <button id="open-chrome-button" class="btn-capture" type="button" onclick="openChromeDebugGemini()" style="flex: 1; min-height: 42px; background: var(--brand); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff;">Mở & kiểm tra Gemini</button>
+                <button id="analyze-button" class="btn-capture" type="button" onclick="analyzeProduct()" style="flex: 1; min-height: 42px; background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);">Phân tích ảnh</button>
+                <button id="sync-gemini-button" class="btn-capture" type="button" onclick="syncGeminiResultManual()" style="flex: 1; min-height: 42px; background: #10b981; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">Đồng bộ từ Gemini</button>
+              </div>
+              <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span id="analyze-status" class="status muted" style="margin-top: 0; font-size: 12px;">Chưa chạy</span>
+                <button class="ghost" onclick="loadPendingProducts()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Quét lại Notion</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- Bảng review insight -->
+          <section class="panel result-panel" style="padding: 20px; margin-bottom: 0;">
+            <div class="panel-head result-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h3 style="margin: 0; color: #a855f7; display: flex; align-items: center; gap: 8px;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #a855f7;"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                  Tự động soạn 5 bài viết Insight bằng AI
-                </h3>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted);">Tự động phân tích sản phẩm từ Notion, lên ý tưởng và tạo 5 trang con Insight đầy đủ nội dung.</p>
+                <h3 style="margin: 0; color: var(--brand);">Bảng review insight</h3>
+                <p id="product-name" style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Chưa có sản phẩm</p>
               </div>
-              <button class="ghost" onclick="loadPendingProducts()" style="padding: 4px 8px; font-size: 12px; color: #a855f7; background: none; border: none; cursor: pointer; font-weight: 700;">Quét lại Notion</button>
+              <span id="save-status" class="status muted" style="margin-top: 0; font-size: 12px;">Chưa ghi Notion</span>
             </div>
-            <div class="panel-body" style="display: flex; gap: 16px; align-items: flex-end;">
-              <div style="flex: 1;">
-                <label for="shopeePendingProducts" style="font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text);">Chọn sản phẩm chờ viết bài</label>
-                <select id="shopeePendingProducts" style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
-                  <option value="">Đang tải danh sách từ Notion...</option>
-                </select>
+
+            <div id="empty-state" class="empty-state">
+              Phân tích ảnh để sinh 5 insight, chỉnh lại nếu cần rồi ghi nhận vào Notion.
+            </div>
+
+            <form id="save-form" class="stack" onsubmit="saveInsightsToNotion(event)" hidden>
+              <div id="save-product-summary" class="summary-strip"></div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 48px;">#</th>
+                      <th style="width: 180px;">Góc viết</th>
+                      <th style="width: 250px;">Tiêu đề post</th>
+                      <th style="width: 400px;">Insight</th>
+                      <th style="width: 250px;">Từ khóa</th>
+                      <th style="width: 300px;">Comment sửa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="insight-table-body"></tbody>
+                </table>
               </div>
-              <button type="button" class="btn-capture" onclick="generateProductInsights()" style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border: none; font-weight: 700; padding: 0 24px; border-radius: 8px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; height: 42px; font-size: 13.5px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);" title="Tạo bài viết bằng AI">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Tự động tạo 5 Insight (AI)
-              </button>
-            </div>
+
+              <div class="actions save-actions" style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                <button id="save-button" class="btn-capture" type="submit" style="min-height: 42px; padding: 0 32px; background: var(--brand); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff;">Ghi nhận vào Notion</button>
+              </div>
+            </form>
           </section>
 
-          <section class="panel" style="flex: 1; display: flex; flex-direction: column; height: 1040px; padding: 20px;">
+          <!-- Sync log + Excel list (2-col grid) -->
+          <div style="display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start;">
+          <!-- Sync Log Section -->
+          <section class="panel" style="display: flex; flex-direction: column; padding: 20px;">
             <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
               <div>
                 <h3 style="margin: 0;">Đồng bộ Notion sang BigSeller</h3>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ dữ liệu Notion và xuất Excel thủ công.</p>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
               </div>
-              <button class="secondary" onclick="runShopeeSync()" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%); border-color: rgba(16, 185, 129, 0.3); font-weight: 700; padding: 10px 20px; border-radius: 8px; cursor: pointer; color: #10b981; display: flex; align-items: center; gap: 8px;" title="Chạy đồng bộ ngay">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Đồng bộ ngay lập tức
+              <button class="secondary" onclick="runShopeeSync()" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%); border-color: rgba(16, 185, 129, 0.3); font-weight: 700; padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #10b981; display: flex; align-items: center; gap: 8px; white-space: nowrap;" title="Chạy đồng bộ ngay">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                Đồng bộ ngay
               </button>
             </div>
-            <div class="panel-body" style="flex: 1; display: flex; flex-direction: column; gap: 12px; height: calc(100% - 70px);">
-              <label style="font-weight: 600; font-size: 13px;">Nhật ký đồng bộ (Realtime Log)</label>
-              <!-- Ô log tiến trình đồng bộ -->
-              <div id="shopeeSyncLogBox" style="flex: 1; height: 800px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
+             <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-weight: 600; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Nhật ký Realtime</label>
+                <button class="ghost" onclick="clearShopeeSyncLogs()" style="padding: 2px 6px; font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 4px;" title="Xoá màn hình log">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Xoá log
+                </button>
+              </div>
+              <div id="shopeeSyncLogBox" style="height: 280px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
                 <!-- Log hiển thị thời gian thực -->
               </div>
             </div>
           </section>
-        </div>
-        
-        <!-- Cột 3: Danh sách file Excel xuất bản -->
-        <aside class="panel" style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 20px; max-width: 320px; min-width: 250px; height: 1040px;">
-          <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;">Excel BigSeller đã tạo</h4>
-            <button class="ghost" onclick="loadShopeeExcelList()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
-          </div>
-          
-          <div id="shopeeExcelList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; align-content: start; padding-right: 4px;">
-            <!-- Load động từ API -->
-          </div>
-        </aside>
-      </div>
-    </div>
-  </main>
-</div>
+
+          <!-- Excel List Section -->
+          <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
+            <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;">Excel BigSeller đã tạo</h4>
+              <button class="ghost" onclick="loadShopeeExcelList()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
+            </div>
+            <div id="shopeeExcelList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 280px;">
+              <!-- Load động từ API -->
+            </div>
+          </aside>
+
+          </div><!-- end sync-bottom-grid -->
+        </div><!-- end col-2 main content -->
+      </div><!-- end workspace -->
+    </div><!-- end shopee tab content -->
+
 <script>
   const logBox=document.getElementById("log"); let eventCount=0,lastId=0,poller=null,busy=false,lastAutomationId=0,automationPoller=null;
   
@@ -1796,6 +2317,7 @@ HTML = r"""
     document.getElementById("captureDashboard").style.display = "block";
   }
 
+  let shopeeSyncInitialized = false;
   function showShopeeSyncDashboard() {
     document.getElementById("captureDashboard").style.display = "none";
     document.getElementById("posterDashboard").style.display = "none";
@@ -1804,6 +2326,56 @@ HTML = r"""
     loadShopeeExcelList();
     checkShopeeBotStatus();
     loadPendingProducts();
+    initInsightPromptEditor();
+    
+    if (!shopeeSyncInitialized) {
+      shopeeSyncInitialized = true;
+      initShopeeDragDrop();
+    }
+  }
+
+  function initShopeeDragDrop() {
+    const pZone = document.getElementById("paste-zone");
+    if (pZone) {
+      pZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        pZone.style.borderColor = "var(--ok)";
+        pZone.style.background = "var(--okbg)";
+      });
+      pZone.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        pZone.style.borderColor = "var(--panel-border)";
+        pZone.style.background = "rgba(0,0,0,0.05)";
+      });
+      pZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        pZone.style.borderColor = "var(--panel-border)";
+        pZone.style.background = "rgba(0,0,0,0.05)";
+        const files = e.dataTransfer?.files;
+        if (files && files.length) {
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            state.pastedFile = file;
+            document.getElementById("image").value = "";
+            document.getElementById("imageUrl").value = "";
+            renderPreview();
+          }
+        }
+      });
+    }
+  }
+
+  function toggleConfigColumn() {
+    const wrapper = document.getElementById("configSectionWrapper");
+    const btn = document.getElementById("btnToggleConfig");
+    if (!wrapper || !btn) return;
+    if (wrapper.style.display === "none") {
+      wrapper.style.display = "flex";
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ẩn cấu hình`;
+    } else {
+      wrapper.style.display = "none";
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Hiện cấu hình`;
+    }
   }
 
   async function loadShopeeConfig() {
@@ -1866,6 +2438,622 @@ HTML = r"""
     } catch(e) {
       console.error("Lỗi load sản phẩm pending:", e);
       select.innerHTML = '<option value="">Lỗi quét sản phẩm từ Notion</option>';
+    }
+  }
+
+  
+  // --- New AI Insight Shopee JS Logic ---
+  const defaultInsightPrompt = [
+    "Bạn là người viết insight bán hàng Shopee cho shop dược phẩm/sản phẩm chăm sóc sức khỏe.",
+    "Hãy viết thực tế, dễ dùng cho tiêu đề post, caption, video ngắn và lưu Notion.",
+    "Ưu tiên góc bán hàng rõ: vấn đề khách đang gặp, công dụng chính, thành phần/hoạt chất, đối tượng dùng, lý do nên chọn sản phẩm.",
+    "Không dùng văn phong hoa mỹ, không nói quá công dụng, không thêm cảnh báo y tế thừa.",
+    "Mỗi insight phải khác góc nhau và có keyword đủ mạnh để người bán dùng lại."
+  ].join(String.fromCharCode(10));
+  
+  const defaultPasteText = "Copy ảnh rồi nhấn Ctrl+V tại đây để hiện preview.";
+  const insightPromptStorageKey = "insightShopeeInsightPrompt";
+
+  const state = {
+    productName: "",
+    product: {},
+    insights: [],
+    visionContext: {},
+    imagePreviewUrl: "",
+    pastedFile: null,
+    currentRewriteRowIndex: null // Lưu dòng đang sửa để đồng bộ từ Gemini
+  };
+
+  function initInsightPromptEditor() {
+    const promptInput = document.getElementById("insightPrompt");
+    if (promptInput) {
+      promptInput.value = localStorage.getItem(insightPromptStorageKey) || defaultInsightPrompt;
+    }
+  }
+
+  function saveInsightPrompt() {
+    const promptInput = document.getElementById("insightPrompt");
+    if (promptInput) {
+      localStorage.setItem(insightPromptStorageKey, promptInput.value.trim());
+      setPromptStatus("Đã lưu prompt tạo insight.", "is-success");
+    }
+  }
+
+  function resetInsightPrompt() {
+    const promptInput = document.getElementById("insightPrompt");
+    if (promptInput) {
+      promptInput.value = defaultInsightPrompt;
+      localStorage.removeItem(insightPromptStorageKey);
+      setPromptStatus("Đã khôi phục prompt mặc định.", "is-success");
+    }
+  }
+
+  function setPromptStatus(msg, tone) {
+    const status = document.getElementById("prompt-status");
+    if (status) {
+      status.textContent = msg;
+      status.className = `status ${tone}`;
+    }
+  }
+
+  function setStatus(elementId, message, tone = "muted") {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.textContent = message;
+      el.className = `status ${tone}`;
+    }
+  }
+
+  async function onSelectPendingProduct(pageId) {
+    if (!pageId) {
+      document.getElementById("productPageId").value = "";
+      document.getElementById("productNameInput").value = "";
+      document.getElementById("productPrice").value = "";
+      document.getElementById("productClassification").value = "";
+      document.getElementById("productVariants").value = "";
+      return;
+    }
+    
+    setStatus("analyze-status", "Đang tải thông tin sản phẩm từ Notion...", "muted");
+    try {
+      const details = await api(`/api/shopee/product/details?page_id=${pageId}`);
+      document.getElementById("productPageId").value = details.id || "";
+      document.getElementById("productNameInput").value = details.title || "";
+      document.getElementById("productPrice").value = details.price || "";
+      document.getElementById("productClassification").value = details.classification || "";
+      document.getElementById("productVariants").value = details.variants || "";
+      
+      // Cập nhật state.product và nhãn màu đỏ ở bảng review
+      state.product = {
+        productPageId: details.id || "",
+        name: details.title || "",
+        price: details.price || "",
+        classification: details.classification || "",
+        variants: details.variants || ""
+      };
+      state.productName = details.title || "";
+      renderProductSummary();
+      
+      setStatus("analyze-status", "Đã tải xong thông tin từ Notion.", "is-success");
+    } catch(e) {
+      console.error("Lỗi tải chi tiết sản phẩm:", e);
+      setStatus("analyze-status", "Lỗi tải thông tin sản phẩm: " + (e.error || e.message || JSON.stringify(e)), "is-error");
+    }
+  }
+
+  function onImageFileChange() {
+    const fileInput = document.getElementById("image");
+    if (fileInput.files && fileInput.files.length) {
+      state.pastedFile = null;
+      document.getElementById("imageUrl").value = "";
+    }
+    renderPreview();
+  }
+
+  function onImageUrlInput() {
+    const urlInput = document.getElementById("imageUrl");
+    if (urlInput.value.trim()) {
+      document.getElementById("image").value = "";
+      state.pastedFile = null;
+    }
+    renderPreview();
+  }
+
+  function clearImageState() {
+    state.pastedFile = null;
+    state.imagePreviewUrl = "";
+    document.getElementById("image").value = "";
+    document.getElementById("imageUrl").value = "";
+
+    // New UI: hide overlay, show placeholder
+    const overlay = document.getElementById("image-preview-overlay");
+    const placeholder = document.getElementById("upload-placeholder");
+    if (overlay) overlay.style.display = "none";
+    if (placeholder) placeholder.style.display = "flex";
+
+    const imgPrev = document.getElementById("image-preview");
+    if (imgPrev) imgPrev.removeAttribute("src");
+
+    const zone = document.getElementById("image-upload-zone");
+    if (zone) zone.classList.remove("is-active");
+  }
+
+  function showPreview(src, label) {
+    state.imagePreviewUrl = src;
+
+    // New UI: set image src and show overlay
+    const imgPrev = document.getElementById("image-preview");
+    if (imgPrev) imgPrev.src = src;
+
+    const labelEl = document.getElementById("preview-label");
+    if (labelEl) labelEl.textContent = label;
+
+    const overlay = document.getElementById("image-preview-overlay");
+    if (overlay) overlay.style.display = "flex";
+
+    const placeholder = document.getElementById("upload-placeholder");
+    if (placeholder) placeholder.style.display = "none";
+
+    const zone = document.getElementById("image-upload-zone");
+    if (zone) zone.classList.add("is-active");
+  }
+
+  function renderPreview() {
+    const file = document.getElementById("image").files?.[0] || state.pastedFile;
+    const imageUrl = document.getElementById("imageUrl").value.trim();
+
+    if (!file) {
+      if (imageUrl) {
+        showPreview(imageUrl, "Ảnh từ link đã sẵn sàng");
+        return;
+      }
+      clearImageState();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      showPreview(event.target?.result || "", `Ảnh đã chọn: ${file.name || "image.png"}`);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function onPasteZonePaste(event) {
+    const clipboardItems = event.clipboardData?.items || [];
+    for (const item of clipboardItems) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) {
+          event.preventDefault();
+          state.pastedFile = new File([file], file.name || "pasted-image.png", { type: file.type });
+          document.getElementById("image").value = "";
+          document.getElementById("imageUrl").value = "";
+          renderPreview();
+          return;
+        }
+      }
+    }
+
+    const text = event.clipboardData?.getData("text")?.trim();
+    if (text && (text.startsWith("http://") || text.startsWith("https://"))) {
+      event.preventDefault();
+      state.pastedFile = null;
+      document.getElementById("image").value = "";
+      document.getElementById("imageUrl").value = text;
+      renderPreview();
+    }
+  }
+
+  function onDropZone(event) {
+    event.preventDefault();
+    const zone = document.getElementById("image-upload-zone");
+    if (zone) zone.classList.remove("is-active");
+    const files = event.dataTransfer?.files;
+    if (files && files.length) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        state.pastedFile = new File([file], file.name || "dropped-image.png", { type: file.type });
+        document.getElementById("image").value = "";
+        document.getElementById("imageUrl").value = "";
+        renderPreview();
+      }
+    }
+  }
+
+  async function openChromeDebugGemini() {
+    const btn = document.getElementById("open-chrome-button");
+    btn.disabled = true;
+    setStatus("analyze-status", "Đang kết nối tới Chrome Debug qua cổng 9223...", "muted");
+    try {
+      const d = await api("/api/check-gemini-login", { profileDirectory: "__tool_profile__" });
+      if (!d.loggedIn) {
+        setStatus("analyze-status", d.message || "Gemini chưa sẵn sàng. Hãy đăng nhập Chrome debug.", "is-error");
+      } else {
+        setStatus("analyze-status", d.message || "Gemini đã sẵn sàng.", "is-success");
+      }
+    } catch(e) {
+      setStatus("analyze-status", "Không kết nối được: " + (e.error || e.message || JSON.stringify(e)), "is-error");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function resolveImageFileForAnalysis() {
+    const selectedFile = document.getElementById("image").files?.[0] || state.pastedFile;
+    const imageUrl = document.getElementById("imageUrl").value.trim();
+
+    if (selectedFile) {
+      return selectedFile;
+    }
+
+    if (!imageUrl) {
+      return null;
+    }
+
+    setStatus("analyze-status", "Đang tải ảnh từ URL...", "muted");
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error("Không tải được ảnh từ link này.");
+    }
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) {
+      throw new Error("Link này không trả về file ảnh hợp lệ.");
+    }
+
+    return new File([blob], "image-url-upload", { type: blob.type });
+  }
+
+  function collectProductInfo() {
+    return {
+      productPageId: document.getElementById("productPageId").value,
+      name: document.getElementById("productNameInput").value.trim(),
+      price: document.getElementById("productPrice").value.trim(),
+      variants: document.getElementById("productVariants").value.trim(),
+      classification: document.getElementById("productClassification").value.trim()
+    };
+  }
+
+  async function analyzeProduct() {
+    const btn = document.getElementById("analyze-button");
+    const chromeBtn = document.getElementById("open-chrome-button");
+    const status = "analyze-status";
+    
+    const product = collectProductInfo();
+    if (!product.name) {
+      setStatus(status, "Vui lòng nhập tên sản phẩm trước khi phân tích.", "is-error");
+      document.getElementById("productNameInput").focus();
+      return;
+    }
+    
+    let imageFile;
+    try {
+      imageFile = await resolveImageFileForAnalysis();
+    } catch(e) {
+      setStatus(status, e.message, "is-error");
+      return;
+    }
+    
+    if (!imageFile) {
+      setStatus(status, "Hãy chọn hoặc dán ảnh sản phẩm trước khi phân tích.", "is-error");
+      return;
+    }
+
+    btn.disabled = true;
+    chromeBtn.disabled = true;
+    setStatus(status, "Đang gửi ảnh và thông tin sản phẩm sang Gemini (Chrome 9223). Vui lòng đợi...", "muted");
+
+    const formData = new FormData();
+    formData.append("image", imageFile, imageFile.name || "product-image.png");
+    formData.append("productName", product.name);
+    formData.append("productPrice", product.price);
+    formData.append("productVariants", product.variants);
+    formData.append("productClassification", product.classification);
+    formData.append("keywords", document.getElementById("keywords").value.trim());
+    formData.append("useCases", document.getElementById("useCases").value.trim());
+    
+    const promptVal = document.getElementById("insightPrompt") ? document.getElementById("insightPrompt").value.trim() : "";
+    formData.append("insightPrompt", promptVal);
+
+    try {
+      const response = await fetch("/api/analyze-product", {
+        method: "POST",
+        body: formData
+      });
+      
+      const payload = await response.json();
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || "Lỗi không xác định khi phân tích ảnh.");
+      }
+
+      applyAnalysisResult(payload);
+      setStatus(status, `Đã sinh ${state.insights.length} insight bằng Gemini thành công!`, "is-success");
+    } catch(e) {
+      console.error(e);
+      setStatus(status, "Lỗi phân tích: " + e.message, "is-error");
+    } finally {
+      btn.disabled = false;
+      chromeBtn.disabled = false;
+    }
+  }
+
+  async function syncGeminiResultManual() {
+    const btn = document.getElementById("sync-gemini-button");
+    const status = "analyze-status";
+    
+    btn.disabled = true;
+    setStatus(status, "Đang kết nối Chrome và đồng bộ câu trả lời mới nhất từ Gemini...", "muted");
+    
+    try {
+      const response = await fetch("/api/sync-gemini-result", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      
+      const payload = await response.json();
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || "Lỗi đồng bộ dữ liệu từ Gemini.");
+      }
+      
+      const resultType = payload.type;
+      const data = payload.data;
+      
+      if (resultType === "analyze") {
+        applyAnalysisResult(data);
+        setStatus(status, `Đã đồng bộ thành công 5 insight phân tích từ Gemini!`, "is-success");
+      } else if (resultType === "rewrite") {
+        const rowIndex = state.currentRewriteRowIndex;
+        if (rowIndex !== null && rowIndex >= 0 && rowIndex < state.insights.length) {
+          const rawInsight = data.insight || {};
+          state.insights[rowIndex] = {
+            angle: rawInsight.angle || rawInsight.GocViet || rawInsight.gocViet || "",
+            postTitle: rawInsight.postTitle || rawInsight.title || rawInsight.tieuDe || "",
+            insightContent: rawInsight.insightContent || rawInsight.content || rawInsight.noiDung || "",
+            keywords: rawInsight.keywords || rawInsight.keyword || rawInsight.tuKhoa || ""
+          };
+          renderInsightsTable();
+          setStatus(status, `Đã đồng bộ thành công bài viết viết lại #${rowIndex + 1}!`, "is-success");
+          state.currentRewriteRowIndex = null; // Reset
+        } else {
+          alert("Tìm thấy kết quả viết lại single insight từ Gemini. Nếu bạn muốn sửa dòng nào, vui lòng bấm nút 'Viết lại' ở dòng đó trước khi bấm 'Đồng bộ từ Gemini'.");
+          setStatus(status, "Đồng bộ viết lại: Thiếu thông tin dòng cần sửa.", "is-error");
+        }
+      } else {
+        throw new Error("Không nhận diện được loại câu trả lời của Gemini.");
+      }
+      
+    } catch(e) {
+      console.error(e);
+      setStatus(status, "Lỗi đồng bộ: " + e.message, "is-error");
+      alert("Lỗi đồng bộ: " + e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function applyAnalysisResult(payload) {
+    console.log("applyAnalysisResult PAYLOAD RECEIVED:", payload);
+    const currentProduct = collectProductInfo();
+    const resolvedName = payload.productName || currentProduct.name || "";
+
+    // Chuẩn hóa insights với các key fallback để tránh hiển thị trống
+    const rawInsights = Array.isArray(payload.insights) ? payload.insights : [];
+    console.log("rawInsights:", rawInsights);
+    const normalized = rawInsights.map(item => ({
+      angle: item.angle || item.GocViet || item.gocViet || "",
+      postTitle: item.postTitle || item.title || item.tieuDe || "",
+      insightContent: item.insightContent || item.content || item.noiDung || "",
+      keywords: item.keywords || item.keyword || item.tuKhoa || ""
+    }));
+
+    // Kiểm tra xem có đủ dữ liệu và các thuộc tính bắt buộc không rỗng
+    const validInsights = normalized.filter(item => item.angle.trim() && item.postTitle.trim() && item.insightContent.trim());
+    
+    if (validInsights.length !== 5) {
+      throw new Error(`Dữ liệu trả về không đủ 5 insight hoàn chỉnh (chỉ có ${validInsights.length}/5 insight hợp lệ).`);
+    }
+
+    state.product = {
+      ...currentProduct,
+      name: resolvedName
+    };
+    state.productName = resolvedName;
+    state.insights = validInsights;
+    console.log("state.insights normalized & validated:", state.insights);
+    
+    state.visionContext = payload.visionContext || {};
+
+    if (resolvedName && !document.getElementById("productNameInput").value.trim()) {
+      document.getElementById("productNameInput").value = resolvedName;
+    }
+
+    document.getElementById("product-name").textContent = resolvedName || "Tên sản phẩm không rõ";
+    document.getElementById("empty-state").hidden = state.insights.length > 0;
+    document.getElementById("save-form").hidden = state.insights.length === 0;
+    
+    renderProductSummary();
+    renderInsightsTable();
+  }
+
+  function renderProductSummary() {
+    const summary = document.getElementById("save-product-summary");
+    const product = state.product;
+    const items = [
+      ["Tên", product.name],
+      ["Giá", product.price],
+      ["Phân loại", product.classification],
+      ["Biến thể", product.variants]
+    ].filter(([, value]) => value);
+
+    summary.innerHTML = "";
+    items.forEach(([label, value]) => {
+      const item = document.createElement("span");
+      item.textContent = `${label}: ${value}`;
+      summary.appendChild(item);
+    });
+  }
+
+  function renderInsightsTable() {
+    const tbody = document.getElementById("insight-table-body");
+    tbody.innerHTML = "";
+
+    state.insights.forEach((insight, index) => {
+      const row = document.createElement("tr");
+      
+      const indexCell = document.createElement("td");
+      indexCell.textContent = String(index + 1);
+      
+      const angleCell = document.createElement("td");
+      angleCell.appendChild(createEditableCell(insight.angle || "", "angle", index));
+      
+      const titleCell = document.createElement("td");
+      titleCell.appendChild(createEditableCell(insight.postTitle, "postTitle", index));
+      
+      const contentCell = document.createElement("td");
+      contentCell.appendChild(createEditableCell(insight.insightContent, "insightContent", index, true));
+      
+      const keywordsCell = document.createElement("td");
+      keywordsCell.appendChild(createEditableCell(insight.keywords || "", "keywords", index, true));
+      
+      const rewriteCell = document.createElement("td");
+      rewriteCell.appendChild(createRewriteCell(index));
+
+      row.append(indexCell, angleCell, titleCell, contentCell, keywordsCell, rewriteCell);
+      tbody.appendChild(row);
+    });
+  }
+
+  function createEditableCell(value, field, rowIndex, multiline = false) {
+    const el = document.createElement(multiline ? "textarea" : "input");
+    if (!multiline) {
+      el.type = "text";
+    }
+    el.value = value;
+    el.addEventListener("input", (e) => {
+      state.insights[rowIndex][field] = e.target.value;
+    });
+    return el;
+  }
+
+  function createRewriteCell(rowIndex) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "rewrite-cell";
+
+    const commentInput = document.createElement("textarea");
+    commentInput.rows = 3;
+    commentInput.placeholder = "Góp ý: thiếu keyword, tiêu đề chưa SEO...";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "rewrite-button btn-capture";
+    button.textContent = "Viết lại";
+    
+    button.style.padding = "6px 12px";
+    button.style.fontSize = "12px";
+    button.style.minHeight = "28px";
+    
+    button.addEventListener("click", () => rewriteInsightAtRow(rowIndex, commentInput, button));
+
+    wrapper.append(commentInput, button);
+    return wrapper;
+  }
+
+  async function rewriteInsightAtRow(rowIndex, commentInput, button) {
+    const comment = commentInput.value.trim();
+    if (!comment) {
+      setStatus("analyze-status", "Nhập góp ý cần sửa trước khi viết lại.", "is-error");
+      return;
+    }
+
+    button.disabled = true;
+    setStatus("analyze-status", `Đang gửi yêu cầu viết lại insight #${rowIndex + 1}...`, "muted");
+    state.currentRewriteRowIndex = rowIndex; // Lưu lại dòng đang sửa để đồng bộ thủ công nếu cần
+
+    try {
+      const response = await fetch("/api/rewrite-insight", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          productName: state.productName,
+          visionContext: state.visionContext,
+          insight: state.insights[rowIndex],
+          comment
+        })
+      });
+      
+      const payload = await response.json();
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || "Lỗi viết lại insight.");
+      }
+
+      state.insights[rowIndex] = payload.insight;
+      
+      // Chuẩn hóa single insight vừa viết lại
+      const rawInsight = state.insights[rowIndex] || {};
+      state.insights[rowIndex] = {
+        angle: rawInsight.angle || rawInsight.GocViet || rawInsight.gocViet || "",
+        postTitle: rawInsight.postTitle || rawInsight.title || rawInsight.tieuDe || "",
+        insightContent: rawInsight.insightContent || rawInsight.content || rawInsight.noiDung || "",
+        keywords: rawInsight.keywords || rawInsight.keyword || rawInsight.tuKhoa || ""
+      };
+      
+      renderInsightsTable();
+      setStatus("analyze-status", `Đã cập nhật lại bài viết #${rowIndex + 1} thành công.`, "is-success");
+    } catch (e) {
+      setStatus("analyze-status", "Lỗi viết lại: " + e.message, "is-error");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function saveInsightsToNotion(event) {
+    if (event) event.preventDefault();
+
+    const product = collectProductInfo();
+    if (!product.name) {
+      setStatus("save-status", "Nhập tên sản phẩm trước khi ghi Notion.", "is-error");
+      document.getElementById("productNameInput").focus();
+      return;
+    }
+
+    const saveBtn = document.getElementById("save-button");
+    saveBtn.disabled = true;
+    setStatus("save-status", "Đang ghi nhận sản phẩm và 5 insight lên Notion...", "muted");
+
+    try {
+      const response = await fetch("/api/review-save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          product,
+          productName: product.name,
+          insights: state.insights
+        })
+      });
+
+      const payload = await response.json();
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || "Lỗi không xác định khi lưu Notion.");
+      }
+
+      setStatus("save-status", `Ghi Notion thành công! Page ID sản phẩm: ${payload.productPageId}`, "is-success");
+      alert("Đã lưu thành công 5 Insight vào Notion!");
+      
+      loadPendingProducts();
+      clearImageState();
+      state.insights = [];
+      document.getElementById("empty-state").hidden = false;
+      document.getElementById("save-form").hidden = true;
+    } catch(e) {
+      setStatus("save-status", "Lỗi ghi Notion: " + e.message, "is-error");
+    } finally {
+      saveBtn.disabled = false;
     }
   }
 
@@ -1977,14 +3165,45 @@ HTML = r"""
           <div style="font-weight: 600; font-size: 13px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--text);" title="${escapeHtml(f.name)}">
             📁 ${escapeHtml(f.name)}
           </div>
-          <div style="font-size: 11px; color: var(--muted); display: flex; justify-content: space-between;">
+          <div style="font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;">
             <span>${f.time}</span>
-            <a href="${f.url}" download="${escapeHtml(f.name)}" style="color: var(--brand); text-decoration: none; font-weight: 700;">Tải về</a>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <a href="${f.url}" download="${escapeHtml(f.name)}" style="color: var(--brand); text-decoration: none; font-weight: 700;">Tải về</a>
+              <span style="color: var(--panel-border);">|</span>
+              <a href="#" onclick="deleteShopeeExcel('${escapeHtml(f.name)}'); return false;" style="color: #ef4444; text-decoration: none; font-weight: 700;">Xóa</a>
+            </div>
           </div>
         </div>
       `).join("");
     } catch(e) {
       console.error("Lỗi tải danh sách file Excel:", e);
+    }
+  }
+
+  async function deleteShopeeExcel(name) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa file ${name}?`)) return;
+    try {
+      const res = await fetch("/api/shopee/excel/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+      });
+      const d = await res.json();
+      if (d.success) {
+        loadShopeeExcelList();
+      } else {
+        alert("Lỗi xóa file: " + (d.error || d.message));
+      }
+    } catch(e) {
+      console.error("Lỗi xóa file Excel:", e);
+      alert("Lỗi xóa file Excel: " + e.message);
+    }
+  }
+
+  function clearShopeeSyncLogs() {
+    const shopeeLogBox = document.getElementById("shopeeSyncLogBox");
+    if (shopeeLogBox) {
+      shopeeLogBox.innerHTML = "";
     }
   }
   
@@ -6667,6 +7886,1168 @@ def api_list_shopee_excel():
         return jsonify(results)
     except Exception as exc:
         return error_response(exc, 400)
+
+
+@app.post("/api/shopee/excel/delete")
+def api_delete_shopee_excel():
+    try:
+        data = request.json or {}
+        filename = data.get("name", "").strip()
+        if not filename:
+            return jsonify({"success": False, "error": "Thiếu tên file"}), 400
+        
+        # Chỉ cho phép xóa file có pattern bigseller_sync_*.xlsx để bảo mật
+        if not (filename.startswith("bigseller_sync_") and filename.endswith(".xlsx")):
+            return jsonify({"success": False, "error": "Tên file không hợp lệ"}), 400
+            
+        config = load_config()
+        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        if not export_dir:
+            export_dir = str(Path.home() / "Downloads")
+            
+        out_dir = Path(export_dir)
+        file_path = out_dir / filename
+        
+        if file_path.exists():
+            file_path.unlink()
+            return jsonify({"success": True, "message": f"Đã xóa file {filename}"})
+        else:
+            return jsonify({"success": False, "error": "File không tồn tại"}), 404
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+
+# ==========================================
+# NEW ENDPOINTS FOR SHOOPEE INSIGHTS TOOL
+# ==========================================
+
+def get_chrome_path():
+    import os
+    candidates = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
+def ensure_gemini_chrome_running():
+    import socket
+    import subprocess
+    import time
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(0.5)
+    try:
+        s.connect(("127.0.0.1", 9223))
+        s.close()
+        return True
+    except Exception:
+        try:
+            chrome_path = get_chrome_path()
+            if not chrome_path:
+                return False
+            user_data_dir = str(ROOT / "chrome_profile_debug_gemini")
+            kill_processes_by_commandline("chrome.exe", "remote-debugging-port=9223")
+            time.sleep(0.3)
+            cmd = [
+                chrome_path,
+                "https://gemini.google.com",
+                "--remote-debugging-port=9223",
+                f"--user-data-dir={user_data_dir}"
+            ]
+            subprocess.Popen(cmd)
+            time.sleep(4.0)
+            return True
+        except Exception:
+            return False
+
+def connect_gemini_playwright():
+    from playwright.sync_api import sync_playwright
+    import time
+    p = sync_playwright().start()
+    try:
+        browser = p.chromium.connect_over_cdp("http://localhost:9223")
+        context = browser.contexts[0]
+        page = None
+        for p_page in context.pages:
+            if "gemini.google.com" in p_page.url:
+                page = p_page
+                break
+        if not page:
+            page = context.new_page()
+            page.goto("https://gemini.google.com")
+            page.wait_for_load_state("load")
+        return p, browser, page
+    except Exception as e:
+        p.stop()
+        raise e
+
+def check_gemini_login_local():
+    if not ensure_gemini_chrome_running():
+        return False, "Không thể mở hoặc kết nối tới Chrome Debug Gemini (9223)."
+        
+    p = None
+    browser = None
+    try:
+        p, browser, page = connect_gemini_playwright()
+        url = page.url
+        if "accounts.google.com" in url or "ServiceLogin" in url:
+            return False, "Chưa đăng nhập Google."
+            
+        try:
+            page.wait_for_selector('div[contenteditable="true"]', timeout=5000)
+            return True, "Gemini đã sẵn sàng."
+        except Exception:
+            body_text = page.locator("body").inner_text()
+            if any(x in body_text for x in ["Sign in", "Đăng nhập", "Log in", "Welcome to Gemini"]):
+                return False, "Gemini chưa đăng nhập."
+            return False, "Không nhận diện được trạng thái login."
+    except Exception as e:
+        return False, f"Lỗi: {str(e)}"
+    finally:
+        if browser:
+            browser.close()
+        if p:
+            p.stop()
+
+def attach_image_to_gemini_python(page, media_path):
+    import time
+    upload_triggered = False
+    for selector in ['input[type="file"]', 'input[accept*="image"]', 'input[accept*="png"]']:
+        try:
+            input_el = page.query_selector(selector)
+            if input_el:
+                input_el.set_input_files(media_path)
+                upload_triggered = True
+                break
+        except Exception:
+            pass
+            
+    if not upload_triggered:
+        try:
+            attach_btn_js = """() => {
+                const getEditor = () => {
+                    const editors = Array.from(document.querySelectorAll('div[contenteditable="true"]')).filter(el => {
+                        const rect = el.getBoundingClientRect();
+                        return rect.width > 0 && rect.height > 0;
+                    });
+                    return editors[editors.length - 1] || document.querySelector('div[contenteditable="true"]');
+                };
+                const editor = getEditor();
+                if (!editor) return null;
+                const directSelectors = [
+                    'button[aria-label*="tải lên" i]',
+                    'button[aria-label*="upload" i]',
+                    'button[aria-label*="công cụ" i]',
+                    'gem-icon-button[arialabel*="tải lên" i] button',
+                    'gem-icon-button[arialabel*="upload" i] button',
+                    'button:has(mat-icon[fonticon="plus"])',
+                    'button:has(mat-icon[data-mat-icon-name="plus"])'
+                ];
+                for (const sel of directSelectors) {
+                    const btn = document.querySelector(sel);
+                    if (btn) {
+                        const r = btn.getBoundingClientRect();
+                        if (r.width > 0 && r.height > 0) return btn;
+                    }
+                }
+                return null;
+            }"""
+            attach_btn = page.evaluate_handle(attach_btn_js)
+            if attach_btn and attach_btn.as_element():
+                attach_btn.as_element().click()
+                time.sleep(2.0)
+                
+                menu_item_js = """() => {
+                    const exactTargets = ['tệp', 'file', 'files', 'upload', 'tải tệp lên', 'tải tệp', 'upload from computer'];
+                    const partialTargets = ['hình ảnh', 'images', 'ảnh', 'photos', 'tải ảnh'];
+                    const elements = Array.from(document.querySelectorAll('*')).filter(el => {
+                        const rect = el.getBoundingClientRect();
+                        return rect.width > 0 && rect.height > 0;
+                    });
+                    
+                    // 1. Ưu tiên so khớp chính xác trước (như nút Tệp ở hàng trên)
+                    for (const el of elements) {
+                        const text = (el.innerText || el.textContent || '').trim().toLowerCase();
+                        const ariaLabel = (el.getAttribute('aria-label') || el.getAttribute('title') || '').trim().toLowerCase();
+                        if (exactTargets.some(t => text === t || ariaLabel === t)) {
+                            return el;
+                        }
+                    }
+                    
+                    // 2. So khớp chứa nhưng loại bỏ các nút tính năng tạo ảnh/video AI của Gemini
+                    for (const el of elements) {
+                        const text = (el.innerText || el.textContent || '').trim().toLowerCase();
+                        const ariaLabel = (el.getAttribute('aria-label') || el.getAttribute('title') || '').trim().toLowerCase();
+                        if (text.includes('tạo và') || text.includes('chỉnh sửa') || text.includes('hiện thực hóa') || text.includes('ý tưởng')) {
+                            continue;
+                        }
+                        if (exactTargets.some(t => text.includes(t) || ariaLabel.includes(t))) {
+                            return el;
+                        }
+                        if (partialTargets.some(t => text.includes(t) || ariaLabel.includes(t))) {
+                            return el;
+                        }
+                    }
+                    return null;
+                }"""
+                menu_item = page.evaluate_handle(menu_item_js)
+                if menu_item and menu_item.as_element():
+                    with page.expect_file_chooser(timeout=8000) as fc_info:
+                        menu_item.as_element().click(no_wait_after=True)
+                    file_chooser = fc_info.value
+                    file_chooser.set_files(media_path)
+                    upload_triggered = True
+        except Exception:
+            pass
+            
+    if not upload_triggered:
+        try:
+            inputs = page.query_selector_all('input[type="file"]')
+            if inputs:
+                inputs[-1].set_input_files(media_path)
+                upload_triggered = True
+        except Exception:
+            pass
+            
+    if upload_triggered:
+        send_selectors = [
+            'button.send-button',
+            'button[aria-label="Gửi tin nhắn"]',
+            'button[aria-label="Send message"]',
+            'div.send-button-container button'
+        ]
+        upload_success = False
+        for _ in range(30):
+            time.sleep(1.0)
+            for sel in send_selectors:
+                try:
+                    btn = page.query_selector(sel)
+                    if btn and btn.is_enabled():
+                        upload_success = True
+                        break
+                except Exception:
+                    pass
+            if upload_success:
+                time.sleep(2.0)
+                break
+        return upload_success
+    return False
+
+def build_seo_insight_prompt(product_name_hint, keywords_hint, use_cases_hint, insight_prompt):
+    prompt_editor_section = ""
+    if insight_prompt and insight_prompt.strip():
+        prompt_editor_section = f"\n\nYêu cầu người dùng muốn AI bám theo:\n{insight_prompt.strip()}\n\nLưu ý: phần yêu cầu trên chỉ được dùng để chỉnh văn văn phong/góc bán hàng, không được làm sai JSON và không được đổi số lượng/field insight.\n"
+        
+    return f"""
+Bạn đang hỗ trợ phân tích catalog nội bộ cho sản phẩm Shopee.
+Hãy đọc ảnh sản phẩm đã được đính kèm trong cuộc trò chuyện và tạo nội dung bán hàng thực tế.
+
+Ngữ cảnh người dùng đã nhập:
+- Tên sản phẩm gợi ý: {product_name_hint or "Không có"}
+- Keyword gợi ý: {keywords_hint or "Không có"}
+- Công dụng / ghi chú: {use_cases_hint or "Không có"}
+{prompt_editor_section}
+
+Yêu cầu phân tích:
+1. Trích xuất tên sản phẩm rõ nhất từ bao bì.
+2. Tóm tắt chữ nổi bật nhìn thấy trên bao bì.
+3. Suy luận công dụng chính ngắn gọn, thực tế.
+4. Gợi ý từ khóa chính, ngăn cách bằng dấu phẩy.
+5. Tạo đúng 5 insight bán hàng Shopee.
+
+Quy chuẩn cho 5 insight:
+- angle là góc bán hàng ngắn gọn, súc tích (ví dụ: Ngăn ngừa côn trùng cho gia đình).
+- postTitle là tiêu đề SEO, tối đa 100 ký tự.
+- postTitle phải nhét càng nhiều từ khóa liên quan càng tốt nhưng vẫn tự nhiên, dễ đọc.
+- Ưu tiên đưa tên sản phẩm, hoạt chất/thành phần, công dụng, vấn đề khách hàng và đối tượng dùng vào postTitle khi phù hợp.
+- insightContent phải bám đúng tiêu đề tương ứng, giải thích rõ góc bán hàng của tiêu đề đó.
+- insightContent viết 1-2 câu, thực tế, không hoa mỹ, không nói quá.
+- keywords là cụm từ khóa chính cho insight đó, ngăn cách bằng dấu phẩy, không viết thành câu dài.
+- 5 insight phải khác góc nhau, tránh lặp ý.
+
+Chỉ trả về đúng khối JSON nằm giữa hai marker sau, không thêm giải thích:
+BEGIN_CONTEXT_JSON
+{{
+  "productName": "",
+  "visibleText": "",
+  "guessedUseCase": "",
+  "suggestedKeywords": "",
+  "insights": [
+    {{
+      "angle": "",
+      "postTitle": "",
+      "insightContent": "",
+      "keywords": ""
+    }},
+    {{
+      "angle": "",
+      "postTitle": "",
+      "insightContent": "",
+      "keywords": ""
+    }},
+    {{
+      "angle": "",
+      "postTitle": "",
+      "insightContent": "",
+      "keywords": ""
+    }},
+    {{
+      "angle": "",
+      "postTitle": "",
+      "insightContent": "",
+      "keywords": ""
+    }},
+    {{
+      "angle": "",
+      "postTitle": "",
+      "insightContent": "",
+      "keywords": ""
+    }}
+  ]
+}}
+END_CONTEXT_JSON
+""".strip()
+
+def build_rewrite_insight_prompt(product_name, visible_text, guessed_use_case, suggested_keywords, current_insight, reviewer_comment):
+    return f"""
+Bạn đang chỉnh lại 1 insight Shopee theo comment của người dùng.
+Hãy bóc insight hiện tại ra, xác định điểm chưa chuẩn theo comment, rồi viết lại đúng 1 insight mới tốt hơn.
+
+Thông tin sản phẩm:
+- Tên sản phẩm: {product_name or "Không rõ"}
+- Chữ nhìn thấy trên bao bì: {visible_text or "Không có"}
+- Công dụng suy luận: {guessed_use_case or "Không có"}
+- Từ khóa gợi ý: {suggested_keywords or "Không có"}
+
+Insight hiện tại:
+- angle: {current_insight.get("angle", "")}
+- postTitle: {current_insight.get("postTitle", "")}
+- insightContent: {current_insight.get("insightContent", "")}
+- keywords: {current_insight.get("keywords", "")}
+
+Comment cần sửa:
+{reviewer_comment or "Làm lại insight này cho rõ, đúng SEO và sát sản phẩm hơn."}
+
+Quy chuẩn insight mới:
+- angle là góc bán hàng ngắn gọn, súc tích (ví dụ: Ngăn ngừa côn trùng cho gia đình).
+- postTitle là tiêu đề SEO, tối đa 100 ký tự.
+- postTitle phải nhét nhiều từ khóa liên quan nhất có thể nhưng vẫn tự nhiên.
+- insightContent phải bám đúng tiêu đề mới, giải thích rõ góc bán hàng của tiêu đề đó.
+- keywords là cụm từ khóa chính, ngăn cách bằng dấu phẩy.
+- Không thêm cảnh báo y tế thừa, không nói quá, không dùng văn phong hoa mỹ.
+
+Chỉ trả về đúng khối JSON nằm giữa hai marker sau, không thêm giải thích:
+BEGIN_CONTEXT_JSON
+{{
+  "insight": {{
+    "angle": "",
+    "postTitle": "",
+    "insightContent": "",
+    "keywords": ""
+  }}
+}}
+END_CONTEXT_JSON
+""".strip()
+
+def parse_gemini_json_block(text):
+    import json
+    import re
+    start_marker = "BEGIN_CONTEXT_JSON"
+    end_marker = "END_CONTEXT_JSON"
+    
+    start_idx = text.rfind(start_marker)
+    if start_idx == -1:
+        # Nếu không thấy marker, thử tìm dấu ngoặc { đầu tiên của JSON
+        start_idx = text.find("{")
+        if start_idx == -1:
+            return None
+        json_str = text[start_idx:]
+    else:
+        json_str = text[start_idx + len(start_marker):].strip()
+        
+    # Cắt đến end_marker nếu có
+    end_idx = json_str.find(end_marker)
+    if end_idx != -1:
+        json_str = json_str[:end_idx].strip()
+    else:
+        # Nếu không có end_marker, tự động cắt đến dấu } cuối cùng
+        last_brace = json_str.rfind("}")
+        if last_brace != -1:
+            json_str = json_str[:last_brace + 1].strip()
+            
+    # Làm sạch markdown code block if any
+    if json_str.startswith("```"):
+        lines = json_str.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        json_str = "\n".join(lines).strip()
+        
+    try:
+        res = json.loads(json_str)
+        if isinstance(res, list) and len(res) > 0:
+            res = res[0]
+        return res
+    except Exception as e:
+        print(f"Lỗi parse JSON trong parse_gemini_json_block: {e}")
+        return None
+
+def check_insight_valid(item):
+    if not isinstance(item, dict):
+        return False
+        
+    def safe_strip(val):
+        if val is None:
+            return ""
+        return str(val).strip()
+        
+    angle = safe_strip(item.get("angle") or item.get("GocViet") or item.get("gocViet"))
+    title = safe_strip(item.get("postTitle") or item.get("title") or item.get("tieuDe"))
+    content = safe_strip(item.get("insightContent") or item.get("content") or item.get("noiDung"))
+    
+    if angle and title and content:
+        return True
+    return False
+
+def wait_for_json_response(page, expected_ends, mode="analyze", timeout=150):
+    import time
+    start_time = time.time()
+    
+    print(f"[Wait Gemini] Bắt đầu đợi phản hồi JSON (mode={mode}, timeout={timeout}s)...")
+    time.sleep(3.0) # Đợi 3 giây đầu tiên để Gemini bắt đầu xử lý
+    
+    last_text = ""
+    try:
+        last_text = page.evaluate("() => document.body.innerText")
+    except Exception:
+        pass
+        
+    stable_count = 0
+    while time.time() - start_time < timeout:
+        time.sleep(2.0)
+        try:
+            current_text = page.evaluate("() => document.body.innerText")
+            
+            # 1. Thử parse và kiểm tra tính hợp lệ của JSON block hiện tại
+            parsed = parse_gemini_json_block(current_text)
+            if parsed:
+                if mode == "analyze":
+                    if "insights" in parsed and isinstance(parsed["insights"], list):
+                        valid_list = [item for item in parsed["insights"] if check_insight_valid(item)]
+                        if len(valid_list) == 5:
+                            print("[Wait Gemini] Đã nhận được đủ 5 insight hợp lệ từ Gemini!")
+                            return parsed
+                elif mode == "rewrite":
+                    if "insight" in parsed and check_insight_valid(parsed["insight"]):
+                        print("[Wait Gemini] Đã nhận được insight viết lại hợp lệ từ Gemini!")
+                        return parsed
+            
+            # 2. Nếu chưa có JSON hợp lệ, kiểm tra xem text có đang thay đổi (Gemini đang viết) hay không
+            if len(current_text) > len(last_text) or current_text != last_text:
+                last_text = current_text
+                stable_count = 0
+                print(f"[Wait Gemini] Gemini đang viết... (Độ dài text hiện tại: {len(current_text)})")
+            else:
+                stable_count += 1
+                print(f"[Wait Gemini] Văn bản không thay đổi ({stable_count}/10)...")
+                
+                # Nếu văn bản hoàn toàn không thay đổi trong 10 lần kiểm tra liên tiếp (20 giây đứng hình)
+                # và vẫn không có JSON hợp lệ, ta coi như Gemini đã viết xong nhưng không sinh được JSON hợp lệ hoặc lỗi
+                if stable_count >= 10:
+                    print("[Wait Gemini] Gemini đứng hình quá lâu và không có JSON hợp lệ. Kết thúc chờ.")
+                    break
+        except Exception as e:
+            print(f"[Wait Gemini] Lỗi trong vòng lặp chờ: {e}")
+            
+    print("[Wait Gemini] Hết thời gian chờ hoặc không lấy được JSON insight hợp lệ từ Gemini.")
+    return None
+
+def send_prompt_to_gemini(page, prompt_text):
+    import time
+    composer_selector = 'div[contenteditable="true"]'
+    page.wait_for_selector(composer_selector, timeout=10000)
+    page.click(composer_selector)
+    try:
+        page.evaluate("""(text) => {
+            const getEditor = () => {
+                const editors = Array.from(document.querySelectorAll('div[contenteditable="true"]')).filter(el => {
+                    const rect = el.getBoundingClientRect();
+                    return rect.width > 0 && rect.height > 0;
+                });
+                return editors[editors.length - 1] || document.querySelector('div[contenteditable="true"]');
+            };
+            const editor = getEditor();
+            if (editor) {
+                editor.focus();
+                editor.innerText = text;
+                editor.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }""", prompt_text)
+        time.sleep(0.5)
+        page.keyboard.press("Space")
+        page.keyboard.press("Backspace")
+    except Exception:
+        page.fill(composer_selector, prompt_text)
+        
+    time.sleep(1.0)
+    
+    send_selectors = [
+        'button.send-button',
+        'button[aria-label="Gửi tin nhắn"]',
+        'button[aria-label="Send message"]',
+        'div.send-button-container button',
+        'button:has(svg path[d*="M2 "])'
+    ]
+    clicked = False
+    for sel in send_selectors:
+        try:
+            btn = page.query_selector(sel)
+            if btn and btn.is_enabled():
+                btn.click()
+                clicked = True
+                break
+        except Exception:
+            pass
+            
+    if not clicked:
+        page.click(composer_selector)
+        page.keyboard.press("Enter")
+
+# Flask routes definitions
+
+@app.post("/api/check-gemini-login")
+def api_check_gemini_login_shopee():
+    try:
+        ok, message = check_gemini_login_local()
+        return jsonify({"loggedIn": ok, "message": message})
+    except Exception as exc:
+        return error_response(exc, 500)
+
+@app.post("/api/analyze-product")
+def api_analyze_product_shopee():
+    import tempfile
+    import os
+    try:
+        product_name = request.form.get("productName", "").strip()
+        price = request.form.get("productPrice", "").strip()
+        variants = request.form.get("productVariants", "").strip()
+        classification = request.form.get("productClassification", "").strip()
+        keywords = request.form.get("keywords", "").strip()
+        use_cases = request.form.get("useCases", "").strip()
+        insight_prompt = request.form.get("insightPrompt", "").strip()
+        
+        image_file = request.files.get("image")
+        if not image_file:
+            return jsonify({"error": "Hãy paste hoặc chọn ảnh sản phẩm trước khi phân tích."}), 400
+            
+        temp_dir = tempfile.mkdtemp()
+        temp_img_path = os.path.join(temp_dir, image_file.filename or "product_image.png")
+        image_file.save(temp_img_path)
+        
+        if not ensure_gemini_chrome_running():
+            return jsonify({"error": "Không thể kết nối hoặc khởi chạy Chrome Gemini."}), 500
+            
+        p = None
+        browser = None
+        try:
+            p, browser, page = connect_gemini_playwright()
+            attached = attach_image_to_gemini_python(page, temp_img_path)
+            if not attached:
+                return jsonify({"error": "Không đính kèm được ảnh lên Gemini. Vui lòng thử lại."}), 500
+                
+            import time
+            time.sleep(1.5) # Chờ DOM ổn định để đếm chính xác số khối JSON cũ trên trang
+            body_text_before = page.evaluate("() => document.body.innerText")
+            expected_ends = body_text_before.count("END_CONTEXT_JSON") + 1
+                
+            prompt_text = build_seo_insight_prompt(product_name, keywords, use_cases, insight_prompt)
+            send_prompt_to_gemini(page, prompt_text)
+            
+            result = wait_for_json_response(page, expected_ends, mode="analyze", timeout=150)
+            
+            # Ghi log debug
+            import json
+            os.makedirs("logs", exist_ok=True)
+            with open("logs/debug_analyze.log", "w", encoding="utf-8") as debug_f:
+                debug_f.write("--- LOG DEBUG PHAN TICH ANH ---\n")
+                debug_f.write(f"Product Name Input: {product_name}\n")
+                if result:
+                    debug_f.write(f"Parsed JSON from Gemini:\n{json.dumps(result, ensure_ascii=False, indent=2)}\n")
+                else:
+                    debug_f.write("wait_for_json_response returned None (Timeout or Parse Error)\n")
+            
+            if not result:
+                return jsonify({"error": "Gemini chưa trả về JSON insight hoàn chỉnh. Vui lòng kiểm tra tab Chrome và thử lại."}), 500
+                
+            response_data = {
+                "productName": product_name or result.get("productName", ""),
+                "visionContext": {
+                    "visibleText": result.get("visibleText", ""),
+                    "guessedUseCase": result.get("guessedUseCase", ""),
+                    "suggestedKeywords": result.get("suggestedKeywords", "")
+                },
+                "insights": result.get("insights", [])
+            }
+            
+            with open("logs/debug_analyze.log", "a", encoding="utf-8") as debug_f:
+                debug_f.write(f"Response Data to Frontend:\n{json.dumps(response_data, ensure_ascii=False, indent=2)}\n")
+                
+            return jsonify(response_data)
+        except Exception as exc:
+            return jsonify({"error": f"Lỗi tự động hóa Gemini: {str(exc)}"}), 500
+        finally:
+            if browser:
+                browser.close()
+            if p:
+                p.stop()
+            try:
+                if os.path.exists(temp_img_path):
+                    os.remove(temp_img_path)
+                if os.path.exists(temp_dir):
+                    os.rmdir(temp_dir)
+            except Exception:
+                pass
+    except Exception as exc:
+        return error_response(exc, 500)
+
+@app.post("/api/sync-gemini-result")
+def api_sync_gemini_result_shopee():
+    try:
+        if not ensure_gemini_chrome_running():
+            return jsonify({"error": "Không thể kết nối hoặc khởi chạy Chrome Gemini."}), 500
+            
+        p = None
+        browser = None
+        try:
+            p, browser, page = connect_gemini_playwright()
+            body_text = page.evaluate("() => document.body.innerText")
+            parsed = parse_gemini_json_block(body_text)
+            
+            if not parsed:
+                return jsonify({"error": "Không tìm thấy khối JSON insight nào (BEGIN_CONTEXT_JSON ... END_CONTEXT_JSON) trên trang Gemini. Vui lòng đảm bảo Gemini đã viết xong."}), 404
+                
+            # Nhận diện xem là kết quả phân tích 5 insight hay viết lại single insight
+            if "insights" in parsed:
+                return jsonify({
+                    "type": "analyze",
+                    "data": {
+                        "productName": parsed.get("productName", ""),
+                        "visionContext": {
+                            "visibleText": parsed.get("visibleText", ""),
+                            "guessedUseCase": parsed.get("guessedUseCase", ""),
+                            "suggestedKeywords": parsed.get("suggestedKeywords", "")
+                        },
+                        "insights": parsed.get("insights", [])
+                    }
+                })
+            elif "insight" in parsed:
+                return jsonify({
+                    "type": "rewrite",
+                    "data": {
+                        "insight": parsed.get("insight", {})
+                    }
+                })
+            else:
+                return jsonify({"error": "Tìm thấy khối JSON nhưng không đúng cấu trúc insights hoặc insight đơn lẻ."}), 400
+                
+        except Exception as exc:
+            return jsonify({"error": f"Lỗi đồng bộ Playwright: {str(exc)}"}), 500
+        finally:
+            if browser:
+                browser.close()
+            if p:
+                p.stop()
+    except Exception as exc:
+        return error_response(exc, 500)
+
+@app.post("/api/rewrite-insight")
+def api_rewrite_insight_shopee():
+    try:
+        payload = request.json or {}
+        product_name = payload.get("productName", "")
+        vision_context = payload.get("visionContext", {})
+        insight = payload.get("insight", {})
+        comment = payload.get("comment", "")
+        
+        if not insight or not comment.strip():
+            return jsonify({"error": "Thiếu insight hoặc nội dung comment sửa."}), 400
+            
+        if not ensure_gemini_chrome_running():
+            return jsonify({"error": "Không thể kết nối hoặc khởi chạy Chrome Gemini."}), 500
+            
+        p = None
+        browser = None
+        try:
+            p, browser, page = connect_gemini_playwright()
+            import time
+            time.sleep(1.5) # Chờ DOM ổn định
+            body_text_before = page.evaluate("() => document.body.innerText")
+            expected_ends = body_text_before.count("END_CONTEXT_JSON") + 1
+                
+            prompt_text = build_rewrite_insight_prompt(
+                product_name,
+                vision_context.get("visibleText", ""),
+                vision_context.get("guessedUseCase", ""),
+                vision_context.get("suggestedKeywords", ""),
+                insight,
+                comment
+            )
+            send_prompt_to_gemini(page, prompt_text)
+            
+            result = wait_for_json_response(page, expected_ends, mode="rewrite", timeout=120)
+            if not result or "insight" not in result:
+                return jsonify({"error": "Gemini chưa viết lại xong insight hoặc trả về sai cấu trúc."}), 500
+                
+            return jsonify({"insight": result["insight"]})
+        except Exception as exc:
+            return jsonify({"error": f"Lỗi viết lại insight: {str(exc)}"}), 500
+        finally:
+            if browser:
+                browser.close()
+            if p:
+                p.stop()
+    except Exception as exc:
+        return error_response(exc, 500)
+
+@app.get("/api/shopee/product/details")
+def api_get_product_details():
+    try:
+        page_id = request.args.get("page_id", "").strip()
+        if not page_id:
+            return jsonify({"error": "Thiếu page_id"}), 400
+            
+        config = load_config()
+        notion_token = config.get("notion", {}).get("token", "").strip() or os.getenv("NOTION_TOKEN", "").strip()
+        if not notion_token:
+            return jsonify({"error": "Chưa cấu hình NOTION_TOKEN"}), 400
+            
+        from notion_client import Client
+        notion = Client(auth=notion_token)
+        try:
+            from shopee_sync.src.notion_sync import call_notion_with_retry, get_rich_text_content
+        except ImportError:
+            from src.notion_sync import call_notion_with_retry, get_rich_text_content
+            
+        page = call_notion_with_retry(notion.pages.retrieve, page_id=page_id)
+        properties = page.get("properties", {})
+        
+        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+        title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))
+        
+        price = ""
+        classification = ""
+        variants = ""
+        
+        lines = [l.strip() for l in price_variant_text.split("\n") if l.strip()]
+        for line in lines:
+            if line.lower().startswith("giá sản phẩm:"):
+                price = line.split(":", 1)[1].strip()
+            elif line.lower().startswith("phân loại:"):
+                classification = line.split(":", 1)[1].strip()
+        
+        if "biến thể / giá:" in price_variant_text.lower():
+            parts = price_variant_text.lower().split("biến thể / giá:")
+            if len(parts) > 1:
+                variants = price_variant_text[len(parts[0]) + len("biến thể / giá:"):].strip()
+                
+        return jsonify({
+            "id": page_id,
+            "title": title,
+            "price": price,
+            "classification": classification,
+            "variants": variants
+        })
+    except Exception as exc:
+        return error_response(exc, 500)
+
+def generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords):
+    import requests
+    import json
+    import re
+    
+    prompt = f"""
+Bạn là chuyên gia viết bài bán hàng Shopee xuất sắc tại Việt Nam cho shop dược phẩm/sản phẩm chăm sóc sức khỏe.
+Hãy viết bài chi tiết cho sản phẩm "{product_name}" dựa trên thông tin insight sau:
+- Góc bán hàng (Angle): "{angle}"
+- Tiêu đề post Shopee: "{post_title}"
+- Tóm tắt Insight: "{insight_content}"
+- Từ khóa chính: "{keywords}"
+
+QUY TẮC TUÂN THỦ CHÍNH SÁCH SHOPEE VIỆT NAM (BẮT BUỘC):
+1. KHÔNG dùng các từ khẳng định y khoa, chữa bệnh như: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "trị dứt điểm", "chữa khỏi", "thuốc".
+2. THAY THẾ bằng các từ an toàn thương mại điện tử: "hỗ trợ giảm", "giúp cải thiện", "chăm sóc", "bổ sung", "hiệu quả", "cân bằng".
+3. TUYỆT ĐỐI KHÔNG dùng từ nói quá: "100%", "tốt nhất", "số 1", "cam kết hoàn tiền", "vĩnh viễn".
+
+CẤU TRÚC CHI TIẾT BÀI ĐĂNG (BẮT BUỘC TRẢ VỀ JSON):
+Trả về kết quả ở định dạng JSON duy nhất, không kèm giải thích, cấu trúc như sau:
+{{
+  "description": "Đoạn văn mô tả sản phẩm chi tiết chuyên nghiệp hướng tới góc bán hàng này...",
+  "ingredients": [
+    "Tên thành phần 1: mô tả công dụng...",
+    "Tên thành phần 2: mô tả công dụng..."
+  ],
+  "benefits": [
+    "Công dụng hỗ trợ 1...",
+    "Công dụng hỗ trợ 2...",
+    "Công dụng hỗ trợ 3..."
+  ],
+  "target_users": [
+    "Đối tượng sử dụng phù hợp 1...",
+    "Đối tượng sử dụng phù hợp 2..."
+  ],
+  "usage": "Hướng dẫn cách dùng ngắn gọn...",
+  "notes": [
+    "Sản phẩm không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.",
+    "Hiệu quả có thể khác nhau tùy cơ địa từng người."
+  ],
+  "hashtags": "#TenSanPham #Hashtag1 #Hashtag2..."
+}}
+"""
+    is_openai = api_key.startswith("sk-")
+    try:
+        if is_openai:
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a professional Shopee VN copywriting assistant. You must reply with a valid JSON object matching the requested schema. Do not write anything outside the JSON."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "response_format": {"type": "json_object"}
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=40)
+            response.raise_for_status()
+            result_json = response.json()
+            raw_text = result_json["choices"][0]["message"]["content"].strip()
+        else:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "responseMimeType": "application/json"
+                }
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=40)
+            response.raise_for_status()
+            result_json = response.json()
+            raw_text = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+            
+            if raw_text.startswith("```"):
+                match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", raw_text)
+                if match:
+                    raw_text = match.group(1).strip()
+                    
+        data = json.loads(raw_text)
+        
+        try:
+            from shopee_sync.src.ai_generator import clean_banned_words
+        except ImportError:
+            try:
+                from src.ai_generator import clean_banned_words
+            except ImportError:
+                def clean_banned_words(x): return x
+                
+        cleaned_data = {
+            "description": clean_banned_words(data.get("description", "")),
+            "ingredients": [clean_banned_words(x) for x in data.get("ingredients", [])],
+            "benefits": [clean_banned_words(x) for x in data.get("benefits", [])],
+            "target_users": [clean_banned_words(x) for x in data.get("target_users", [])],
+            "usage": clean_banned_words(data.get("usage", "")),
+            "notes": [clean_banned_words(x) for x in data.get("notes", [])],
+            "hashtags": clean_banned_words(data.get("hashtags", ""))
+        }
+        return cleaned_data
+    except Exception as e:
+        print(f"[AI Write Post] Lỗi viết bài: {e}")
+        return {
+            "description": f"Mô tả sản phẩm {product_name} dành cho góc bán hàng {angle}.",
+            "ingredients": ["Thành phần tự nhiên an toàn"],
+            "benefits": ["Hỗ trợ hiệu quả tối đa"],
+            "target_users": ["Người lớn và trẻ em theo chỉ định"],
+            "usage": "Xem chi tiết hướng dẫn trên bao bì.",
+            "notes": ["Sản phẩm không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh."],
+            "hashtags": f"#{product_name.replace(' ', '')}"
+        }
+
+@app.post("/api/review-save")
+def api_review_save_shopee():
+    from dotenv import load_dotenv
+    import os
+    try:
+        payload = request.json or {}
+        product_data = payload.get("product", {})
+        product_name = payload.get("productName", "") or product_data.get("name", "")
+        insights = payload.get("insights", [])
+        product_page_id = product_data.get("productPageId", "").strip()
+        
+        if not insights or len(insights) == 0:
+            return jsonify({"error": "Thiếu danh sách insights."}), 400
+            
+        load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+        notion_token = os.getenv("NOTION_TOKEN", "").strip()
+        api_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+        
+        if not notion_token:
+            return jsonify({"error": "Chưa cấu hình NOTION_TOKEN trong file .env."}), 400
+        if not api_key:
+            return jsonify({"error": "Chưa cấu hình GEMINI_API_KEY (hoặc OpenAI key) để AI viết bài."}), 400
+            
+        from notion_client import Client
+        notion = Client(auth=notion_token)
+        insight_database_id = "88159c90-46fb-426d-b3c9-a0d79358e76c"
+        
+        saved_product_page_id = product_page_id
+        if not saved_product_page_id:
+            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip()
+            if not parent_db_id:
+                return jsonify({"error": "Chưa cấu hình NOTION_DATABASE_ID sản phẩm."}), 400
+                
+            variant_lines = [x.strip() for x in product_data.get("variants", "").split("\n") if x.strip()]
+            variant_price_text = ""
+            parts = []
+            if product_data.get("price"):
+                parts.append(f"Giá sản phẩm: {product_data['price']}")
+            if product_data.get("classification"):
+                parts.append(f"Phân loại: {product_data['classification']}")
+            if product_data.get("variants"):
+                parts.append(f"Biến thể / giá:\n{product_data['variants']}")
+            variant_price_text = "\n".join(parts)
+            
+            classification_options = [x.strip() for x in product_data.get("classification", "").split(",") if x.strip()]
+            
+            new_product_properties = {
+                "Tên sản phẩm": {"title": [{"text": {"content": product_name}}]}
+            }
+            if variant_price_text:
+                new_product_properties["Biến thể & giá"] = {"rich_text": [{"text": {"content": variant_price_text}}]}
+            if classification_options:
+                new_product_properties["Biến thể"] = {"multi_select": [{"name": x} for x in classification_options]}
+            if len(variant_lines) > 0:
+                new_product_properties["Biến thể 1"] = {"rich_text": [{"text": {"content": variant_lines[0]}}]}
+            if len(variant_lines) > 1:
+                new_product_properties["Biến thể 2"] = {"rich_text": [{"text": {"content": variant_lines[1]}}]}
+                
+            product_page = notion.pages.create(
+                parent={"database_id": parent_db_id},
+                properties=new_product_properties
+            )
+            saved_product_page_id = product_page["id"]
+            
+        created_pages_info = []
+        
+        from shopee_sync.src.notion_sync import call_notion_with_retry
+        
+        for idx, item in enumerate(insights):
+            order_num = idx + 1
+            angle = item.get("angle", "").strip() or f"Insight {order_num}"
+            post_title = item.get("postTitle", f"{product_name} - Insight {order_num}")
+            insight_content = item.get("insightContent", "")
+            keywords = item.get("keywords", "")
+            
+            # 1. Gọi AI sinh bài viết chi tiết dựa trên insight đã được duyệt/sửa
+            body = generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords)
+            
+            # 2. Tạo trang con Notion
+            page_properties = {
+                "Tên post Shopee": {"title": [{"text": {"content": post_title}}]},
+                "Angle": {"rich_text": [{"text": {"content": angle}}]},
+                "Insight": {"rich_text": [{"text": {"content": insight_content}}]},
+                "Từ khóa chính cho insight": {"rich_text": [{"text": {"content": keywords}}]},
+                "Thứ tự": {"number": order_num},
+                "Sản phẩm Shopee": {"relation": [{"id": saved_product_page_id}]},
+                "Trạng thái duyệt": {"select": {"name": "Chờ duyệt"}},
+                "Trạng thái tạo hình": {"select": {"name": "Chờ tạo hình"}},
+                "Format": {"select": {"name": "Shopee Post"}}
+            }
+            
+            new_insight_page = call_notion_with_retry(
+                notion.pages.create,
+                parent={"database_id": insight_database_id},
+                properties=page_properties
+            )
+            new_page_id = new_insight_page["id"]
+            created_pages_info.append({
+                "page_id": new_page_id,
+                "angle": angle
+            })
+            
+            # 3. Soạn nội dung các block bài viết chi tiết
+            blocks = [
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": post_title, "link": None}}],
+                        "color": "default"
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "Mô tả sản phẩm"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"text": {"content": body.get("description", "")}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"text": {"content": "Thành phần nổi bật"}}]
+                    }
+                }
+            ]
+            
+            for ing in body.get("ingredients", []):
+                blocks.append({
+                    "object": "block",
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {
+                        "rich_text": [{"text": {"content": ing}}]
+                    }
+                })
+                
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "Công dung hỗ trợ"}}]
+                }
+            })
+            for ben in body.get("benefits", []):
+                blocks.append({
+                    "object": "block",
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {
+                        "rich_text": [{"text": {"content": ben}}]
+                    }
+                })
+                
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "Đối tượng sử dụng"}}]
+                }
+            })
+            for target in body.get("target_users", []):
+                blocks.append({
+                    "object": "block",
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {
+                        "rich_text": [{"text": {"content": target}}]
+                    }
+                })
+                
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "Cách dùng"}}]
+                }
+            })
+            blocks.append({
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": body.get("usage", "")}}]
+                }
+            })
+            
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "Lưu ý"}}]
+                }
+            })
+            for note in body.get("notes", []):
+                blocks.append({
+                    "object": "block",
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {
+                        "rich_text": [{"text": {"content": note}}]
+                    }
+                })
+                
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"text": {"content": "Hashtag"}}]
+                }
+            })
+            blocks.append({
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"text": {"content": body.get("hashtags", "")}}]
+                }
+            })
+            
+            call_notion_with_retry(
+                notion.blocks.children.append,
+                block_id=new_page_id,
+                children=blocks
+            )
+            
+        # 4. Cập nhật thuộc tính Insight Library của trang sản phẩm cha
+        rich_text_list = []
+        for idx, created_item in enumerate(created_pages_info):
+            rich_text_list.append({
+                "type": "text",
+                "text": {"content": f"{idx+1}. {created_item['angle']}: "}
+            })
+            rich_text_list.append({
+                "type": "mention",
+                "mention": {
+                    "type": "page",
+                    "page": {"id": created_item["page_id"]}
+                }
+            })
+            if idx < len(created_pages_info) - 1:
+                rich_text_list.append({
+                    "type": "text",
+                    "text": {"content": "\n"}
+                })
+                
+        call_notion_with_retry(
+            notion.pages.update,
+            page_id=saved_product_page_id,
+            properties={
+                "Insight Library": {"rich_text": rich_text_list},
+                "Bài viết": {"checkbox": True}
+            }
+        )
+        
+        return jsonify({
+            "productPageId": saved_product_page_id,
+            "createdInsightIds": [p["page_id"] for p in created_pages_info]
+        })
+    except Exception as exc:
+        return error_response(exc, 500)
 
 
 def start_media_watcher():
