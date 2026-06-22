@@ -3,7 +3,7 @@
 
 #define MyAppName "MCP Shopee Khải Hoàn"
 #ifndef MyAppVersion
-#define MyAppVersion "2.2.1"
+#define MyAppVersion "2.2.2"
 #endif
 #define MyAppPublisher "datdtpl-maker"
 #define MyAppURL "https://github.com/datdtpl-maker/Pixel-Drive-Capture"
