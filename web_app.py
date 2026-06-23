@@ -1715,7 +1715,8 @@ HTML = r"""
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
             <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;">Thư viện Prompt</h4>
             <div style="display: flex; gap: 8px;">
-              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 4px 8px; font-size: 12px; color: var(--ok); font-weight: 700; background: none; border: none; cursor: pointer;" title="Nhập danh sách prompt từ file .txt">+ Nhập file</button>
+              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 4px 8px; font-size: 12px; color: var(--ok); font-weight: 700; background: none; border: none; cursor: pointer;" title="Nhập danh sách prompt từ file .txt">Nhập file</button>
+              <button class="ghost" onclick="exportPrompts()" style="padding: 4px 8px; font-size: 12px; color: var(--primary); font-weight: 700; background: none; border: none; cursor: pointer;" title="Xuất toàn bộ thư viện prompt ra file .txt">Xuất thư viện</button>
               <button class="ghost" onclick="openPromptModal()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); font-weight: 700; background: none; border: none; cursor: pointer;">+ Thêm</button>
             </div>
           </div>
@@ -1810,7 +1811,10 @@ HTML = r"""
           
           <!-- Nội dung Prompt soạn thảo -->
           <div style="display: flex; flex-direction: column; height: 120px; min-height: 120px;">
-            <label for="contentEditorPrompt" style="margin-bottom: 8px; display: block; font-weight: 600; font-size: 13px; color: #000000;">Nội dung Prompt</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label for="contentEditorPrompt" style="font-weight: 600; font-size: 13px; color: #000000; margin: 0;">Nội dung Prompt</label>
+              <button class="ghost" onclick="exportCurrentPrompt()" style="padding: 2px 6px; font-size: 11px; color: var(--brand); font-weight: 700; background: none; border: none; cursor: pointer;" title="Tải nội dung prompt đang soạn thảo về file .txt">💾 Xuất file</button>
+            </div>
             <textarea id="contentEditorPrompt" placeholder="Nhập yêu cầu bối cảnh ở đây hoặc click chọn từ thư viện bên trái..." style="width: 100%; height: 85px; min-height: 85px; resize: none; font-size: 13px; line-height: 1.4; border-radius: 8px; padding: 10px; background: #ffffff; border: 1px solid #000000; color: #000000;"></textarea>
           </div>
           
@@ -3582,8 +3586,15 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.0";
+  const CURRENT_VERSION = "v2.2.6";
   let promptsList = [];
+  function addEvent(evt) {
+    if (typeof appendAutomationLog === 'function') {
+      appendAutomationLog(evt.message || JSON.stringify(evt));
+    } else {
+      console.log(evt.message || evt);
+    }
+  }
   let categoriesList = ["Shopee", "Facebook", "General"];
   let editingCategories = [];
   let contentSelectedImageBase64 = null;
@@ -3818,6 +3829,46 @@ HTML = r"""
     .finally(() => {
       event.target.value = '';
     });
+  }
+
+  function exportPrompts() {
+    if (!promptsList || promptsList.length === 0) {
+      alert("Thư viện prompt đang trống, không thể xuất.");
+      return;
+    }
+    addEvent({step: 'prompt_export', message: 'Đang chuẩn bị xuất danh sách prompt...'});
+    const lines = promptsList.map(p => {
+      const category = p.category || "General";
+      const title = p.title || "";
+      const content = p.content || "";
+      return `Danh mục: ${category}\nTiêu đề: ${title}\nNội dung: ${content}`;
+    });
+    const exportText = lines.join('\n---\n');
+    const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'prompts_export.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addEvent({step: 'prompt_export', message: 'Đã xuất file prompts_export.txt thành công.'});
+  }
+
+  function exportCurrentPrompt() {
+    const promptText = document.getElementById('contentEditorPrompt').value.trim();
+    if (!promptText) {
+      alert("Nội dung prompt đang trống, không thể xuất.");
+      return;
+    }
+    addEvent({step: 'prompt_export', message: 'Đang tải prompt soạn thảo...'});
+    const blob = new Blob([promptText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'prompt_soan_thao.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addEvent({step: 'prompt_export', message: 'Đã tải tệp prompt_soan_thao.txt thành công.'});
   }
 
   function openPromptModal(id = "") {
@@ -5739,6 +5790,29 @@ def api_import_prompts():
         return error_response(exc, 400)
 
 
+@app.get("/api/content/prompts/export")
+def api_export_prompts():
+    try:
+        prompts = load_prompts()
+        lines = []
+        for p in prompts:
+            category = p.get("category", "General")
+            title = p.get("title", "")
+            content = p.get("content", "")
+            prompt_str = f"Danh mục: {category}\nTiêu đề: {title}\nNội dung: {content}"
+            lines.append(prompt_str)
+            
+        export_text = "\n---\n".join(lines)
+        from flask import Response
+        return Response(
+            export_text,
+            mimetype="text/plain",
+            headers={"Content-Disposition": "attachment;filename=prompts_export.txt"}
+        )
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
 def parse_version(v_str):
     if not v_str:
         return (0, 0, 0)
@@ -6304,21 +6378,33 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                 page.fill("#prompt-textarea", prompt_text)
                 time.sleep(1.5)
             
-            # Đếm số ảnh lớn hiện có trên toàn trang trước khi gửi prompt mới
+            # Đếm số ảnh lớn của Assistant hiện có trước khi gửi prompt mới
             initial_img_count = 0
             try:
                 initial_img_count = page.evaluate("""() => {
                     const imgs = Array.from(document.querySelectorAll('img'));
-                    const largeImgs = imgs.filter(img => {
+                    const assistantImgs = imgs.filter(img => {
                         const w = img.naturalWidth || img.width;
                         const h = img.naturalHeight || img.height;
                         if (w < 200 || h < 200) return false;
                         if (img.src.startsWith('data:image/svg')) return false;
+                        
+                        const userMsg = img.closest('[data-testid="user-message"]');
+                        if (userMsg) return false;
+                        
+                        const userArticle = img.closest('article');
+                        if (userArticle && userArticle.querySelector('[data-testid="user-message"]')) {
+                            return false;
+                        }
+                        
+                        if (img.closest('.attachment') || img.closest('[data-testid="user-attachment"]') || img.closest('.bg-token-main-surface-secondary')) {
+                            return false;
+                        }
                         return true;
                     });
-                    return largeImgs.length;
+                    return assistantImgs.length;
                 }""")
-                print(f"[ChatGPT Auto] So luong anh lon ban dau: {initial_img_count}")
+                print(f"[ChatGPT Auto] So luong anh lon Assistant ban dau: {initial_img_count}")
             except Exception as e_count:
                 print(f"[ChatGPT Auto] Loi dem anh ban dau: {e_count}")
             
@@ -6387,36 +6473,33 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
             while time.time() - start_time < 240: # Tăng timeout lên 240 giây (4 phút)
                 time.sleep(3.0)
                 try:
-                    res = page.evaluate("""async () => {
-                        // 1. Lọc lấy các bài viết (lượt chat) của Assistant (loại bỏ bài viết của User)
-                        const articles = Array.from(document.querySelectorAll('article'));
-                        const assistantArticles = articles.filter(art => {
-                            if (art.querySelector('[data-testid="user-message"]')) return false;
-                            return true;
-                        });
-                        
-                        if (assistantArticles.length === 0) {
-                            return "waiting";
-                        }
-                        
-                        // Lấy lượt trả lời mới nhất của Assistant
-                        const lastAssistantArt = assistantArticles[assistantArticles.length - 1];
-                        
-                        // 2. Tìm ảnh lớn trong câu trả lời của Assistant
-                        const imgs = Array.from(lastAssistantArt.querySelectorAll('img'));
-                        const largeImgs = imgs.filter(img => {
+                    res = page.evaluate("""async (prevCount) => {
+                        const imgs = Array.from(document.querySelectorAll('img'));
+                        const assistantImgs = imgs.filter(img => {
                             const w = img.naturalWidth || img.width;
                             const h = img.naturalHeight || img.height;
                             if (w < 200 || h < 200) return false;
                             if (img.src.startsWith('data:image/svg')) return false;
+                            
+                            const userMsg = img.closest('[data-testid="user-message"]');
+                            if (userMsg) return false;
+                            
+                            const userArticle = img.closest('article');
+                            if (userArticle && userArticle.querySelector('[data-testid="user-message"]')) {
+                                return false;
+                            }
+                            
+                            if (img.closest('.attachment') || img.closest('[data-testid="user-attachment"]') || img.closest('.bg-token-main-surface-secondary')) {
+                                return false;
+                            }
                             return true;
                         });
                         
-                        if (largeImgs.length === 0) {
+                        if (assistantImgs.length <= prevCount) {
                             return "waiting";
                         }
                         
-                        const lastImg = largeImgs[largeImgs.length - 1];
+                        const lastImg = assistantImgs[assistantImgs.length - 1];
                         if (!lastImg.complete || lastImg.naturalWidth === 0) {
                             return "loading";
                         }
@@ -6442,7 +6525,7 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                                 return 'error: ' + err.message + ' | canvas: ' + canvasErr.message;
                             }
                         }
-                    }""")
+                    }""", initial_img_count)
                     
                     if res == "waiting" or res == "loading":
                         continue
