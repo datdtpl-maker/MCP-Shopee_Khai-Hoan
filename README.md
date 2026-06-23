@@ -1,30 +1,42 @@
 # MCP Shopee - Khải Hoàn & AI Edit Image / Video (Gemini & ChatGPT Helper)
 
-Ứng dụng Web cục bộ (Local Web App) tích hợp đa năng: Điều khiển điện thoại Google Pixel chụp ảnh sản phẩm, tự động đồng bộ Google Drive, **tách nền ghép ảnh sản phẩm lai (Hybrid Composition)** vẽ poster quảng cáo AI chuyên nghiệp, và công cụ **AI Edit Image / Video tự động hóa ChatGPT & Gemini Web (Gemini Omni)** để chỉnh sửa ảnh và video sản phẩm nhanh chóng, dễ dàng.
+Ứng dụng Web cục bộ (Local Web App) tích hợp đa năng: Điều khiển điện thoại Google Pixel chụp ảnh sản phẩm, tự động đồng bộ Google Drive, **đồng bộ Notion sang BigSeller với 5 AI Insights**, **tách nền ghép ảnh sản phẩm lai (Hybrid Composition)** vẽ poster quảng cáo AI chuyên nghiệp, và công cụ **AI Edit Image / Video tự động hóa ChatGPT & Gemini Web (Gemini Omni)** để xử lý hình ảnh và video sản phẩm nhanh chóng, dễ dàng.
 
-Giao diện ứng dụng được thiết kế theo phong cách Premium Glassmorphism (hỗ trợ Dark/Light Mode), tối ưu hóa 100% quy trình làm việc từ khâu chụp sản phẩm thô đến tạo ra ảnh/video truyền thông chất lượng cao hoàn thiện.
+Giao diện ứng dụng được thiết kế hoàn toàn theo phong cách **Material Design 3 (MD3)** hiện đại, mượt mà (hỗ trợ chuyển đổi Dark/Light Mode), tối ưu hóa 100% quy trình làm việc từ khâu chụp sản phẩm thô cho đến khi hoàn thiện dữ liệu đăng bán Shopee.
 
 ---
 
 ## ✨ Tính Năng Nổi Bật
 
-### 1. Điều Khiển Pixel & Đồng Bộ Drive Tự Động
-- **Kết nối linh hoạt**: Điều khiển Pixel chụp ảnh/quay phim thông qua cáp USB hoặc Wi-Fi không dây.
-- **Tùy chỉnh Port kết nối Wi-Fi (IP:Port)**: Hỗ trợ nhập trực tiếp dạng `IP` (mặc định cổng 5555) hoặc dạng `IP:Port` (ví dụ `192.168.1.100:39485`) để tương thích hoàn hảo với tính năng **Gỡ lỗi không dây (Wireless Debugging)** có cổng ngẫu nhiên của Android 11+.
-- **Tự động đánh thức & Mở khóa (Auto-Wake & Unlock)**: Tự động kiểm tra trạng thái màn hình Pixel trước khi chụp/quay. Nếu màn hình đang tắt, hệ thống tự động đánh thức (`keyevent 224`) và giả lập thao tác vuốt lên để vượt qua màn hình khóa, tránh lỗi ảnh đen hoặc camera bị treo khi điện thoại ngủ sâu (Deep Sleep).
-- **Nút Dừng khẩn cấp (Stop Operation)**: Thêm nút **🛑 Dừng** màu đỏ đậm trên giao diện (hoạt động kể cả khi app đang bận) để kết thúc cưỡng bức (`taskkill /F`) tiến trình `adb.exe` hoặc `scrcpy.exe` ngầm bị treo, giải phóng khóa ứng dụng (`OPERATION_LOCK`) đưa hệ thống về trạng thái "Sẵn sàng" tức thì.
-- **Trình chiếu scrcpy**: Xem trước góc máy và lấy nét trực tiếp từ màn hình máy tính.
-- **Đồng bộ bảo mật và chịu lỗi**: Tự động đưa ảnh chụp vào đúng thư mục sản phẩm được chọn trên Google Drive for Desktop. Áp dụng quy trình kiểm tra dung lượng byte nghiêm ngặt trước khi xóa ảnh gốc trên điện thoại để giải phóng dung lượng.
+### 1. Đồng Bộ Shopee / BigSeller & AI Insights (Mới)
+- **Tích hợp Notion:** Lấy nhanh danh sách sản phẩm chờ viết bài trực tiếp từ Notion database.
+- **Phân tích hình ảnh bằng AI:** Sử dụng Gemini để phân tích hình ảnh sản phẩm và tự động sinh ra **5 Insights bán hàng** chất lượng cao bao gồm:
+  - Góc viết (Angle)
+  - Tiêu đề post gợi ý
+  - Nội dung Insight chi tiết
+  - Từ khóa SEO gợi ý
+  - Comment chỉnh sửa
+- **Bảng Review & Chỉnh sửa trực tiếp:** Giao diện bảng tiện lợi cho phép người dùng chỉnh sửa thủ công nội dung AI sinh ra trước khi lưu.
+- **Ghi nhận Notion một chạm:** Tự động ghi ngược lại toàn bộ 5 insight và thông tin sản phẩm hoàn thiện vào cơ sở dữ liệu Notion.
+- **Xuất bản Excel BigSeller:** Tạo các file Excel mẫu chuẩn của BigSeller để import hàng loạt sản phẩm trực tiếp lên Shopee một cách dễ dàng.
 
-### 2. Tạo Poster AI Với Sản Phẩm Thật (Hybrid Composition)
-- **Bảo toàn sản phẩm thật 100%**: Sử dụng thư viện `rembg` cục bộ để tách nền sản phẩm thực tế, tự ghép đè sản phẩm lên bối cảnh được AI vẽ ra bằng PIL.
+### 2. Điều Khiển Pixel & Đồng Bộ Drive Tự Động
+- **Kết nối linh hoạt**: Điều khiển Pixel chụp ảnh/quay phim thông qua cáp USB hoặc Wi-Fi không dây.
+- **Tự động tạo 5 thư mục con**: Khi tạo một thư mục sản phẩm mới, hệ thống tự động tạo thêm 5 thư mục con `Insight 1` đến `Insight 5` bên trong để tổ chức hình ảnh. Ảnh chụp thực tế của sản phẩm vẫn được lưu trực tiếp tại thư mục sản phẩm chính.
+- **Cơ chế xóa thư mục cưỡng bức**: Hỗ trợ nút xóa thư mục đang chọn cùng toàn bộ các thư mục con và file bên trong (`shutil.rmtree`) chỉ với 1 click, giúp dọn dẹp không gian làm việc nhanh chóng.
+- **Tự động đánh thức & Mở khóa (Auto-Wake & Unlock)**: Tự động kiểm tra trạng thái màn hình Pixel trước khi chụp/quay. Nếu màn hình đang tắt, hệ thống tự động đánh thức (`keyevent 224`) và giả lập thao tác vuốt lên để vượt qua màn hình khóa.
+- **Nút Dừng khẩn cấp (Stop Operation)**: Kết thúc cưỡng bức (`taskkill /F`) tiến trình `adb.exe` hoặc `scrcpy.exe` ngầm bị treo, đưa hệ thống về trạng thái "Sẵn sàng" tức thì.
+- **Đồng bộ bảo mật**: Tự động đưa ảnh chụp vào đúng thư mục sản phẩm được chọn trên Google Drive for Desktop. Xác minh dung lượng byte nghiêm ngặt trước khi xóa ảnh gốc trên điện thoại.
+
+### 3. Tạo Poster AI Với Sản Phẩm Thật (Hybrid Composition)
+- **Bảo toàn sản phẩm thật 100%**: Sử dụng thư viện `rembg` cục bộ để tách nền sản phẩm thực tế, tự ghép đè sản phẩm lên bối cảnh được AI vẽ ra.
 - **Vẽ bóng đổ tự nhiên**: Tự động vẽ bóng đổ đen mờ semi-transparent và làm mịn bóng bằng Gaussian Blur dưới chân sản phẩm giúp ảnh ghép hòa hợp 100% với ánh sáng bối cảnh.
 - **Tối ưu chi phí & Tốc độ**: Sử dụng mô hình `gpt-image-1-mini` với chất lượng `quality="medium"` giúp tối ưu hóa chi phí API OpenAI ở mức thấp nhất, tạo nhiều ảnh song song chỉ mất 10-15 giây thông qua xử lý bất đồng bộ ThreadPool.
 - **Tự động hóa prompt**: GPT-4o Vision tự động phân tích màu sắc, nhãn hiệu sản phẩm và viết lại prompt tiếng Anh tối ưu nhất cho mô hình sinh ảnh vẽ nền.
 
-### 3. Công Cụ AI Edit Image / Video (Tự Động Hóa Qua ChatGPT & Gemini)
+### 4. Công Cụ AI Edit Image / Video (Tự Động Hóa Qua ChatGPT & Gemini)
 - **Tiết kiệm chi phí**: Kết nối trực tiếp vào tab ChatGPT (cổng 9222) hoặc Gemini (cổng 9223) đang mở trên trình duyệt Chrome thật của bạn để ra lệnh tạo/sửa ảnh và video miễn phí.
-- **Hỗ trợ dán URL ảnh mẫu trực tiếp**: Cho phép dán trực tiếp link ảnh mẫu trên internet vào ô URL ảnh mẫu. Hệ thống sử dụng một API Image Proxy ở backend để bypass 100% lỗi CORS hoặc chính sách chặn hotlink của các bên thứ ba (như Shopee, Facebook...), tự động tải ảnh về local tạm và đính kèm (upload) lên ChatGPT/Gemini như bình thường.
+- **Hỗ trợ dán URL ảnh mẫu trực tiếp**: Cho phép dán trực tiếp link ảnh mẫu trên internet vào ô URL ảnh mẫu. Hệ thống sử dụng một API Image Proxy ở backend để bypass 100% lỗi CORS hoặc chính sách chặn hotlink của các bên thứ ba.
 - **Tự động hóa Playwright**: 
   - Tự động click focus, upload tệp tin sản phẩm (hỗ trợ cả ảnh và video).
   - Tự động điền prompt mẫu và gửi tin nhắn (giả lập click nút gửi hoặc gõ phím Enter bằng keyboard thật, tương thích React state).
@@ -50,8 +62,8 @@ Giao diện ứng dụng được thiết kế theo phong cách Premium Glassmor
 
 1. **Tải mã nguồn và cài đặt thư viện**:
    ```powershell
-    git clone https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git
-    cd MCP-Shopee_Khai-Hoan
+   git clone https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git
+   cd MCP-Shopee_Khai-Hoan
    python -m pip install -r requirements.txt
    ```
 
@@ -78,7 +90,7 @@ Mở trình duyệt và truy cập: **`http://127.0.0.1:8765`** (hoặc tên mi�
 ### 2. Sử dụng tính năng AI Edit Image / Video (ChatGPT & Gemini Web)
 * **Đối với ChatGPT Web (cổng 9222):**
   1. Đóng hoàn toàn các cửa sổ Chrome bình thường nếu bị lỗi xung đột hoặc kẹt tiến trình.
-  2. Bấm nút **"Mở Chrome ChatGPT"** trên giao diện (hoặc chạy tệp `run_debug_chrome.bat`) để mở cửa sổ Chrome debug ChatGPT. Trình duyệt debug này sử dụng một profile cô lập riêng biệt (`chrome_profile_debug` nằm ngay trong thư mục dự án) để tránh đụng độ với tài khoản Chrome cá nhân hoặc các phần mềm nuôi nick (như MetaMax, GPMLogin...) chạy ngầm.
+  2. Bấm nút **"Mở Chrome ChatGPT"** trên giao diện (hoặc chạy tệp `run_debug_chrome.bat`) để mở cửa sổ Chrome debug ChatGPT. Trình duyệt debug này sử dụng một profile cô lập riêng biệt (`chrome_profile_debug` nằm ngay trong thư mục dự án) để tránh đụng độ với tài khoản Chrome cá nhân.
   3. Đăng nhập tài khoản ChatGPT của bạn ở lần đầu tiên.
   4. Quay lại giao diện Web Helper, chọn file, dán URL ảnh mẫu (nếu có) và điền prompt rồi bấm **"Gửi Lên ChatGPT"**.
 
@@ -137,12 +149,11 @@ Nội dung có thể xuống dòng viết tiếp ở đây thoải mái
 
 Ứng dụng hỗ trợ kiểm tra và cập nhật tự động trực tiếp từ GitHub Releases:
 
-1. **Hiển thị phiên bản**: Phiên bản hiện tại của phần mềm được hiển thị trên nút ở góc trên bên phải (ví dụ: `v1.1.17`).
+1. **Hiển thị phiên bản**: Phiên bản hiện tại của phần mềm được hiển thị trên nút ở góc trên bên phải (ví dụ: `v2.2.4`).
 2. **Kiểm tra tự động**: Mỗi khi mở ứng dụng, phần mềm sẽ tự động kiểm tra ngầm phiên bản mới trên GitHub Releases. Nếu phát hiện có phiên bản mới hơn trên GitHub, nút phiên bản sẽ tự động đổi màu và **nhấp nháy nhịp thở (`pulse-warn`)** để báo hiệu cho bạn.
-3. **Quy trình cập nhật cài đè an toàn nâng cao (v1.1.16+)**: 
+3. **Quy trình cập nhật cài đè an toàn nâng cao**: 
    - Khi click vào nút phiên bản, một hộp thoại thông tin bản cập nhật mới sẽ hiển thị.
    - Nếu bạn chọn đồng ý, ứng dụng sẽ tải tệp tin cập nhật dạng `.zip` từ GitHub Releases về thư mục tạm, tự động giải nén và kích hoạt một tiến trình `updater.bat` chạy độc lập.
-   - Tiến trình `updater.bat` sẽ liên tục kiểm tra trạng thái tiến trình hệ thống bằng lệnh `tasklist` và sử dụng lệnh `ping` tạo khoảng trễ để chờ cho đến khi tệp `MCPShopee.exe` cũ tắt hẳn và các tệp DLL trong thư mục `_internal` được giải phóng hoàn toàn.
    - Tiến trình updater sẽ ghi đè toàn bộ các file mới vào thư mục hiện tại (ngoại trừ tệp `config.json` và `config.example.json` để **giữ lại nguyên vẹn cấu hình của bạn**), sau đó tự khởi động lại phiên bản mới và dọn dẹp các tệp tạm.
 
 ---
@@ -179,7 +190,7 @@ Mẫu cấu hình cơ bản (các thông tin nhạy cảm đã được bỏ qua
 
 Nhằm đảm bảo an toàn tuyệt đối cho dữ liệu ảnh và video sản phẩm, ứng dụng áp dụng quy trình xử lý 6 bước nghiêm ngặt:
 1. **Định vị thời gian**: Ghi nhận mốc thời gian bắt đầu thao tác chụp/quay.
-2. **Kéo tệp tạm**: Sao chép tệp tin mới nhất từ điện thoại vào thư mục tạm `inbox` trên máy tính.
+2. **Kéo tệp tạm**: Sao chép tệp tin mới nhất từ điện thoại vào thư mục tạm `inbox` on máy tính.
 3. **Đồng bộ Drive**: Chép tệp tin sang thư mục Google Drive đích dưới định dạng tệp tạm thời `.part`.
 4. **Xác minh dung lượng**: So sánh dung lượng byte của tệp tin đích và tệp tin gốc để đảm bảo quá trình đồng bộ hoàn tất 100%.
 5. **Chốt tệp**: Đổi tên tệp tin tạm `.part` thành tên chính thức trên Google Drive.
@@ -194,3 +205,7 @@ Các tệp cấu hình chứa API key, token hoặc thông tin cá nhân đượ
 - `config.json`
 - `client_secret.json` / `token.json`
 - Các thư mục dữ liệu cục bộ (`inbox/`, `processed/`, `logs/`)
+
+---
+
+**✍️ Người thực hiện / Author:** Danny DT
