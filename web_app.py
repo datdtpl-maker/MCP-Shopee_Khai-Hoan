@@ -1947,6 +1947,7 @@ HTML = r"""
                     <div class="upload-actions-row" onclick="event.stopPropagation()">
                       <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()">📁 Chọn file</span>
                       <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();">📋 Dán (Ctrl+V)</span>
+                      <span class="upload-chip" onclick="event.stopPropagation(); useLatestPixelPhotoForShopee();" style="border-color: var(--brand); color: var(--brand);" title="Lấy ảnh mới nhất vừa chụp từ Pixel">📸 Lấy ảnh Pixel mới nhất</span>
                     </div>
                   </div>
 
@@ -2046,12 +2047,19 @@ HTML = r"""
               </button>
             </div>
              <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                 <label style="font-weight: 600; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Nhật ký Realtime</label>
-                <button class="ghost" onclick="clearShopeeSyncLogs()" style="padding: 2px 6px; font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 4px;" title="Xoá màn hình log">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                  Xoá log
-                </button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <input type="text" id="shopeeSyncLogFilter" oninput="filterShopeeSyncLogs()" placeholder="Lọc log..." style="width: 120px; height: 22px; font-size: 11px; border-radius: 4px; padding: 2px 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); outline: none;" />
+                  <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); cursor: pointer; font-weight: 600; white-space: nowrap;">
+                    <input type="checkbox" id="shopeeSyncLogAutoScroll" checked style="cursor: pointer; accent-color: var(--brand);" /> Tự cuộn
+                  </label>
+                  <span style="color: var(--panel-border); font-size: 11px;">|</span>
+                  <button class="ghost" onclick="clearShopeeSyncLogs()" style="padding: 2px 6px; font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 4px;" title="Xoá màn hình log">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Xoá log
+                  </button>
+                </div>
               </div>
               <div id="shopeeSyncLogBox" style="height: 280px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
                 <!-- Log hiển thị thời gian thực -->
@@ -2063,7 +2071,11 @@ HTML = r"""
           <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
             <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
               <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;">Excel BigSeller đã tạo</h4>
-              <button class="ghost" onclick="loadShopeeExcelList()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="ghost" onclick="loadShopeeExcelList()" style="padding: 4px 6px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
+                <span style="color: var(--panel-border); font-size: 11px;">|</span>
+                <button class="ghost" onclick="deleteShopeeExcelAll()" style="padding: 4px 6px; font-size: 12px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700;">Xoá tất cả</button>
+              </div>
             </div>
             <div id="shopeeExcelList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 280px;">
               <!-- Load động từ API -->
@@ -2177,19 +2189,22 @@ HTML = r"""
 
       // Tích hợp log cho Shopee Sync
       if (step === "shopee_sync") {
-        const shopeeLogBox = document.getElementById("shopeeSyncLogBox");
-        if (shopeeLogBox) {
-          const timeStr = new Date().toLocaleTimeString();
-          const escMsg = escapeHtml(v.message || text);
-          let color = "var(--text-muted)";
-          if (escMsg.toLowerCase().includes("thành công") || escMsg.toLowerCase().includes("thanh cong") || escMsg.toLowerCase().includes("hoàn thành") || escMsg.toLowerCase().includes("success")) color = "#22c55e";
-          else if (escMsg.toLowerCase().includes("lỗi") || escMsg.toLowerCase().includes("error") || escMsg.toLowerCase().includes("failed") || escMsg.toLowerCase().includes("hỏng")) color = "#ef4444";
-          else if (escMsg.toLowerCase().includes("cảnh báo") || escMsg.toLowerCase().includes("warning")) color = "#eab308";
-          
-          shopeeLogBox.innerHTML += `<div style="color: ${color}; margin-bottom: 4px;">[${timeStr}] ${escMsg}</div>`;
-          shopeeLogBox.scrollTop = shopeeLogBox.scrollHeight;
-        }
-        if (v.message && (v.message.includes("thành công") || v.message.includes("thanh cong") || v.message.includes("Sync completed") || v.message.includes("thực tế"))) {
+        const timeStr = new Date().toLocaleTimeString();
+        const rawMsg = v.message || text || "";
+        let color = "var(--text-muted)";
+        if (rawMsg.toLowerCase().includes("thành công") || rawMsg.toLowerCase().includes("thanh cong") || rawMsg.toLowerCase().includes("hoàn thành") || rawMsg.toLowerCase().includes("success")) color = "#22c55e";
+        else if (rawMsg.toLowerCase().includes("lỗi") || rawMsg.toLowerCase().includes("error") || rawMsg.toLowerCase().includes("failed") || rawMsg.toLowerCase().includes("hỏng")) color = "#ef4444";
+        else if (rawMsg.toLowerCase().includes("cảnh báo") || rawMsg.toLowerCase().includes("warning")) color = "#eab308";
+        
+        state.shopeeLogs.push({
+          time: timeStr,
+          message: rawMsg,
+          color: color
+        });
+        
+        renderShopeeSyncLogs();
+        
+        if (rawMsg && (rawMsg.includes("thành công") || rawMsg.includes("thanh cong") || rawMsg.includes("Sync completed") || rawMsg.includes("thực tế"))) {
           loadShopeeExcelList();
         }
       }
@@ -2461,7 +2476,8 @@ HTML = r"""
     visionContext: {},
     imagePreviewUrl: "",
     pastedFile: null,
-    currentRewriteRowIndex: null // Lưu dòng đang sửa để đồng bộ từ Gemini
+    currentRewriteRowIndex: null, // Lưu dòng đang sửa để đồng bộ từ Gemini
+    shopeeLogs: []
   };
 
   function initInsightPromptEditor() {
@@ -2505,6 +2521,7 @@ HTML = r"""
   }
 
   async function onSelectPendingProduct(pageId) {
+    clearImageState();
     if (!pageId) {
       document.getElementById("productPageId").value = "";
       document.getElementById("productNameInput").value = "";
@@ -2690,18 +2707,28 @@ HTML = r"""
       return null;
     }
 
-    setStatus("analyze-status", "Đang tải ảnh từ URL...", "muted");
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error("Không tải được ảnh từ link này.");
+    setStatus("analyze-status", "Đang tải ảnh từ URL qua server...", "muted");
+    
+    try {
+      const response = await fetch("/api/shopee/download-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: imageUrl })
+      });
+      
+      const d = await response.json();
+      if (!response.ok || !d.success) {
+        throw new Error(d.error || "Không tải được ảnh từ link này qua server.");
+      }
+      
+      // Chuyển base64 tải về thành File object
+      const responseBlob = await fetch(d.base64);
+      const blob = await responseBlob.blob();
+      return new File([blob], "image-url-upload." + (d.mime.split("/")[1] || "png"), { type: d.mime });
+    } catch(e) {
+      console.error("Lỗi tải ảnh từ URL:", e);
+      throw new Error(e.message || "Lỗi không xác định khi tải ảnh qua server.");
     }
-
-    const blob = await response.blob();
-    if (!blob.type.startsWith("image/")) {
-      throw new Error("Link này không trả về file ảnh hợp lệ.");
-    }
-
-    return new File([blob], "image-url-upload", { type: blob.type });
   }
 
   function collectProductInfo() {
@@ -3200,10 +3227,81 @@ HTML = r"""
     }
   }
 
+  async function deleteShopeeExcelAll() {
+    if (!confirm("Bạn có chắc chắn muốn xóa TẤT CẢ các file Excel đồng bộ Shopee đã tạo? Hành động này không thể hoàn tác.")) return;
+    try {
+      const res = await fetch("/api/shopee/excel/delete-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const d = await res.json();
+      if (d.success) {
+        loadShopeeExcelList();
+        alert(d.message);
+      } else {
+        alert("Lỗi xóa file: " + (d.error || d.message));
+      }
+    } catch(e) {
+      console.error("Lỗi xóa tất cả file Excel:", e);
+      alert("Lỗi xóa tất cả file Excel: " + e.message);
+    }
+  }
+
   function clearShopeeSyncLogs() {
+    state.shopeeLogs = [];
+    renderShopeeSyncLogs();
+  }
+
+  function renderShopeeSyncLogs() {
     const shopeeLogBox = document.getElementById("shopeeSyncLogBox");
-    if (shopeeLogBox) {
-      shopeeLogBox.innerHTML = "";
+    if (!shopeeLogBox) return;
+    
+    const filterInput = document.getElementById("shopeeSyncLogFilter");
+    const filterVal = filterInput ? filterInput.value.trim().toLowerCase() : "";
+    
+    const filtered = state.shopeeLogs.filter(log => {
+      if (!filterVal) return true;
+      return log.message.toLowerCase().includes(filterVal);
+    });
+    
+    shopeeLogBox.innerHTML = filtered.map(log => {
+      return `<div style="color: ${log.color}; margin-bottom: 4px;">[${log.time}] ${escapeHtml(log.message)}</div>`;
+    }).join("");
+    
+    const autoScrollCb = document.getElementById("shopeeSyncLogAutoScroll");
+    const shouldScroll = autoScrollCb ? autoScrollCb.checked : true;
+    if (shouldScroll) {
+      shopeeLogBox.scrollTop = shopeeLogBox.scrollHeight;
+    }
+  }
+
+  function filterShopeeSyncLogs() {
+    renderShopeeSyncLogs();
+  }
+
+  async function useLatestPixelPhotoForShopee() {
+    try {
+      const response = await fetch("/api/automation/latest-photo");
+      const d = await response.json();
+      if (!response.ok) throw d;
+      
+      const isVideo = d.type === 'video' || d.name.endsWith('.mp4');
+      if (isVideo) {
+        alert("Hiện tại tính năng Shopee Sync chỉ hỗ trợ các file hình ảnh.");
+        return;
+      }
+      
+      // Chuyển dữ liệu base64 thành đối tượng File để tương thích tốt với luồng upload/paste
+      const responseBlob = await fetch(d.base64);
+      const blob = await responseBlob.blob();
+      state.pastedFile = new File([blob], d.name, { type: blob.type });
+      
+      document.getElementById("image").value = "";
+      document.getElementById("imageUrl").value = "";
+      renderPreview();
+    } catch(e) {
+      console.error("Lỗi lấy ảnh Pixel mới nhất:", e);
+      alert("Lỗi lấy ảnh Pixel mới nhất: " + (e.error || e.message || JSON.stringify(e)));
     }
   }
   
@@ -7913,6 +8011,83 @@ def api_delete_shopee_excel():
             return jsonify({"success": True, "message": f"Đã xóa file {filename}"})
         else:
             return jsonify({"success": False, "error": "File không tồn tại"}), 404
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/shopee/excel/delete-all")
+def api_delete_all_shopee_excel():
+    try:
+        config = load_config()
+        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        if not export_dir:
+            export_dir = str(Path.home() / "Downloads")
+            
+        out_dir = Path(export_dir)
+        if not out_dir.exists():
+            return jsonify({"success": True, "message": "Thư mục không tồn tại, không có file cần xóa."})
+            
+        deleted_count = 0
+        for f in out_dir.glob("bigseller_sync_*.xlsx"):
+            try:
+                f.unlink()
+                deleted_count += 1
+            except Exception as e:
+                print(f"[Excel Delete All] Không xóa được file {f.name}: {e}")
+                
+        return jsonify({"success": True, "message": f"Đã xóa thành công {deleted_count} file Excel."})
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/shopee/download-image")
+def api_shopee_download_image():
+    try:
+        data = request.json or {}
+        url = data.get("url", "").strip()
+        if not url:
+            return jsonify({"success": False, "error": "Thiếu link ảnh"}), 400
+            
+        import re
+        drive_match = re.search(r'drive\.google\.com/file/d/([a-zA-Z0-9_-]+)', url)
+        if not drive_match:
+            drive_match = re.search(r'id=([a-zA-Z0-9_-]+)', url)
+            
+        if drive_match:
+            file_id = drive_match.group(1)
+            url = f"https://drive.google.com/uc?export=download&id={file_id}"
+            
+        import requests
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        res = requests.get(url, headers=headers, timeout=15)
+        if not res.ok:
+            if "drive.google.com" in url:
+                return jsonify({
+                    "success": False, 
+                    "error": "Không tải được ảnh từ Google Drive. Hãy kiểm tra xem file đã được mở chia sẻ công khai (Bất kỳ ai có liên kết đều có thể xem) chưa."
+                }), 400
+            return jsonify({"success": False, "error": f"Tải ảnh thất bại. HTTP Status {res.status_code}"}), 400
+            
+        content_type = res.headers.get("Content-Type", "")
+        if not content_type.startswith("image/"):
+            if "text/html" in content_type and "drive.google.com" in url:
+                return jsonify({
+                    "success": False, 
+                    "error": "Google Drive trả về trang HTML thay vì ảnh. Có thể file quá nặng (yêu cầu quét virus) hoặc chưa được mở chia sẻ công khai ở chế độ 'Bất kỳ ai có liên kết'."
+                }), 400
+            return jsonify({"success": False, "error": f"Định dạng file tải về không phải là ảnh hợp lệ ({content_type})."}), 400
+            
+        import base64
+        b64_data = base64.b64encode(res.content).decode("utf-8")
+        mime = content_type or "image/png"
+        
+        return jsonify({
+            "success": True, 
+            "base64": f"data:{mime};base64,{b64_data}",
+            "mime": mime
+        })
     except Exception as exc:
         return error_response(exc, 500)
 
