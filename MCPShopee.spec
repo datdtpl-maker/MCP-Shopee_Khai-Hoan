@@ -9,7 +9,7 @@ datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 
 a = Analysis(
-    ['C:\\Users\\datdt\\Documents\\Codex\\2026-05-27\\mcp-shopee-khai-hoan\\web_app.py'],
+    ['web_app.py'],
     pathex=[],
     binaries=binaries,
     datas=datas,
