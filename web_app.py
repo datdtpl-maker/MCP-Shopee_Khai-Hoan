@@ -6387,8 +6387,23 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
             while time.time() - start_time < 240: # Tăng timeout lên 240 giây (4 phút)
                 time.sleep(3.0)
                 try:
-                    res = page.evaluate("""async (prevCount) => {
-                        const imgs = Array.from(document.querySelectorAll('img'));
+                    res = page.evaluate("""async () => {
+                        // 1. Lọc lấy các bài viết (lượt chat) của Assistant (loại bỏ bài viết của User)
+                        const articles = Array.from(document.querySelectorAll('article'));
+                        const assistantArticles = articles.filter(art => {
+                            if (art.querySelector('[data-testid="user-message"]')) return false;
+                            return true;
+                        });
+                        
+                        if (assistantArticles.length === 0) {
+                            return "waiting";
+                        }
+                        
+                        // Lấy lượt trả lời mới nhất của Assistant
+                        const lastAssistantArt = assistantArticles[assistantArticles.length - 1];
+                        
+                        // 2. Tìm ảnh lớn trong câu trả lời của Assistant
+                        const imgs = Array.from(lastAssistantArt.querySelectorAll('img'));
                         const largeImgs = imgs.filter(img => {
                             const w = img.naturalWidth || img.width;
                             const h = img.naturalHeight || img.height;
@@ -6397,7 +6412,7 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                             return true;
                         });
                         
-                        if (largeImgs.length <= prevCount) {
+                        if (largeImgs.length === 0) {
                             return "waiting";
                         }
                         
@@ -6427,7 +6442,7 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                                 return 'error: ' + err.message + ' | canvas: ' + canvasErr.message;
                             }
                         }
-                    }""", initial_img_count)
+                    }""")
                     
                     if res == "waiting" or res == "loading":
                         continue
