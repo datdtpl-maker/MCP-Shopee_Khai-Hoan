@@ -171,26 +171,42 @@ HTML = r"""
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b0d17;
-      --panel: rgba(26, 32, 53, 0.75);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --soft: rgba(255, 255, 255, 0.04);
-      --line: rgba(255, 255, 255, 0.06);
-      --text: #f9fafb;
-      --muted: #9ca3af;
-      --brand: #ee4d2d;
-      --brand-hover: #f14d2a;
-      --brand-gradient: linear-gradient(135deg, #ee4d2d 0%, #ff7337 100%);
-      --brand-glow: rgba(238, 77, 45, 0.25);
-      --ok: #10b981;
-      --okbg: rgba(16, 185, 129, 0.1);
-      --warn: #f59e0b;
-      --warnbg: rgba(245, 158, 11, 0.1);
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      /* Material Design 3 Color Tokens - Dark Theme */
+      --bg: #121318;
+      --surface: #1e1f25;
+      --surface-container-low: #16171c;
+      --surface-container-high: #2a2b36;
+      --panel: #1e1f25;
+      --panel-border: rgba(255, 255, 255, 0.05);
+      --soft: rgba(255, 255, 255, 0.03);
+      --line: rgba(255, 255, 255, 0.05);
+      
+      --text: #e3e2e6;
+      --text-muted: #90909a;
+      --muted: #90909a;
+      
+      --brand: #ffb4a2; /* MD3 Primary (Shopee Coral Light) */
+      --brand-hover: #ffcdc2;
+      --brand-gradient: linear-gradient(135deg, #f27024 0%, #ff8f00 100%);
+      --brand-glow: rgba(255, 180, 162, 0.12);
+      
+      --primary: #a8c7fa; /* MD3 Indigo/Blue Primary */
+      --primary-container: #004a77;
+      --on-primary-container: #c2e7ff;
+      
+      --ok: #81c784;
+      --okbg: rgba(129, 199, 132, 0.06);
+      --warn: #ffd54f;
+      --warnbg: rgba(255, 213, 79, 0.06);
+      --danger: #e57373;
+      --danger-hover: #ef9a9a;
+      --danger-gradient: linear-gradient(135deg, #e57373 0%, #b71c1c 100%);
+      --shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+      
+      /* Typography & Layout Tokens */
+      --font-title: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      font-family: var(--font-body);
     }
     
     body.theme-light {
@@ -205,6 +221,11 @@ HTML = r"""
       --brand: #ee4d2d;
       --brand-hover: #d73d1e;
       --brand-glow: rgba(238, 77, 45, 0.15);
+      
+      --primary: #005faf; /* MD3 Indigo/Blue Primary cho Light Theme - rõ ràng, dễ đọc */
+      --primary-container: #d6e3ff;
+      --on-primary-container: #001b3e;
+      
       --ok: #059669;
       --okbg: rgba(5, 150, 105, 0.08);
       --warn: #d97706;
@@ -1114,15 +1135,17 @@ HTML = r"""
     .field input,
     .field textarea,
     .table-wrap input,
-    .table-wrap textarea {
+    .table-wrap textarea,
+    .md3-input {
       width: 100%;
-      border: 1px solid var(--panel-border);
-      border-radius: 8px;
-      background: var(--soft);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
       color: var(--text);
-      padding: 11px 12px;
+      padding: 12px 14px;
       font: inherit;
       line-height: 1.4;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
     }
     .field textarea,
     .table-wrap textarea {
@@ -1132,11 +1155,90 @@ HTML = r"""
     .field textarea:focus,
     .table-wrap input:focus,
     .table-wrap textarea:focus,
+    .md3-input:focus,
     .paste-zone:focus {
       outline: none;
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px var(--brand-glow);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(168, 199, 250, 0.15);
+      background: rgba(255, 255, 255, 0.04);
     }
+    
+    /* MD3 Custom Buttons & Labels */
+    .md3-btn-primary {
+      background: var(--brand-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 100px; /* Pill */
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(242, 112, 36, 0.2);
+    }
+    .md3-btn-primary:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 6px 16px rgba(242, 112, 36, 0.3);
+    }
+    .md3-btn-primary:active {
+      transform: scale(0.98);
+    }
+    .md3-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 100px;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .md3-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .md3-btn-secondary:active {
+      transform: scale(0.98);
+    }
+    .md3-btn-success {
+      background: rgba(129, 199, 132, 0.1);
+      color: #81c784;
+      border: 1px solid rgba(129, 199, 132, 0.25);
+      border-radius: 100px;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .md3-btn-success:hover {
+      background: rgba(129, 199, 132, 0.2);
+    }
+    .md3-btn-success:active {
+      transform: scale(0.98);
+    }
+    .md3-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      display: block;
+    }
+
     .source-block {
       display: grid;
       gap: 12px;
@@ -1759,18 +1861,18 @@ HTML = r"""
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           </button>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 22px; margin: 0;">Đồng bộ Shopee / BigSeller</h2>
-            <button type="button" id="btnToggleConfig" class="secondary" onclick="toggleConfigColumn()" style="min-height: 32px; padding: 0 12px; font-size: 11px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); cursor: pointer;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <h2 style="font-family: var(--font-title); font-weight: 800; font-size: 22px; margin: 0;">Đồng bộ Shopee / BigSeller</h2>
+            <button type="button" id="btnToggleConfig" class="md3-btn-secondary" onclick="toggleConfigColumn()" style="padding: 6px 16px; font-size: 11px;" title="Ẩn/Hiện panel cấu hình">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               Hiện cấu hình
             </button>
           </div>
         </div>
         <div class="actions" style="display: flex; gap: 16px; align-items: center;">
-          <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 8px 16px; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; border-radius: 99px;">
+          <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 8px 16px; font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 8px; border-radius: 100px;">
             <span id="shopeeBotStatusText">Bot Telegram: OFFLINE</span>
           </div>
-          <button type="button" id="btnToggleShopeeBot" class="btn-capture" onclick="toggleShopeeBot()" style="min-height: 36px; padding: 0 16px; font-size: 12px; background: var(--brand); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff;">
+          <button type="button" id="btnToggleShopeeBot" class="md3-btn-primary" onclick="toggleShopeeBot()" style="padding: 8px 16px; font-size: 12px;">
             Khởi động Telegram Bot
           </button>
         </div>
@@ -1781,33 +1883,33 @@ HTML = r"""
         <div id="configSectionWrapper" style="display: none; flex-direction: column; gap: 24px; max-width: 450px; min-width: 320px; transition: all 0.3s ease;">
           <section class="panel">
             <div class="panel-head">
-              <h3>Cấu hình Notion & Telegram</h3>
+              <h3 style="font-family: var(--font-title);">Cấu hình Notion & Telegram</h3>
               <p>Thiết lập thông tin kết nối Notion Database và Telegram Bot.</p>
             </div>
             <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px;">
               <div>
-                <label for="shopeeNotionToken" style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Notion Integration Token (NOTION_TOKEN)</label>
-                <input id="shopeeNotionToken" type="password" placeholder="ntn_..." style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.12); border: 1px solid var(--panel-border); color: var(--text);">
+                <label for="shopeeNotionToken" class="md3-label">Notion Integration Token (NOTION_TOKEN)</label>
+                <input id="shopeeNotionToken" class="md3-input" type="password" placeholder="ntn_...">
               </div>
               <div>
-                <label for="shopeeNotionDbId" style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Notion Database ID (NOTION_DATABASE_ID)</label>
-                <input id="shopeeNotionDbId" type="text" placeholder="Ví dụ: ca055a7742824b9598abde7a7686d144" style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.12); border: 1px solid var(--panel-border); color: var(--text);">
+                <label for="shopeeNotionDbId" class="md3-label">Notion Database ID (NOTION_DATABASE_ID)</label>
+                <input id="shopeeNotionDbId" class="md3-input" type="text" placeholder="Ví dụ: ca055a7742824b9598abde7a7686d144">
               </div>
               <div>
-                <label for="shopeeTelegramToken" style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Telegram Bot Token (TELEGRAM_BOT_TOKEN)</label>
-                <input id="shopeeTelegramToken" type="password" placeholder="Mã token của Bot Telegram..." style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.12); border: 1px solid var(--panel-border); color: var(--text);">
+                <label for="shopeeTelegramToken" class="md3-label">Telegram Bot Token (TELEGRAM_BOT_TOKEN)</label>
+                <input id="shopeeTelegramToken" class="md3-input" type="password" placeholder="Mã token của Bot Telegram...">
               </div>
               <div>
-                <label for="shopeeManagerChatId" style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Manager Chat ID (MANAGER_CHAT_ID)</label>
-                <input id="shopeeManagerChatId" type="text" placeholder="ID người quản lý nhận thông báo..." style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.12); border: 1px solid var(--panel-border); color: var(--text);">
+                <label for="shopeeManagerChatId" class="md3-label">Manager Chat ID (MANAGER_CHAT_ID)</label>
+                <input id="shopeeManagerChatId" class="md3-input" type="text" placeholder="ID người quản lý nhận thông báo...">
               </div>
               <div>
-                <label for="shopeeGeminiApiKey" style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Gemini/OpenAI API Key (GEMINI_API_KEY)</label>
-                <input id="shopeeGeminiApiKey" type="password" placeholder="sk-... hoặc API Key của Gemini..." style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.12); border: 1px solid var(--panel-border); color: var(--text);">
+                <label for="shopeeGeminiApiKey" class="md3-label">Gemini/OpenAI API Key (GEMINI_API_KEY)</label>
+                <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="sk-... hoặc API Key của Gemini...">
               </div>
               
-              <button onclick="saveShopeeConfig()" style="width: 100%; min-height: 40px; font-weight: 700; background: var(--brand); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; color: #fff; cursor: pointer;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="width: 100%; min-height: 42px; margin-top: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                 Lưu cấu hình
               </button>
             </div>
@@ -1822,15 +1924,15 @@ HTML = r"""
             <!-- Cột trái: Thông tin sản phẩm -->
             <section class="panel" style="padding: 20px;">
               <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: var(--brand);">Thông tin sản phẩm</h3>
+                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Thông tin sản phẩm</h3>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Ghi vào database xử lý sản phẩm Shopee</p>
               </div>
 
               <div class="form-grid">
                 <!-- Dropdown Chọn sản phẩm từ Notion -->
                 <label class="field field-span-2">
-                  <span>Chọn sản phẩm từ Notion (Lấy thông tin nhanh)</span>
-                  <select id="shopeePendingProducts" onchange="onSelectPendingProduct(this.value)" style="width: 100%; border-radius: 8px; padding: 10px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
+                  <span class="md3-label">Chọn sản phẩm từ Notion (Lấy thông tin nhanh)</span>
+                  <select id="shopeePendingProducts" class="md3-input" onchange="onSelectPendingProduct(this.value)" style="font-weight: 600;">
                     <option value="">-- Tự nhập thủ công hoặc chọn từ danh sách Notion --</option>
                   </select>
                 </label>
@@ -1839,26 +1941,27 @@ HTML = r"""
                 <input type="hidden" id="productPageId" value="">
 
                 <label class="field field-span-2">
-                  <span>Tên sản phẩm</span>
+                  <span class="md3-label">Tên sản phẩm</span>
                   <input
                     id="productNameInput"
+                    class="md3-input"
                     name="productName"
                     type="text"
                     placeholder="Ví dụ: Premiscab Permethrin Lotion 100ml"
-                    style="width: 100%;"
                     required
                   />
                 </label>
 
                 <label class="field">
-                  <span>Giá sản phẩm</span>
-                  <input id="productPrice" name="productPrice" type="text" placeholder="Ví dụ: 129.000đ" />
+                  <span class="md3-label">Giá sản phẩm</span>
+                  <input id="productPrice" class="md3-input" name="productPrice" type="text" placeholder="Ví dụ: 129.000đ" />
                 </label>
 
                 <label class="field">
-                  <span>Phân loại</span>
+                  <span class="md3-label">Phân loại</span>
                   <input
                     id="productClassification"
+                    class="md3-input"
                     name="productClassification"
                     type="text"
                     placeholder="Ví dụ: 100ml, combo, chai lớn"
@@ -1866,9 +1969,10 @@ HTML = r"""
                 </label>
 
                 <label class="field field-span-2">
-                  <span>Biến thể / giá</span>
+                  <span class="md3-label">Biến thể / giá</span>
                   <textarea
                     id="productVariants"
+                    class="md3-input"
                     name="productVariants"
                     rows="4"
                     placeholder="100ml - 129.000đ&#10;200ml - 219.000đ"
@@ -1876,14 +1980,15 @@ HTML = r"""
                 </label>
 
                 <label class="field">
-                  <span>Keyword</span>
-                  <input id="keywords" name="keywords" type="text" placeholder="Ví dụ: trị ghẻ, giảm ngứa" />
+                  <span class="md3-label">Keyword</span>
+                  <input id="keywords" class="md3-input" name="keywords" type="text" placeholder="Ví dụ: trị ghẻ, giảm ngứa" />
                 </label>
 
                 <label class="field">
-                  <span>Ghi chú bán hàng</span>
+                  <span class="md3-label">Ghi chú bán hàng</span>
                   <textarea
                     id="useCases"
+                    class="md3-input"
                     name="useCases"
                     rows="3"
                     placeholder="Đối tượng dùng, công dụng, góc bán hàng muốn Gemini bám theo"
@@ -1891,18 +1996,18 @@ HTML = r"""
                 </label>
 
                 <details class="prompt-editor field-span-2">
-                  <summary>
+                  <summary style="font-family: var(--font-title);">
                     <span>Prompt tạo insight</span>
                     <strong>Ẩn/hiện</strong>
                   </summary>
-                  <label class="field">
-                    <span>Phần người dùng chỉnh</span>
-                    <textarea id="insightPrompt" name="insightPrompt" rows="8"></textarea>
+                  <label class="field" style="margin-top: 12px;">
+                    <span class="md3-label">Phần người dùng chỉnh</span>
+                    <textarea id="insightPrompt" class="md3-input" name="insightPrompt" rows="8"></textarea>
                   </label>
-                  <div class="prompt-actions">
-                    <button id="save-insight-prompt-button" class="ghost-button" type="button" onclick="saveInsightPrompt()">Lưu prompt</button>
-                    <button id="reset-insight-prompt-button" class="ghost-button" type="button" onclick="resetInsightPrompt()">Khôi phục mặc định</button>
-                    <span id="prompt-status" class="status muted" style="font-size: 11px; margin-top: 0;">Schema 5 insight vẫn khóa ở server</span>
+                  <div class="prompt-actions" style="margin-top: 12px; display: flex; gap: 8px;">
+                    <button id="save-insight-prompt-button" class="md3-btn-secondary" style="padding: 6px 16px; font-size: 11px;" type="button" onclick="saveInsightPrompt()">Lưu prompt</button>
+                    <button id="reset-insight-prompt-button" class="md3-btn-secondary" style="padding: 6px 16px; font-size: 11px;" type="button" onclick="resetInsightPrompt()">Khôi phục mặc định</button>
+                    <span id="prompt-status" class="status muted" style="font-size: 11px; margin-top: 0; align-self: center;">Schema 5 insight vẫn khóa ở server</span>
                   </div>
                 </details>
               </div>
@@ -1911,7 +2016,7 @@ HTML = r"""
             <!-- Cột phải: Ảnh & Gemini -->
             <section class="panel" style="padding: 20px;">
               <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: var(--brand);">Ảnh & Gemini</h3>
+                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Ảnh & Gemini</h3>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Dùng ảnh cùng thông tin sản phẩm để sinh 5 insight</p>
               </div>
 
@@ -1947,7 +2052,7 @@ HTML = r"""
                     <div class="upload-actions-row" onclick="event.stopPropagation()">
                       <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()">📁 Chọn file</span>
                       <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();">📋 Dán (Ctrl+V)</span>
-                      <span class="upload-chip" onclick="event.stopPropagation(); useLatestPixelPhotoForShopee();" style="border-color: var(--brand); color: var(--brand);" title="Lấy ảnh mới nhất vừa chụp từ Pixel">📸 Lấy ảnh Pixel mới nhất</span>
+                      <span class="upload-chip" onclick="event.stopPropagation(); useLatestPixelPhotoForShopee();" style="border-color: var(--primary); color: var(--primary);" title="Lấy ảnh mới nhất vừa chụp từ Pixel">📸 Lấy ảnh Pixel mới nhất</span>
                     </div>
                   </div>
 
@@ -1970,9 +2075,10 @@ HTML = r"""
 
 
                 <label class="field source-link-field">
-                  <span>Hoặc dán link ảnh</span>
+                  <span class="md3-label">Hoặc dán link ảnh</span>
                   <input
                     id="imageUrl"
+                    class="md3-input"
                     name="imageUrl"
                     type="url"
                     placeholder="https://drive.google.com/... hoặc link ảnh public"
@@ -1982,9 +2088,9 @@ HTML = r"""
               </div>
 
               <div class="actions" style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
-                <button id="open-chrome-button" class="btn-capture" type="button" onclick="openChromeDebugGemini()" style="flex: 1; min-height: 42px; background: var(--brand); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff;">Mở & kiểm tra Gemini</button>
-                <button id="analyze-button" class="btn-capture" type="button" onclick="analyzeProduct()" style="flex: 1; min-height: 42px; background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);">Phân tích ảnh</button>
-                <button id="sync-gemini-button" class="btn-capture" type="button" onclick="syncGeminiResultManual()" style="flex: 1; min-height: 42px; background: #10b981; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">Đồng bộ từ Gemini</button>
+                <button id="open-chrome-button" class="md3-btn-secondary" style="flex: 1; min-height: 42px;" type="button" onclick="openChromeDebugGemini()">Mở & kiểm tra Gemini</button>
+                <button id="analyze-button" class="md3-btn-primary" style="flex: 1; min-height: 42px;" type="button" onclick="analyzeProduct()">Phân tích ảnh</button>
+                <button id="sync-gemini-button" class="md3-btn-success" style="flex: 1; min-height: 42px;" type="button" onclick="syncGeminiResultManual()">Đồng bộ từ Gemini</button>
               </div>
               <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <span id="analyze-status" class="status muted" style="margin-top: 0; font-size: 12px;">Chưa chạy</span>
@@ -1997,7 +2103,7 @@ HTML = r"""
           <section class="panel result-panel" style="padding: 20px; margin-bottom: 0;">
             <div class="panel-head result-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h3 style="margin: 0; color: var(--brand);">Bảng review insight</h3>
+                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Bảng review insight</h3>
                 <p id="product-name" style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Chưa có sản phẩm</p>
               </div>
               <span id="save-status" class="status muted" style="margin-top: 0; font-size: 12px;">Chưa ghi Notion</span>
@@ -2027,60 +2133,60 @@ HTML = r"""
               </div>
 
               <div class="actions save-actions" style="margin-top: 16px; display: flex; justify-content: flex-end;">
-                <button id="save-button" class="btn-capture" type="submit" style="min-height: 42px; padding: 0 32px; background: var(--brand); border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff;">Ghi nhận vào Notion</button>
+                <button id="save-button" class="md3-btn-primary" type="submit" style="min-height: 42px; padding: 0 32px;">Ghi nhận vào Notion</button>
               </div>
             </form>
           </section>
 
           <!-- Sync log + Excel list (2-col grid) -->
           <div style="display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start;">
-          <!-- Sync Log Section -->
-          <section class="panel" style="display: flex; flex-direction: column; padding: 20px;">
-            <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-              <div>
-                <h3 style="margin: 0;">Đồng bộ Notion sang BigSeller</h3>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
+            <!-- Sync Log Section -->
+            <section class="panel" style="display: flex; flex-direction: column; padding: 20px;">
+              <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
+                <div>
+                  <h3 style="margin: 0; font-family: var(--font-title);">Đồng bộ Notion sang BigSeller</h3>
+                  <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
+                </div>
+                <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;" title="Chạy đồng bộ ngay">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  Đồng bộ ngay
+                </button>
               </div>
-              <button class="secondary" onclick="runShopeeSync()" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%); border-color: rgba(16, 185, 129, 0.3); font-weight: 700; padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #10b981; display: flex; align-items: center; gap: 8px; white-space: nowrap;" title="Chạy đồng bộ ngay">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Đồng bộ ngay
-              </button>
-            </div>
-             <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                <label style="font-weight: 600; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Nhật ký Realtime</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <input type="text" id="shopeeSyncLogFilter" oninput="filterShopeeSyncLogs()" placeholder="Lọc log..." style="width: 120px; height: 22px; font-size: 11px; border-radius: 4px; padding: 2px 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); outline: none;" />
-                  <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); cursor: pointer; font-weight: 600; white-space: nowrap;">
-                    <input type="checkbox" id="shopeeSyncLogAutoScroll" checked style="cursor: pointer; accent-color: var(--brand);" /> Tự cuộn
-                  </label>
-                  <span style="color: var(--panel-border); font-size: 11px;">|</span>
-                  <button class="ghost" onclick="clearShopeeSyncLogs()" style="padding: 2px 6px; font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 4px;" title="Xoá màn hình log">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Xoá log
-                  </button>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                  <span class="md3-label" style="margin: 0;">Nhật ký Realtime</span>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="text" id="shopeeSyncLogFilter" class="md3-input" oninput="filterShopeeSyncLogs()" placeholder="Lọc log..." style="width: 120px; padding: 4px 10px; font-size: 11px; min-height: unset; height: 26px;" />
+                    <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); cursor: pointer; font-weight: 600; white-space: nowrap;">
+                      <input type="checkbox" id="shopeeSyncLogAutoScroll" checked style="cursor: pointer; accent-color: var(--brand);" /> Tự cuộn
+                    </label>
+                    <span style="color: var(--panel-border); font-size: 11px;">|</span>
+                    <button class="md3-btn-secondary" onclick="clearShopeeSyncLogs()" style="padding: 4px 12px; font-size: 11px; color: var(--danger); border-color: rgba(229, 115, 115, 0.2);" title="Xoá màn hình log">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      Xoá log
+                    </button>
+                  </div>
+                </div>
+                <div id="shopeeSyncLogBox" style="height: 280px; background: var(--surface-container-low); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
+                  <!-- Log hiển thị thời gian thực -->
                 </div>
               </div>
-              <div id="shopeeSyncLogBox" style="height: 280px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
-                <!-- Log hiển thị thời gian thực -->
-              </div>
-            </div>
-          </section>
+            </section>
 
-          <!-- Excel List Section -->
-          <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
-            <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;">Excel BigSeller đã tạo</h4>
-              <div style="display: flex; gap: 6px; align-items: center;">
-                <button class="ghost" onclick="loadShopeeExcelList()" style="padding: 4px 6px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
-                <span style="color: var(--panel-border); font-size: 11px;">|</span>
-                <button class="ghost" onclick="deleteShopeeExcelAll()" style="padding: 4px 6px; font-size: 12px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700;">Xoá tất cả</button>
+            <!-- Excel List Section -->
+            <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
+              <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 14px;">Excel BigSeller đã tạo</h4>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <button class="md3-btn-secondary" onclick="loadShopeeExcelList()" style="padding: 4px 12px; font-size: 11px;">Làm mới</button>
+                  <span style="color: var(--panel-border); font-size: 11px;">|</span>
+                  <button class="md3-btn-secondary" onclick="deleteShopeeExcelAll()" style="padding: 4px 12px; font-size: 11px; color: var(--danger); border-color: rgba(229, 115, 115, 0.2);">Xoá tất cả</button>
+                </div>
               </div>
-            </div>
-            <div id="shopeeExcelList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 280px;">
-              <!-- Load động từ API -->
-            </div>
-          </aside>
+              <div id="shopeeExcelList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 280px;">
+                <!-- Load động từ API -->
+              </div>
+            </aside>
 
           </div><!-- end sync-bottom-grid -->
         </div><!-- end col-2 main content -->
@@ -4722,8 +4828,14 @@ def api_create_folder():
         target.mkdir(exist_ok=True)
         if not target.is_dir():
             raise ValueError("Đường dẫn đã tồn tại nhưng không phải thư mục.")
+            
+        # Tự động tạo 5 thư mục Insight 1 - 5 bên trong thư mục sản phẩm chính
+        for i in range(1, 6):
+            insight_folder = target / f"Insight {i}"
+            insight_folder.mkdir(exist_ok=True)
+            
         save_path_setting("selected_drive_folder", name)
-        return jsonify({"status": "Đã tạo thư mục." if created else "Thư mục đã tồn tại, app đã chọn lại.", "folder": name, "path": str(target)})
+        return jsonify({"status": "Đã tạo thư mục sản phẩm cùng 5 thư mục Insight." if created else "Thư mục đã tồn tại, app đã chọn lại.", "folder": name, "path": str(target)})
     except Exception as exc:
         return error_response(exc, 400)
 
@@ -4746,13 +4858,14 @@ def api_delete_folder():
             raise RuntimeError("Pixel đang chụp hoặc quay. Hãy đợi tác vụ hiện tại hoàn tất.")
         name = str((request.json or {}).get("name", "")).strip()
         target = selected_drive_folder(name)
-        if any(target.iterdir()):
-            raise ValueError("Thư mục không rỗng. Hãy kiểm tra và di chuyển hoặc xóa file bên trong trước.")
-        target.rmdir()
+        
+        # Xóa cưỡng bức toàn bộ thư mục sản phẩm (bao gồm các thư mục con Insight 1-5 và file ảnh)
+        shutil.rmtree(target)
+        
         if selected_folder_name() == target.name:
             save_path_setting("selected_drive_folder", "")
-        add_event({"step": "folder_deleted", "message": "Đã xóa thư mục rỗng.", "folder": target.name})
-        return jsonify({"status": "Đã xóa thư mục rỗng.", "folder": target.name})
+        add_event({"step": "folder_deleted", "message": "Đã xóa thư mục sản phẩm.", "folder": target.name})
+        return jsonify({"status": "Đã xóa thư mục sản phẩm cùng toàn bộ nội dung bên trong.", "folder": target.name})
     except Exception as exc:
         return error_response(exc, 400)
 
