@@ -535,6 +535,10 @@ HTML = r"""
       width: 100%;
       margin: 0 auto;
     }
+    #posterDashboard .content {
+      max-width: 1840px;
+      width: 98%;
+    }
     .workspace {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 440px;
@@ -1709,15 +1713,15 @@ HTML = r"""
         </div>
       </header>
       
-      <div class="content" style="padding: 0; display: grid; grid-template-columns: 340px 1fr 360px; gap: 24px; width: 100%; align-items: start;">
+      <div class="content" style="padding: 0; display: grid; grid-template-columns: 320px 1fr 450px; gap: 20px; width: 100%; align-items: start; max-width: 1840px;">
         <!-- Cột 1: Thư viện Prompt (Prompts Library) -->
         <aside class="panel" style="display: flex; flex-direction: column; gap: 16px; padding: 20px; height: 1040px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
-            <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;">Thư viện Prompt</h4>
-            <div style="display: flex; gap: 8px;">
-              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 4px 8px; font-size: 12px; color: var(--ok); font-weight: 700; background: none; border: none; cursor: pointer;" title="Nhập danh sách prompt từ file .txt">Nhập file</button>
-              <button class="ghost" onclick="exportPrompts()" style="padding: 4px 8px; font-size: 12px; color: var(--primary); font-weight: 700; background: none; border: none; cursor: pointer;" title="Xuất toàn bộ thư viện prompt ra file .txt">Xuất thư viện</button>
-              <button class="ghost" onclick="openPromptModal()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); font-weight: 700; background: none; border: none; cursor: pointer;">+ Thêm</button>
+          <div style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; width: 100%;">
+            <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; text-align: center; width: 100%;">Thư viện Prompt</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%;">
+              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 6px 4px; font-size: 11px; color: var(--ok); font-weight: 700; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Nhập danh sách prompt từ file .txt">📥 Nhập</button>
+              <button class="ghost" onclick="exportPrompts()" style="padding: 6px 4px; font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Xuất toàn bộ thư viện prompt ra file .txt">📤 Xuất</button>
+              <button class="ghost" onclick="openPromptModal()" style="padding: 6px 4px; font-size: 11px; color: var(--brand); font-weight: 700; background: rgba(238, 77, 45, 0.05); border: 1px solid rgba(238, 77, 45, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;">➕ Thêm</button>
             </div>
           </div>
           <input type="file" id="promptImportInput" accept=".txt" onchange="handlePromptImport(event)" style="display: none;">
@@ -1727,7 +1731,7 @@ HTML = r"""
             <select id="promptCategoryFilter" onchange="filterPromptsList()" style="font-size: 12px; min-height: 34px; flex: 1;">
               <option value="all">Tất cả danh mục</option>
             </select>
-            <button class="ghost" onclick="openCategoryModal()" style="padding: 6px; min-height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--panel-border); border-radius: 8px;" title="Quản lý danh mục">
+            <button class="ghost" onclick="openCategoryModal()" style="padding: 6px; min-height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--panel-border); border-radius: 8px; background: none;" title="Quản lý danh mục">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
           </div>
@@ -1739,119 +1743,133 @@ HTML = r"""
         </aside>
         
         <!-- Cột 2: Bảng điều khiển và Soạn thảo (Control Panel) -->
-        <main class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; min-height: 1040px; height: 1040px; box-sizing: border-box;">
-          <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+        <main class="panel" style="display: flex; flex-direction: column; gap: 16px; padding: 20px; min-height: 1040px; height: 1040px; box-sizing: border-box;">
+          <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 4px;">
             <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;">Bảng Điều Khiển Gửi</h4>
           </div>
-          <!-- Đường dẫn lưu ảnh kết quả -->
-          <div style="margin-bottom: 4px;">
-            <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: #000000;">Thư mục lưu ảnh kết quả</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="posterExportDir" placeholder="Mặc định: Downloads" style="flex: 1; min-height: 36px; padding: 6px 12px; font-size: 13px; background: #ffffff; border: 1px solid #000000; border-radius: 8px; color: #000000;" readonly>
-              <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 36px; padding: 0 14px; font-size: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">Chọn...</button>
-            </div>
-          </div>
           
-          <!-- File sản phẩm được chọn -->
-          <div>
-            <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: #000000;">File sản phẩm thô (Ảnh/Video)</label>
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px;">
-              <div id="contentImgDropzone" onclick="document.getElementById('contentImgFile').click()" style="border: 2px dashed #000000; border-radius: 12px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: #ffffff; flex: 1;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #333333; margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <span id="contentImgLabel" style="font-size: 11px; color: #333333; text-align: center; padding: 0 10px; font-weight: 500;">Bấm hoặc Kéo thả ảnh/video sản phẩm</span>
-                <input type="file" id="contentImgFile" accept="image/*,video/*" style="display: none;" onchange="handleContentImageSelect(this.files)">
-              </div>
-              <div id="contentImgPreviewContainer" style="width: 70px; height: 70px; border-radius: 12px; border: 1px solid var(--panel-border); display: none; overflow: hidden; position: relative; background: var(--bg);">
-                <img id="contentImgPreview" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
-                <video id="contentVideoPreview" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;" autoplay loop muted playsinline></video>
-                <button type="button" onclick="clearContentImage()" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 20px; height: 20px; display: grid; place-items: center; color: #fff; cursor: pointer; font-size: 11px; z-index: 10;">×</button>
-              </div>
-            </div>
-            <!-- Nút lấy file Pixel mới nhất -->
-            <button type="button" class="secondary" onclick="useLatestPixelPhoto()" style="width: 100%; min-height: 32px; font-size: 11px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; border-radius: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-              Lấy ảnh/video Pixel vừa chụp mới nhất
-            </button>
-          </div>
-          
-          <!-- File ảnh mẫu tham khảo -->
-          <div>
-            <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: #000000;">Ảnh mẫu tham khảo phong cách (Tùy chọn)</label>
-            <!-- Vùng hiển thị ảnh Preview (khi đã chọn/dán thành công) -->
-            <div id="sampleImgPreviewContainer" style="width: 100%; height: 120px; border-radius: 12px; border: 1px solid var(--panel-border); display: none; overflow: hidden; position: relative; background: var(--bg); margin-bottom: 8px;">
-              <img id="sampleImgPreview" src="" style="width: 100%; height: 100%; object-fit: contain;">
-              <button type="button" onclick="clearSampleImage()" style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; color: #fff; cursor: pointer; font-size: 12px; z-index: 10;">×</button>
-            </div>
-            
-            <!-- Vùng chọn ảnh (chỉ hiển thị khi chưa có ảnh) -->
-            <div id="sampleImgSelectorContainer" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Dropzone kéo thả/chọn file -->
-              <div id="sampleImgDropzone" onclick="document.getElementById('sampleImgFile').click()" style="border: 2px dashed #000000; border-radius: 12px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: #ffffff;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #333333; margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <span id="sampleImgLabel" style="font-size: 11px; color: #333333; text-align: center; font-weight: 500;">Bấm hoặc Kéo thả ảnh mẫu tham khảo</span>
-                <input type="file" id="sampleImgFile" accept="image/*" style="display: none;" onchange="handleSampleImageSelect(this.files)">
+          <div style="display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; flex: 1; min-height: 0;">
+            <!-- Cột con 2.1: Cấu hình và File -->
+            <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+              <!-- Đường dẫn lưu ảnh kết quả -->
+              <div>
+                <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: var(--text);">Thư mục lưu ảnh kết quả</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="posterExportDir" placeholder="Mặc định: Downloads" style="flex: 1; min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 8px;" readonly>
+                  <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 36px; padding: 0 14px; font-size: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">Chọn...</button>
+                </div>
               </div>
               
-              <!-- Ô dán URL riêng biệt -->
-              <input type="text" id="sampleImgUrlInput" placeholder="Hoặc dán link URL ảnh mẫu vào đây..." oninput="handleSampleImageUrlChange(this.value)" style="width: 100%; height: 26px; font-size: 10px; border-radius: 8px; border: 1px solid #000000; padding: 0 10px; background: #ffffff; color: #000000; outline: none;">
+              <!-- File sản phẩm được chọn (Dropzone cao 140px) -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: var(--text);">File sản phẩm thô (Ảnh/Video)</label>
+                <div style="position: relative; width: 100%;">
+                  <!-- Dropzone kéo thả/chọn file -->
+                  <div id="contentImgDropzone" onclick="document.getElementById('contentImgFile').click()" style="border: 2px dashed var(--panel-border); border-radius: 12px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: var(--soft); width: 100%;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand); margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span id="contentImgLabel" style="font-size: 13px; color: var(--text); text-align: center; padding: 0 15px; font-weight: 600;">Bấm hoặc Kéo thả ảnh/video sản phẩm</span>
+                    <span style="font-size: 11px; color: var(--muted); margin-top: 4px;">Hỗ trợ ảnh JPG, PNG hoặc video</span>
+                    <input type="file" id="contentImgFile" accept="image/*,video/*" style="display: none;" onchange="handleContentImageSelect(this.files)">
+                  </div>
+                  <!-- Preview Container -->
+                  <div id="contentImgPreviewContainer" style="width: 100%; height: 140px; border-radius: 12px; border: 1px solid var(--panel-border); display: none; overflow: hidden; position: relative; background: var(--soft);">
+                    <img id="contentImgPreview" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                    <video id="contentVideoPreview" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;" autoplay loop muted playsinline></video>
+                    <button type="button" onclick="clearContentImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; color: #fff; cursor: pointer; font-size: 14px; z-index: 10; font-weight: bold;">×</button>
+                  </div>
+                </div>
+                <!-- Nút lấy file Pixel mới nhất -->
+                <button type="button" class="secondary" onclick="useLatestPixelPhoto()" style="width: 100%; min-height: 34px; font-size: 11px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; border-radius: 8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                  Lấy ảnh/video Pixel vừa chụp mới nhất
+                </button>
+              </div>
+              
+              <!-- File ảnh mẫu tham khảo (Dropzone cao 140px) -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: var(--text);">Ảnh mẫu tham khảo phong cách (Tùy chọn)</label>
+                <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                  <!-- Vùng hiển thị ảnh Preview (khi đã chọn/dán thành công) -->
+                  <div id="sampleImgPreviewContainer" style="width: 100%; height: 140px; border-radius: 12px; border: 1px solid var(--panel-border); display: none; overflow: hidden; position: relative; background: var(--soft);">
+                    <img id="sampleImgPreview" src="" style="width: 100%; height: 100%; object-fit: contain;">
+                    <button type="button" onclick="clearSampleImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; color: #fff; cursor: pointer; font-size: 14px; z-index: 10; font-weight: bold;">×</button>
+                  </div>
+                  
+                  <!-- Vùng chọn ảnh (chỉ hiển thị khi chưa có ảnh) -->
+                  <div id="sampleImgSelectorContainer" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                    <!-- Dropzone kéo thả/chọn file -->
+                    <div id="sampleImgDropzone" onclick="document.getElementById('sampleImgFile').click()" style="border: 2px dashed var(--panel-border); border-radius: 12px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: var(--soft); width: 100%;">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand); margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                      <span id="sampleImgLabel" style="font-size: 13px; color: var(--text); text-align: center; font-weight: 600;">Bấm hoặc Kéo thả ảnh mẫu tham khảo</span>
+                      <input type="file" id="sampleImgFile" accept="image/*" style="display: none;" onchange="handleSampleImageSelect(this.files)">
+                    </div>
+                    
+                    <!-- Ô dán URL riêng biệt -->
+                    <input type="text" id="sampleImgUrlInput" placeholder="Hoặc dán link URL ảnh mẫu vào đây..." oninput="handleSampleImageUrlChange(this.value)" style="width: 100%; height: 36px; font-size: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); padding: 0 12px; outline: none; transition: border-color 0.2s;">
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <!-- Thông tin sản phẩm từ Notion -->
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="notionContentInput" style="font-weight: 600; font-size: 13px; color: #000000;">Thông tin sản phẩm từ Notion</label>
-            <textarea id="notionContentInput" placeholder="Dán nội dung thuộc tính từ Notion..." style="width: 100%; height: 60px; min-height: 60px; resize: none; font-size: 12px; line-height: 1.4; border-radius: 8px; padding: 8px; background: #ffffff; border: 1px solid #000000; color: #000000;"></textarea>
-          </div>
-          
-          <!-- Từ khóa chính của insight -->
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="keywordsInput" style="font-weight: 600; font-size: 13px; color: #000000;">Từ khóa chính của insight</label>
-            <input type="text" id="keywordsInput" placeholder="Ví dụ: trẻ trung, sang trọng, năng động..." style="width: 100%; min-height: 36px; padding: 6px 12px; font-size: 12px; background: #ffffff; border: 1px solid #000000; border-radius: 8px; color: #000000;">
-          </div>
-          
-          <!-- Nội dung Prompt soạn thảo -->
-          <div style="display: flex; flex-direction: column; height: 120px; min-height: 120px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <label for="contentEditorPrompt" style="font-weight: 600; font-size: 13px; color: #000000; margin: 0;">Nội dung Prompt</label>
-              <button class="ghost" onclick="exportCurrentPrompt()" style="padding: 2px 6px; font-size: 11px; color: var(--brand); font-weight: 700; background: none; border: none; cursor: pointer;" title="Tải nội dung prompt đang soạn thảo về file .txt">💾 Xuất file</button>
-            </div>
-            <textarea id="contentEditorPrompt" placeholder="Nhập yêu cầu bối cảnh ở đây hoặc click chọn từ thư viện bên trái..." style="width: 100%; height: 85px; min-height: 85px; resize: none; font-size: 13px; line-height: 1.4; border-radius: 8px; padding: 10px; background: #ffffff; border: 1px solid #000000; color: #000000;"></textarea>
-          </div>
-          
-          <!-- Khung gửi tin nhắn -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <button class="btn-capture" id="btnSendToChatGPT" onclick="sendToChatGPT()" style="font-size: 14px; padding: 12px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-              Gửi Lên ChatGPT
-            </button>
-            <button class="btn-capture" id="btnSendToGemini" onclick="sendToGemini()" style="font-size: 14px; padding: 12px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); border: none;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              Gửi Lên Gemini
-            </button>
-          </div>
-          
-          <!-- Nhật ký tiến trình (Live Log) -->
-          <div style="display: flex; flex-direction: column; height: 180px; min-height: 180px; margin-bottom: 4px;">
-            <label style="margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #000000;">Nhật ký tiến trình (Realtime Log)</label>
-            <div id="automationLogBox" style="flex: 1; background: #ffffff; border: 1px solid #000000; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 11.5px; overflow-y: auto; color: #000000; line-height: 1.5; height: 145px;">
-              Chưa có hoạt động nào. Hãy kết nối Chrome và gửi ảnh để bắt đầu.
+            
+            <!-- Cột con 2.2: Soạn thảo và Gửi -->
+            <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+              <!-- Thông tin sản phẩm từ Notion (Cao 140px) -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label for="notionContentInput" style="font-weight: 600; font-size: 13px; color: var(--text);">Thông tin sản phẩm từ Notion</label>
+                <textarea id="notionContentInput" placeholder="Dán nội dung thuộc tính từ Notion..." style="width: 100%; height: 140px; min-height: 140px; resize: none; font-size: 12.5px; line-height: 1.45; border-radius: 8px; padding: 10px;"></textarea>
+              </div>
+              
+              <!-- Từ khóa chính của insight -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label for="keywordsInput" style="font-weight: 600; font-size: 13px; color: var(--text);">Từ khóa chính của insight</label>
+                <input type="text" id="keywordsInput" placeholder="Ví dụ: trẻ trung, sang trọng, năng động..." style="width: 100%; min-height: 36px; padding: 6px 12px; font-size: 12.5px; border-radius: 8px;">
+              </div>
+              
+              <!-- Nội dung Prompt soạn thảo (Cao 310px) -->
+              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                  <label for="contentEditorPrompt" style="font-weight: 600; font-size: 13px; color: var(--text); margin: 0;">Nội dung Prompt</label>
+                  <button class="ghost" onclick="exportCurrentPrompt()" style="padding: 2px 8px; font-size: 11px; color: var(--brand); font-weight: 700; background: none; border: none; cursor: pointer; min-height: auto;" title="Tải nội dung prompt đang soạn thảo về file .txt">💾 Xuất file</button>
+                </div>
+                <textarea id="contentEditorPrompt" placeholder="Nhập yêu cầu bối cảnh ở đây hoặc click chọn từ thư viện bên trái..." style="width: 100%; height: 310px; min-height: 310px; resize: none; font-size: 13px; line-height: 1.5; border-radius: 8px; padding: 12px; flex: 1;"></textarea>
+              </div>
+              
+              <!-- Khung gửi tin nhắn -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+                <button class="btn-capture" id="btnSendToChatGPT" onclick="sendToChatGPT()" style="font-size: 13.5px; padding: 10px 16px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  Gửi Lên ChatGPT
+                </button>
+                <button class="btn-capture" id="btnSendToGemini" onclick="sendToGemini()" style="font-size: 13.5px; padding: 10px 16px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); border: none; min-height: 40px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  Gửi Lên Gemini
+                </button>
+              </div>
             </div>
           </div>
         </main>
         
-        <!-- Cột 3: Danh sách ảnh kết quả tải về (Results Panel) -->
+        <!-- Cột 3: Danh sách ảnh kết quả tải về (Results Panel & Log) -->
         <aside class="panel" style="display: flex; flex-direction: column; gap: 16px; padding: 20px; height: 1040px;">
           <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
             <h4 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;">Ảnh kết quả</h4>
             <div style="display: flex; gap: 8px;">
-              <button class="ghost" onclick="clearToolCache()" style="padding: 4px 8px; font-size: 12px; color: var(--danger); background: none; border: none; cursor: pointer; font-weight: 700;" title="Xóa toàn bộ ảnh tạm và ảnh kết quả cũ">Xóa cache</button>
-              <button class="ghost" onclick="loadDownloadedImages()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700;">Làm mới</button>
+              <button class="ghost" onclick="clearToolCache()" style="padding: 4px 8px; font-size: 12px; color: var(--danger); background: none; border: none; cursor: pointer; font-weight: 700; min-height: auto;" title="Xóa toàn bộ ảnh tạm và ảnh kết quả cũ">Xóa cache</button>
+              <button class="ghost" onclick="loadDownloadedImages()" style="padding: 4px 8px; font-size: 12px; color: var(--brand); background: none; border: none; cursor: pointer; font-weight: 700; min-height: auto;">Làm mới</button>
             </div>
           </div>
           
-          <!-- Khung danh sách ảnh kết quả -->
-          <div id="downloadedImagesList" style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-content: start; padding-right: 4px;">
+          <!-- Khung danh sách ảnh kết quả (nửa trên) -->
+          <div id="downloadedImagesList" style="height: 600px; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-content: start; padding-right: 4px;">
             <!-- Load động từ API -->
+          </div>
+
+          <!-- Khung Realtime Log (nửa dưới) -->
+          <div style="display: flex; flex-direction: column; height: 320px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
+            <label style="margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text); text-transform: uppercase;">Nhật ký tiến trình (Realtime Log)</label>
+            <div id="automationLogBox" style="flex: 1; background: #030712; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 12px; font-family: 'Cascadia Mono', Consolas, monospace; font-size: 11px; overflow-y: auto; color: #f3f4f6; line-height: 1.5; height: 260px; box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);">
+              Chưa có hoạt động nào. Hãy kết nối Chrome và gửi ảnh để bắt đầu.
+            </div>
           </div>
         </aside>
       </div>
@@ -1882,12 +1900,12 @@ HTML = r"""
         </div>
       </header>
       
-      <div class="workspace" style="display: flex; gap: 24px;">
+      <div class="workspace" style="display: flex; gap: 20px; width: 100%; max-width: 1840px; margin: 0 auto;">
         <!-- Cột 1: Cấu hình kết nối Notion / Telegram / API -->
         <div id="configSectionWrapper" style="display: none; flex-direction: column; gap: 24px; max-width: 450px; min-width: 320px; transition: all 0.3s ease;">
           <section class="panel">
             <div class="panel-head">
-              <h3 style="font-family: var(--font-title);">Cấu hình Notion & Telegram</h3>
+              <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Cấu hình Notion & Telegram</h4>
               <p>Thiết lập thông tin kết nối Notion Database và Telegram Bot.</p>
             </div>
             <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px;">
@@ -1928,7 +1946,7 @@ HTML = r"""
             <!-- Cột trái: Thông tin sản phẩm -->
             <section class="panel" style="padding: 20px;">
               <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Thông tin sản phẩm</h3>
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Thông tin sản phẩm</h4>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Ghi vào database xử lý sản phẩm Shopee</p>
               </div>
 
@@ -2020,7 +2038,7 @@ HTML = r"""
             <!-- Cột phải: Ảnh & Gemini -->
             <section class="panel" style="padding: 20px;">
               <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Ảnh & Gemini</h3>
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Ảnh & Gemini</h4>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Dùng ảnh cùng thông tin sản phẩm để sinh 5 insight</p>
               </div>
 
@@ -2107,7 +2125,7 @@ HTML = r"""
           <section class="panel result-panel" style="padding: 20px; margin-bottom: 0;">
             <div class="panel-head result-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h3 style="margin: 0; color: var(--brand); font-family: var(--font-title);">Bảng review insight</h3>
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Bảng review insight</h4>
                 <p id="product-name" style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Chưa có sản phẩm</p>
               </div>
               <span id="save-status" class="status muted" style="margin-top: 0; font-size: 12px;">Chưa ghi Notion</span>
@@ -2143,12 +2161,12 @@ HTML = r"""
           </section>
 
           <!-- Sync log + Excel list (2-col grid) -->
-          <div style="display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start;">
+          <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;">
             <!-- Sync Log Section -->
             <section class="panel" style="display: flex; flex-direction: column; padding: 20px;">
               <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
                 <div>
-                  <h3 style="margin: 0; font-family: var(--font-title);">Đồng bộ Notion sang BigSeller</h3>
+                  <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Đồng bộ Notion sang BigSeller</h4>
                   <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
                 </div>
                 <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;" title="Chạy đồng bộ ngay">
@@ -2171,7 +2189,7 @@ HTML = r"""
                     </button>
                   </div>
                 </div>
-                <div id="shopeeSyncLogBox" style="height: 280px; background: var(--surface-container-low); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; overflow-y: auto; color: var(--text-muted);">
+                <div id="shopeeSyncLogBox" style="height: 280px; background: #030712; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; font-family: 'Cascadia Mono', Consolas, 'Courier New', monospace; font-size: 11px; line-height: 1.6; overflow-y: auto; color: #f3f4f6; box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);">
                   <!-- Log hiển thị thời gian thực -->
                 </div>
               </div>
@@ -2180,7 +2198,7 @@ HTML = r"""
             <!-- Excel List Section -->
             <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
               <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 14px;">Excel BigSeller đã tạo</h4>
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Excel BigSeller đã tạo</h4>
                 <div style="display: flex; gap: 6px; align-items: center;">
                   <button class="md3-btn-secondary" onclick="loadShopeeExcelList()" style="padding: 4px 12px; font-size: 11px;">Làm mới</button>
                   <span style="color: var(--panel-border); font-size: 11px;">|</span>
