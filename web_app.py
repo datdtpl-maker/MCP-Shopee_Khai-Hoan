@@ -1254,6 +1254,30 @@ HTML = r"""
       }
     }
 
+    /* Styles to fit result images nicely in the column container */
+    .poster-card {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--panel-border);
+      background: #000;
+      transition: transform 0.2s, border-color 0.2s;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .poster-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--brand);
+    }
+    .poster-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
 </style>
 </head>
 <body>
@@ -4078,7 +4102,7 @@ HTML = r"""
 
       const isVideo = img.name.endsWith('.mp4');
       const mediaElement = isVideo
-        ? `<video src="${img.url}" style="width: 100%; height: auto; display: block; object-fit: contain; background: #000;" autoplay loop muted playsinline></video>`
+        ? `<video src="${img.url}" style="width: 100%; height: 200px; display: block; object-fit: contain; background: #000;" autoplay loop muted playsinline></video>`
         : `<img src="${img.url}" alt="${img.name}">`;
 
       card.innerHTML = `
