@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.9"
+CURRENT_VERSION = "v2.2.10"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1278,6 +1278,35 @@ HTML = r"""
       display: block;
     }
 
+    /* Focus styles for forms with brand highlight */
+    input:focus, select:focus, textarea:focus, .md3-input:focus {
+      border-color: var(--brand) !important;
+      box-shadow: 0 0 0 3px var(--brand-glow) !important;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Tactile button active click animation */
+    button:active, .md3-btn-primary:active, .md3-btn-secondary:active, .ghost:active, .secondary:active {
+      transform: scale(0.97) !important;
+      transition: transform 0.05s ease;
+    }
+    
+    /* Elegant scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
 </style>
 </head>
 <body>
@@ -1507,9 +1536,9 @@ HTML = r"""
           <div style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; width: 100%;">
             <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; text-align: center; width: 100%;">Thư viện Prompt</h4>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%;">
-              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 6px 4px; font-size: 11px; color: var(--ok); font-weight: 700; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Nhập danh sách prompt từ file .txt">📥 Nhập</button>
-              <button class="ghost" onclick="exportPrompts()" style="padding: 6px 4px; font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Xuất toàn bộ thư viện prompt ra file .txt">📤 Xuất</button>
-              <button class="ghost" onclick="openPromptModal()" style="padding: 6px 4px; font-size: 11px;  background: rgba(238, 77, 45, 0.05); border: 1px solid rgba(238, 77, 45, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;">➕ Thêm</button>
+              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 6px 4px; font-size: 11px; color: var(--ok); font-weight: 700; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Nhập danh sách prompt từ file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Nhập</button>
+              <button class="ghost" onclick="exportPrompts()" style="padding: 6px 4px; font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Xuất toàn bộ thư viện prompt ra file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Xuất</button>
+              <button class="ghost" onclick="openPromptModal()" style="padding: 6px 4px; font-size: 11px;  background: rgba(238, 77, 45, 0.05); border: 1px solid rgba(238, 77, 45, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Thêm</button>
             </div>
           </div>
           <input type="file" id="promptImportInput" accept=".txt" onchange="handlePromptImport(event)" style="display: none;">
@@ -1832,8 +1861,8 @@ HTML = r"""
                         <span style="font-size: 11px; color: var(--muted); display: block; margin-top: 4px;">Ctrl+V để dán · hỗ trợ JPG, PNG, WEBP</span>
                       </div>
                       <div class="upload-actions-row" onclick="event.stopPropagation()" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
-                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600;">📁 Chọn file</span>
-                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600;">📋 Dán (Ctrl+V)</span>
+                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>Chọn file</span>
+                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Dán (Ctrl+V)</span>
                         <span class="upload-chip" onclick="event.stopPropagation(); useLatestPixelPhotoForShopee();" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--primary); border-radius: 20px; background: var(--panel); color: var(--primary); cursor: pointer; font-weight: 600;" title="Lấy ảnh mới nhất vừa chụp từ Pixel">📸 Ảnh Pixel</span>
                       </div>
                     </div>
@@ -3112,7 +3141,7 @@ HTML = r"""
       list.innerHTML = d.map(f => `
         <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
           <div style="font-weight: 600; font-size: 13px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--text);" title="${escapeHtml(f.name)}">
-            📁 ${escapeHtml(f.name)}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; display: inline-block; vertical-align: middle;"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>${escapeHtml(f.name)}
           </div>
           <div style="font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;">
             <span>${f.time}</span>
@@ -4113,10 +4142,10 @@ HTML = r"""
           </div>
           <div style="display: flex; flex-direction: column; gap: 5px; width: 100%;">
             <button class="ghost" onclick="event.stopPropagation(); revealImageFolder('${img.file_path.replace(/\\/g, '\\\\')}')" style="min-height: 28px; font-size: 10.5px; padding: 4px 8px; font-weight: 700; border-radius: 6px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); width: 100%;">
-              📂 Mở thư mục
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>Mở thư mục
             </button>
             <button onclick="event.stopPropagation(); window.open('https://www.canva.com', '_blank')" style="min-height: 28px; font-size: 10.5px; padding: 4px 8px; font-weight: 700; border-radius: 6px; background: var(--brand); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.3); width: 100%;">
-              🎨 Mở Canva
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.03345 19.1749 5.09901 19.4294 5.024 19.664L4.66667 20.7813C4.5492 21.1499 4.85012 21.5 5.23666 21.5H7.1306C7.38283 21.5 7.61868 21.3719 7.75389 21.1583L8.33333 20.2444C8.47355 20.0229 8.73016 19.9015 8.99505 19.9329C9.96781 20.0485 10.9702 20.0927 12 20.0927V22Z"></path></svg>Mở Canva
             </button>
           </div>
         </div>
@@ -4311,7 +4340,7 @@ HTML = r"""
     </div>
 
     <button type="button" class="secondary" onclick="addCategoryRowInModal()" style="width: 100%; min-height: 36px; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-      ➕ Thêm danh mục mới
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Thêm danh mục mới
     </button>
 
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
@@ -4335,16 +4364,35 @@ def settings() -> pipeline.Settings:
     return cfg
 
 
+_cached_config = None
+_cached_config_mtime = 0.0
+
 def load_config() -> dict[str, Any]:
+    global _cached_config, _cached_config_mtime
     with CONFIG_LOCK:
-        return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+        try:
+            mtime = os.path.getmtime(CONFIG_PATH)
+            if _cached_config is not None and mtime == _cached_config_mtime:
+                return _cached_config.copy()
+            content = CONFIG_PATH.read_text(encoding="utf-8")
+            config = json.loads(content)
+            _cached_config = config
+            _cached_config_mtime = mtime
+            return config.copy()
+        except Exception:
+            if _cached_config is not None:
+                return _cached_config.copy()
+            return {}
 
 
 def save_config(config: dict[str, Any]) -> None:
+    global _cached_config, _cached_config_mtime
     with CONFIG_LOCK:
         temp_path = CONFIG_PATH.with_suffix(".json.tmp")
         temp_path.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
         os.replace(temp_path, CONFIG_PATH)
+        _cached_config = config.copy()
+        _cached_config_mtime = os.path.getmtime(CONFIG_PATH)
 
 
 def drive_root() -> Path:
@@ -5482,19 +5530,34 @@ def api_poster_save():
 
 PROMPTS_FILE = ROOT / "content_prompts.json"
 
+_cached_prompts = None
+_cached_prompts_mtime = 0.0
+
 def load_prompts():
+    global _cached_prompts, _cached_prompts_mtime
     if not PROMPTS_FILE.exists():
         return []
     try:
+        mtime = os.path.getmtime(PROMPTS_FILE)
+        if _cached_prompts is not None and mtime == _cached_prompts_mtime:
+            return _cached_prompts.copy()
         with open(PROMPTS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            prompts = json.load(f)
+        _cached_prompts = prompts
+        _cached_prompts_mtime = mtime
+        return prompts.copy()
     except Exception:
+        if _cached_prompts is not None:
+            return _cached_prompts.copy()
         return []
 
 def save_prompts(prompts_list):
+    global _cached_prompts, _cached_prompts_mtime
     try:
         with open(PROMPTS_FILE, "w", encoding="utf-8") as f:
             json.dump(prompts_list, f, ensure_ascii=False, indent=2)
+        _cached_prompts = prompts_list.copy()
+        _cached_prompts_mtime = os.path.getmtime(PROMPTS_FILE)
         return True
     except Exception:
         return False
