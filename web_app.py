@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.14"
+CURRENT_VERSION = "v2.2.15"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4251,7 +4251,7 @@ HTML = r"""
   }
 
   async function clearToolCache() {
-    if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ ảnh/video tạm trong inbox và các file kết quả cũ không?")) {
+    if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ ảnh/video tạm trong inbox để giải phóng bộ nhớ không?")) {
       return;
     }
     try {
@@ -4264,7 +4264,7 @@ HTML = r"""
         if (logBox) {
           logBox.innerHTML = "Đã xóa sạch cache. Sẵn sàng cho tác vụ mới.";
         }
-        alert("Đã xóa sạch bộ nhớ tạm và các file kết quả cũ thành công!");
+        alert("Đã xóa sạch bộ nhớ tạm thành công!");
       } else {
         alert("Lỗi xóa cache: " + (data.error || data.message));
       }
@@ -4313,20 +4313,25 @@ HTML = r"""
         ? `<video src="${img.url}" style="width: 100%; height: 200px; display: block; object-fit: contain; background: #000;" autoplay loop muted playsinline></video>`
         : `<img src="${img.url}" alt="${img.name}">`;
 
+      // Tách tên thư mục và tên file từ img.name (ví dụ: "Insight 3/5.png")
+      let folderName = "Thư mục chính";
+      let fileName = img.name;
+      if (img.name.indexOf("/") !== -1) {
+        const parts = img.name.split("/");
+        folderName = parts[0];
+        fileName = parts[1];
+      }
+
       card.innerHTML = `
         ${mediaElement}
-        <div class="card-actions" style="flex-direction: column; gap: 6px; align-items: stretch; justify-content: flex-end; padding: 12px; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);">
-          <div style="font-size: 10px; color: #fff; font-weight: 600; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; word-break: break-all;">
-            ${img.name}
+        <div class="card-actions" style="flex-direction: column; gap: 4px; align-items: stretch; justify-content: flex-end; padding: 8px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);">
+          <div style="font-size: 11px; color: #fff; font-weight: 700; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px;">
+            ${fileName}
           </div>
-          <div style="display: flex; flex-direction: column; gap: 5px; width: 100%;">
-            <button class="ghost" onclick="event.stopPropagation(); revealImageFolder('${img.file_path.replace(/\\/g, '\\\\')}')" style="min-height: 28px; font-size: 10.5px; padding: 4px 8px; font-weight: 700; border-radius: 6px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); width: 100%;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>Mở thư mục
-            </button>
-            <button onclick="event.stopPropagation(); window.open('https://www.canva.com', '_blank')" style="min-height: 28px; font-size: 10.5px; padding: 4px 8px; font-weight: 700; border-radius: 6px; background: var(--brand); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.3); width: 100%;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.03345 19.1749 5.09901 19.4294 5.024 19.664L4.66667 20.7813C4.5492 21.1499 4.85012 21.5 5.23666 21.5H7.1306C7.38283 21.5 7.61868 21.3719 7.75389 21.1583L8.33333 20.2444C8.47355 20.0229 8.73016 19.9015 8.99505 19.9329C9.96781 20.0485 10.9702 20.0927 12 20.0927V22Z"></path></svg>Mở Canva
-            </button>
-          </div>
+          <button onclick="event.stopPropagation(); revealImageFolder('${img.file_path.replace(/\\/g, '\\\\')}')" style="min-height: 26px; font-size: 10px; padding: 2px 8px; font-weight: 700; border-radius: 6px; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--brand); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); width: 100%; transition: all 0.2s;" title="Mở thư mục chứa file này trên máy tính">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>
+            📂 ${folderName}
+          </button>
         </div>
       `;
 
@@ -7601,23 +7606,6 @@ def api_clear_cache():
                         f.unlink()
                     except Exception:
                         pass
-
-        # 3. Xóa file chatgpt_* và gemini_* trong export_dir
-        config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
-        if not export_dir:
-            export_dir = str(Path.home() / "Downloads")
-        out_dir = Path(export_dir)
-        if out_dir.exists():
-            for ext in ("*.png", "*.jpg", "*.jpeg", "*.mp4", "*.webm"):
-                for f in out_dir.glob(ext):
-                    name_lower = f.name.lower()
-                    is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
-                    if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
-                        try:
-                            f.unlink()
-                        except Exception:
-                            pass
 
         add_event({"step": "clear_cache", "message": "Đã xóa sạch bộ nhớ tạm và các ảnh/video kết quả cũ."})
         return jsonify({"success": True, "message": "Đã xóa cache thành công."})
