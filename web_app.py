@@ -1581,7 +1581,7 @@ HTML = r"""
               <div>
                 <label style="margin-bottom: 6px; display: block; font-weight: 600; font-size: 13px; color: var(--text);">Thư mục lưu ảnh kết quả</label>
                 <div style="display: flex; gap: 8px;">
-                  <input type="text" id="posterExportDir" placeholder="Mặc định: Downloads" style="flex: 1; min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 8px;" readonly>
+                  <input type="text" id="posterExportDir" placeholder="Mặc định: Downloads" onchange="onExportDirChange()" style="flex: 1; min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 8px;">
                   <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 36px; padding: 0 14px; font-size: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">Chọn...</button>
                 </div>
                 <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 10px;">
@@ -2245,6 +2245,14 @@ HTML = r"""
     document.getElementById("posterDashboard").style.display = "flex";
     // Tải cấu hình OpenAI từ backend lên UI
     loadOpenAIConfig();
+  }
+
+  // 0. Thay đổi thư mục lưu ảnh kết quả thủ công (khi tự dán link)
+  async function onExportDirChange() {
+    await saveOpenAIConfig();
+    if (typeof loadDownloadedImages === 'function') {
+      loadDownloadedImages();
+    }
   }
 
   // 1. Sao chép nhanh đường dẫn thư mục sản phẩm ở tab Chụp & Quay
