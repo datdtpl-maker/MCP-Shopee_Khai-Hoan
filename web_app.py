@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.16"
+CURRENT_VERSION = "v2.2.17"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -7673,14 +7673,16 @@ def api_list_downloaded_images():
         # Sắp xếp theo mtime của file
         img_files.sort(key=lambda x: x[0].stat().st_mtime, reverse=True)
 
+        import urllib.parse
         results = []
         for f, base_dir in img_files[:24]:
             rel_path = str(f.relative_to(base_dir)).replace("\\", "/")
             display_name = rel_path
+            quoted_export = urllib.parse.quote(export_dir)
             results.append({
                 "name": display_name,
                 "file_path": str(f),
-                "url": f"/api/automation/images/view?name={rel_path}",
+                "url": f"/api/automation/images/view?name={rel_path}&export_dir={quoted_export}",
                 "time": datetime.fromtimestamp(f.stat().st_mtime).strftime("%d/%m/%Y %H:%M:%S")
             })
 
@@ -7697,12 +7699,24 @@ def api_view_downloaded_image():
         if not filename:
             raise ValueError("Thiếu tên file.")
 
-        config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        export_dir = request.args.get("export_dir", "").strip()
+        if not export_dir:
+            config = load_config()
+            export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
 
-        return send_from_directory(export_dir, filename)
+        safe_base = Path(export_dir).resolve()
+        filename_clean = filename.replace("\\", "/")
+        file_path = (safe_base / filename_clean).resolve()
+
+        if not str(file_path).startswith(str(safe_base)):
+            return "Truy cập không hợp lệ", 403
+
+        if not file_path.exists():
+            return "File không tồn tại", 404
+
+        return send_from_directory(str(file_path.parent), file_path.name)
     except Exception as exc:
         return error_response(exc, 400)
 
