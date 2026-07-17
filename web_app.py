@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.12"
+CURRENT_VERSION = "v2.2.13"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -6697,9 +6697,9 @@ def api_chatgpt_send():
         if not prompt_text:
             raise ValueError("Nội dung prompt không được trống.")
 
+        config = load_config()
         export_dir = payload.get("export_dir", "").strip()
         if not export_dir:
-            config = load_config()
             export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
@@ -7506,9 +7506,9 @@ def api_gemini_send():
         if not prompt_text:
             raise ValueError("Nội dung prompt không được trống.")
 
+        config = load_config()
         export_dir = payload.get("export_dir", "").strip()
         if not export_dir:
-            config = load_config()
             export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
