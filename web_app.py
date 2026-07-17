@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.13"
+CURRENT_VERSION = "v2.2.14"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4275,7 +4275,19 @@ HTML = r"""
 
   async function loadDownloadedImages() {
     try {
-      const response = await fetch("/api/automation/images/list");
+      const exportDirInput = document.getElementById("posterExportDir").value.trim();
+      const insightSelect = document.getElementById("insightFolderSelect");
+      let exportDir = exportDirInput;
+      if (insightSelect && insightSelect.value !== "") {
+        const idx = parseInt(insightSelect.value, 10);
+        const insight = state.scannedInsights[idx];
+        if (insight && insight.folder_name) {
+          const separator = exportDirInput.endsWith("\\") ? "" : "\\";
+          exportDir = exportDirInput + separator + insight.folder_name;
+        }
+      }
+
+      const response = await fetch("/api/automation/images/list?export_dir=" + encodeURIComponent(exportDir));
       const images = await response.json();
       renderDownloadedImages(images);
     } catch(e) {
@@ -7616,8 +7628,10 @@ def api_clear_cache():
 @app.get("/api/automation/images/list")
 def api_list_downloaded_images():
     try:
-        config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        export_dir = request.args.get("export_dir", "").strip()
+        if not export_dir:
+            config = load_config()
+            export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
 
@@ -7626,21 +7640,33 @@ def api_list_downloaded_images():
             return jsonify([])
 
         img_files = []
+        # Quét ở thư mục chính
         for ext in ("*.png", "*.jpg", "*.jpeg", "*.mp4", "*.webm"):
             for f in out_dir.glob(ext):
                 name_lower = f.name.lower()
                 is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
                 if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
-                    img_files.append(f)
+                    img_files.append((f, out_dir))
 
-        img_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        # Quét ở các thư mục con Insight *
+        for ext in ("Insight*/*.png", "Insight*/*.jpg", "Insight*/*.jpeg", "Insight*/*.mp4", "Insight*/*.webm"):
+            for f in out_dir.glob(ext):
+                name_lower = f.name.lower()
+                is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
+                if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
+                    img_files.append((f, out_dir))
+
+        # Sắp xếp theo mtime của file
+        img_files.sort(key=lambda x: x[0].stat().st_mtime, reverse=True)
 
         results = []
-        for f in img_files[:24]:
+        for f, base_dir in img_files[:24]:
+            rel_path = str(f.relative_to(base_dir)).replace("\\", "/")
+            display_name = rel_path
             results.append({
-                "name": f.name,
+                "name": display_name,
                 "file_path": str(f),
-                "url": f"/api/automation/images/view?name={f.name}",
+                "url": f"/api/automation/images/view?name={rel_path}",
                 "time": datetime.fromtimestamp(f.stat().st_mtime).strftime("%d/%m/%Y %H:%M:%S")
             })
 
