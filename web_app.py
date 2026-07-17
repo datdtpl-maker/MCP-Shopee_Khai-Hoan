@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.10"
+CURRENT_VERSION = "v2.2.11"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1331,8 +1331,8 @@ HTML = r"""
         </div>
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit Image/Video</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; align-items: center; gap: 10px;">
           <!-- Dropdown 1: Thiết bị & Hệ thống -->
@@ -1407,7 +1407,16 @@ HTML = r"""
                 </button>
               </div>
               <div class="two">
-                <div><label for="folderSelect">Chọn thư mục sản phẩm</label><select id="folderSelect" onchange="selectFolder()"><option value="">-- Chưa chọn thư mục --</option></select></div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label for="folderSelect" style="margin: 0;">Chọn thư mục sản phẩm</label>
+                    <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                      Copy đường dẫn
+                    </button>
+                  </div>
+                  <select id="folderSelect" onchange="selectFolder()"><option value="">-- Chưa chọn thư mục --</option></select>
+                </div>
                 <div><label for="newFolder">Tạo thư mục sản phẩm mới</label><div class="field-action"><input id="newFolder" placeholder="Ví dụ: Eskar Tears 15ml"><button onclick="createFolder()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Tạo</button></div></div>
               </div>
               <div class="buttons">
@@ -1505,8 +1514,8 @@ HTML = r"""
         </div>
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <!-- ChatGPT Chrome Debug Status -->
@@ -1574,6 +1583,15 @@ HTML = r"""
                 <div style="display: flex; gap: 8px;">
                   <input type="text" id="posterExportDir" placeholder="Mặc định: Downloads" style="flex: 1; min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 8px;" readonly>
                   <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 36px; padding: 0 14px; font-size: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">Chọn...</button>
+                </div>
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 10px;">
+                  <select id="insightFolderSelect" onchange="selectInsightFolder()" style="font-size: 12px; min-height: 36px; border-radius: 8px; background: rgba(13, 17, 28, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text); padding: 0 10px;">
+                    <option value="">-- Quét để chọn Insight 1-5 --</option>
+                  </select>
+                  <button type="button" class="secondary" onclick="scanInsightFolders()" style="min-height: 36px; padding: 0 12px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-radius: 8px; cursor: pointer;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Quét Insight
+                  </button>
                 </div>
               </div>
 
@@ -1703,8 +1721,8 @@ HTML = r"""
         </div>
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
           <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center;">
           <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
@@ -2227,6 +2245,121 @@ HTML = r"""
     document.getElementById("posterDashboard").style.display = "flex";
     // Tải cấu hình OpenAI từ backend lên UI
     loadOpenAIConfig();
+  }
+
+  // 1. Sao chép nhanh đường dẫn thư mục sản phẩm ở tab Chụp & Quay
+  function copyCurrentFolderPath() {
+    const root = document.getElementById("driveRoot").value.trim();
+    const folder = document.getElementById("folderSelect").value.trim();
+    if (!folder) {
+      alert("Vui lòng chọn thư mục sản phẩm trước.");
+      return;
+    }
+    const separator = root.endsWith("\\") ? "" : "\\";
+    const fullPath = root + separator + folder;
+    
+    navigator.clipboard.writeText(fullPath).then(() => {
+      const btn = document.getElementById("btnCopyFolderPath");
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã copy!`;
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+      }, 1500);
+    }).catch(err => {
+      alert("Không thể copy đường dẫn: " + err);
+    });
+  }
+
+  // 2. Quét các thư mục Insight trong thư mục lưu ảnh kết quả
+  async function scanInsightFolders() {
+    const exportDir = document.getElementById("posterExportDir").value.trim();
+    if (!exportDir) {
+      alert("Vui lòng nhập hoặc chọn thư mục lưu ảnh kết quả trước.");
+      return;
+    }
+
+    const select = document.getElementById("insightFolderSelect");
+    select.innerHTML = '<option value="">-- Đang quét Insight... --</option>';
+
+    try {
+      const response = await fetch("/api/automation/scan-insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ export_dir: exportDir })
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Lỗi quét Insight.");
+      }
+
+      select.innerHTML = '<option value="">-- Chọn Insight 1-5 --</option>';
+      state.scannedInsights = data.insights || [];
+
+      if (state.scannedInsights.length === 0) {
+        select.innerHTML = '<option value="">Không tìm thấy thư mục Insight nào</option>';
+        return;
+      }
+
+      state.scannedInsights.forEach((insight, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = `${insight.folder_name} - ${insight.angle || "Không có angle"}`;
+        select.appendChild(option);
+      });
+      
+      alert(`Đã quét xong! Tìm thấy ${state.scannedInsights.length} thư mục Insight.`);
+    } catch(e) {
+      select.innerHTML = '<option value="">Quét thất bại</option>';
+      alert("Lỗi quét Insight: " + e.message);
+    }
+  }
+
+  // 3. Tự động điền dữ liệu và chọn file khi chọn Insight
+  function selectInsightFolder() {
+    const select = document.getElementById("insightFolderSelect");
+    const val = select.value;
+    if (val === "") {
+      return;
+    }
+
+    const idx = parseInt(val, 10);
+    const insight = state.scannedInsights[idx];
+    if (!insight) return;
+
+    // Tự động điền thông tin mô tả sản phẩm và từ khóa
+    document.getElementById("notionContentInput").value = insight.notion_description || "";
+    document.getElementById("keywordsInput").value = insight.keywords || "";
+
+    // Tự động nạp file ảnh/video thô (nếu có file)
+    if (insight.media_file && insight.media_base64) {
+      contentSelectedImageBase64 = insight.media_base64;
+      contentSelectedMediaType = insight.media_type;
+      
+      const imgPreview = document.getElementById("contentImgPreview");
+      const videoPreview = document.getElementById("contentVideoPreview");
+      const zone = document.getElementById("contentImgDropzone");
+      const previewContainer = document.getElementById("contentImgPreviewContainer");
+
+      if (insight.media_type === "video") {
+        videoPreview.src = insight.media_url;
+        videoPreview.style.display = "block";
+        imgPreview.style.display = "none";
+        imgPreview.src = "";
+      } else {
+        imgPreview.src = insight.media_url;
+        imgPreview.style.display = "block";
+        videoPreview.style.display = "none";
+        videoPreview.src = "";
+      }
+
+      zone.style.display = "none";
+      previewContainer.style.display = "block";
+      
+      console.log(`Tự động chọn file thô: ${insight.media_file} (Loại: ${insight.media_type})`);
+    } else {
+      // Nếu không có file media trong folder, reset preview để người dùng tự chọn
+      clearContentImage();
+    }
   }
 
   function updateNavTabs(activeTabName) {
@@ -9139,6 +9272,22 @@ def api_review_save_shopee():
         insights = payload.get("insights", [])
         product_page_id = product_data.get("productPageId", "").strip()
 
+        # Tự động xuất file insights_data.json vào thư mục sản phẩm để tab AI Edit/Video có thể quét được
+        try:
+            root = validate_drive_root(drive_root())
+            product_folder = root / product_name
+            if product_folder.exists() and product_folder.is_dir():
+                json_path = product_folder / "insights_data.json"
+                insights_save_data = {
+                    "productName": product_name,
+                    "productDescription": product_data.get("description", ""),
+                    "insights": insights
+                }
+                json_path.write_text(json.dumps(insights_save_data, indent=2, ensure_ascii=False), encoding="utf-8")
+                print(f"[Notion Save] Đã lưu thành công insights_data.json tại: {json_path}")
+        except Exception as e:
+            print(f"[Notion Save] Lỗi ghi file insights_data.json: {e}")
+
         if not insights or len(insights) == 0:
             return jsonify({"error": "Thiếu danh sách insights."}), 400
 
@@ -9388,6 +9537,99 @@ def api_review_save_shopee():
         return jsonify({
             "productPageId": saved_product_page_id,
             "createdInsightIds": [p["page_id"] for p in created_pages_info]
+        })
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/automation/scan-insights")
+def api_scan_insights():
+    import base64
+    try:
+        data = request.json or {}
+        export_dir = data.get("export_dir", "").strip()
+        if not export_dir:
+            return jsonify({"success": False, "error": "Thiếu đường dẫn thư mục lưu ảnh."}), 400
+        
+        target_dir = Path(export_dir)
+        if not target_dir.exists() or not target_dir.is_dir():
+            return jsonify({"success": False, "error": f"Thư mục không tồn tại: {export_dir}"}), 400
+        
+        # 1. Tìm file insights_data.json
+        insights_data = {}
+        json_file = target_dir / "insights_data.json"
+        if json_file.exists() and json_file.is_file():
+            try:
+                insights_data = json.loads(json_file.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"[Scan Insights] Lỗi đọc insights_data.json: {e}")
+                
+        # 2. Liệt kê các thư mục Insight *
+        insights_list = []
+        for folder in target_dir.iterdir():
+            if folder.is_dir() and folder.name.lower().startswith("insight"):
+                folder_name = folder.name
+                
+                # Quét file media đầu tiên trong thư mục Insight này
+                media_file = None
+                media_path = None
+                media_url = None
+                media_base64 = None
+                is_video = False
+                
+                files = []
+                for f in folder.iterdir():
+                    if f.is_file() and f.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp", ".mp4"]:
+                        files.append(f)
+                
+                if files:
+                    files.sort(key=lambda x: x.name)
+                    first_file = files[0]
+                    media_file = f"{folder_name}/{first_file.name}"
+                    media_path = str(first_file)
+                    media_url = f"/api/automation/images/view?name={folder_name}/{first_file.name}"
+                    is_video = first_file.suffix.lower() == ".mp4"
+                    
+                    try:
+                        file_bytes = first_file.read_bytes()
+                        encoded_body = base64.b64encode(file_bytes).decode("utf-8")
+                        mime_type = "video/mp4" if is_video else f"image/{first_file.suffix.lower().replace('.', '')}"
+                        media_base64 = f"data:{mime_type};base64,{encoded_body}"
+                    except Exception as e:
+                        print(f"[Scan Insights] Lỗi đọc base64 file {first_file.name}: {e}")
+                
+                order_num = None
+                match = re.search(r'\d+', folder_name)
+                if match:
+                    order_num = int(match.group())
+                
+                insight_info = {}
+                if insights_data and "insights" in insights_data and isinstance(insights_data["insights"], list):
+                    idx = (order_num - 1) if order_num is not None else None
+                    if idx is not None and 0 <= idx < len(insights_data["insights"]):
+                        insight_info = insights_data["insights"][idx]
+                
+                notion_description = insights_data.get("productDescription", "")
+                keywords = insight_info.get("keywords", "") or insight_info.get("noiDung", "") or insight_info.get("insight_summary", "")
+                
+                insights_list.append({
+                    "folder_name": folder_name,
+                    "order_num": order_num or 999,
+                    "media_file": media_file,
+                    "media_path": media_path,
+                    "media_url": media_url,
+                    "media_base64": media_base64,
+                    "media_type": "video" if is_video else "image",
+                    "notion_description": notion_description,
+                    "keywords": keywords,
+                    "angle": insight_info.get("angle", "") or folder_name
+                })
+        
+        insights_list.sort(key=lambda x: x["order_num"])
+        
+        return jsonify({
+            "success": True,
+            "insights": insights_list
         })
     except Exception as exc:
         return error_response(exc, 500)
