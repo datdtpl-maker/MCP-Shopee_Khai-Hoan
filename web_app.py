@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.11"
+CURRENT_VERSION = "v2.2.12"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4136,6 +4136,18 @@ HTML = r"""
 
     startAutomationPoll();
 
+    const exportDirInput = document.getElementById("posterExportDir").value.trim();
+    const insightSelect = document.getElementById("insightFolderSelect");
+    let exportDir = exportDirInput;
+    if (insightSelect && insightSelect.value !== "") {
+      const idx = parseInt(insightSelect.value, 10);
+      const insight = state.scannedInsights[idx];
+      if (insight && insight.folder_name) {
+        const separator = exportDirInput.endsWith("\\") ? "" : "\\";
+        exportDir = exportDirInput + separator + insight.folder_name;
+      }
+    }
+
     try {
       const response = await fetch("/api/automation/chatgpt/send", {
         method: "POST",
@@ -4146,7 +4158,8 @@ HTML = r"""
           sample_image: sampleSelectedImageBase64,
           notion_content: notionContent,
           keywords: keywords,
-          prompt_title: selectedPromptTitle
+          prompt_title: selectedPromptTitle,
+          export_dir: exportDir
         })
       });
       const d = await response.json();
@@ -4180,6 +4193,18 @@ HTML = r"""
 
     startAutomationPoll();
 
+    const exportDirInput = document.getElementById("posterExportDir").value.trim();
+    const insightSelect = document.getElementById("insightFolderSelect");
+    let exportDir = exportDirInput;
+    if (insightSelect && insightSelect.value !== "") {
+      const idx = parseInt(insightSelect.value, 10);
+      const insight = state.scannedInsights[idx];
+      if (insight && insight.folder_name) {
+        const separator = exportDirInput.endsWith("\\") ? "" : "\\";
+        exportDir = exportDirInput + separator + insight.folder_name;
+      }
+    }
+
     try {
       const response = await fetch("/api/automation/gemini/send", {
         method: "POST",
@@ -4191,7 +4216,8 @@ HTML = r"""
           sample_image: sampleSelectedImageBase64,
           notion_content: notionContent,
           keywords: keywords,
-          prompt_title: selectedPromptTitle
+          prompt_title: selectedPromptTitle,
+          export_dir: exportDir
         })
       });
       const d = await response.json();
@@ -6671,8 +6697,10 @@ def api_chatgpt_send():
         if not prompt_text:
             raise ValueError("Nội dung prompt không được trống.")
 
-        config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        export_dir = payload.get("export_dir", "").strip()
+        if not export_dir:
+            config = load_config()
+            export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
 
@@ -7478,8 +7506,10 @@ def api_gemini_send():
         if not prompt_text:
             raise ValueError("Nội dung prompt không được trống.")
 
-        config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
+        export_dir = payload.get("export_dir", "").strip()
+        if not export_dir:
+            config = load_config()
+            export_dir = config.get("openai", {}).get("export_dir", "").strip()
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
 
