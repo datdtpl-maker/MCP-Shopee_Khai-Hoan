@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.15"
+CURRENT_VERSION = "v2.2.16"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1305,6 +1305,28 @@ HTML = r"""
     }
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
+    }
+
+    .poster-card .card-actions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 75%, transparent 100%);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .poster-card:hover .card-actions {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
 
 </style>
@@ -4259,7 +4281,11 @@ HTML = r"""
       const data = await response.json();
       if (response.ok && data.success) {
         clearContentImage();
-        await loadDownloadedImages();
+        // Dọn sạch danh sách hiển thị trên UI mà không xóa file thật trên đĩa
+        const container = document.getElementById("downloadedImagesList");
+        if (container) {
+          container.innerHTML = `<div style="grid-column: span 2; text-align:center; color:var(--muted); font-size:12px; margin-top:40px;">Chưa có ảnh/video nào tải về.</div>`;
+        }
         const logBox = document.getElementById("automationLogBox");
         if (logBox) {
           logBox.innerHTML = "Đã xóa sạch cache. Sẵn sàng cho tác vụ mới.";
@@ -4324,11 +4350,11 @@ HTML = r"""
 
       card.innerHTML = `
         ${mediaElement}
-        <div class="card-actions" style="flex-direction: column; gap: 4px; align-items: stretch; justify-content: flex-end; padding: 8px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);">
-          <div style="font-size: 11px; color: #fff; font-weight: 700; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px;">
+        <div class="card-actions">
+          <div style="font-size: 11px; color: #fff; font-weight: 700; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.8); margin-bottom: 2px; word-break: break-all;">
             ${fileName}
           </div>
-          <button onclick="event.stopPropagation(); revealImageFolder('${img.file_path.replace(/\\/g, '\\\\')}')" style="min-height: 26px; font-size: 10px; padding: 2px 8px; font-weight: 700; border-radius: 6px; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--brand); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); width: 100%; transition: all 0.2s;" title="Mở thư mục chứa file này trên máy tính">
+          <button onclick="event.stopPropagation(); revealImageFolder('${img.file_path.replace(/\\/g, '\\\\')}')" style="min-height: 26px; font-size: 10px; padding: 2px 8px; font-weight: 700; border-radius: 6px; background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.5); color: var(--brand); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); width: 100%; transition: all 0.2s;" title="Mở thư mục chứa file này trên máy tính">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>
             📂 ${folderName}
           </button>
