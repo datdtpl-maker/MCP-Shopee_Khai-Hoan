@@ -457,12 +457,13 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
         root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
         product_folder_id = None
         
-        # Thử lấy trực tiếp từ thuộc tính "Media sản phẩm" trên Notion trước (hỗ trợ cả URL và rich_text)
-        drive_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
+        # Thử lấy trực tiếp từ thuộc tính "Media sản phẩm" trên Notion trước (nếu không có override)
         if not drive_url:
-            prop_ms = properties.get("Media sản phẩm", {})
-            if prop_ms.get("type") == "rich_text":
-                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+            drive_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
+            if not drive_url:
+                prop_ms = properties.get("Media sản phẩm", {})
+                if prop_ms.get("type") == "rich_text":
+                    drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
                 
         if drive_url:
             if "drive.google.com" in drive_url:
@@ -490,6 +491,12 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
                     logger.info(f"Tìm thấy thư mục của sản phẩm '{title}' trên Drive gốc: ID {product_folder_id}")
             except Exception as e:
                 logger.error(f"Lỗi khi tìm thư mục sản phẩm '{title}' từ Drive gốc: {e}")
+                
+        if not product_folder_id:
+            if drive_url and "drive.google.com" not in drive_url:
+                logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Để sử dụng đường dẫn local, vui lòng cấu hình DRIVE_ROOT_FOLDER_ID trong file .env hoặc dán trực tiếp link Google Drive trên web của thư mục sản phẩm.")
+            else:
+                logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}. Vui lòng kiểm tra lại link Drive sản phẩm.")
 
         # Lấy ảnh fallback của sản phẩm chính
         fallback_image_urls = []
@@ -980,7 +987,10 @@ def sync_only_image_links_to_notion(override_drive_url: Optional[str] = None) ->
                 logger.error(f"Lỗi tìm kiếm thư mục tự động: {e}")
                 
         if not product_folder_id:
-            logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}")
+            if drive_url and "drive.google.com" not in drive_url:
+                logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Để sử dụng đường dẫn local, vui lòng cấu hình DRIVE_ROOT_FOLDER_ID trong file .env hoặc dán trực tiếp link Google Drive trên web của thư mục sản phẩm.")
+            else:
+                logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}. Vui lòng kiểm tra lại link Drive sản phẩm.")
             continue
             
         # Cào danh sách thư mục con
