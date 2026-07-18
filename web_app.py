@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.18"
+CURRENT_VERSION = "v2.2.19"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai

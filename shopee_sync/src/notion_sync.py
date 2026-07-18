@@ -449,22 +449,31 @@ def sync_notion_to_bigseller_excel() -> Tuple[str, List[str]]:
             
         logger.info(f"Đang xử lý sản phẩm: {title} (Giá: {price_variant_text})")
         
-        # Tìm thư mục sản phẩm từ thư mục gốc lớn
-        root_folder_id = "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ"
+        # Tìm thư mục sản phẩm từ thư mục gốc lớn cấu hình trong .env hoặc mặc định
+        root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
         product_folder_id = None
-        try:
-            product_folder_id = convert_zicum.find_product_folder(root_folder_id, title)
-            if product_folder_id:
-                logger.info(f"Tìm thấy thư mục của sản phẩm '{title}' trên Drive gốc: ID {product_folder_id}")
-        except Exception as e:
-            logger.error(f"Lỗi khi tìm thư mục sản phẩm '{title}' từ Drive gốc: {e}")
-            
-        # Nếu không tìm thấy, dùng link Drive trong thuộc tính "Media sản phẩm" của Notion làm fallback
-        if not product_folder_id and drive_url:
+        
+        # Thử lấy trực tiếp từ thuộc tính "Media sản phẩm" trên Notion trước (hỗ trợ cả URL và rich_text)
+        drive_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
+        if not drive_url:
+            prop_ms = properties.get("Media sản phẩm", {})
+            if prop_ms.get("type") == "rich_text":
+                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+                
+        if drive_url:
             folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
             if folder_match:
                 product_folder_id = folder_match.group(1)
-                logger.info(f"Sử dụng thư mục của sản phẩm '{title}' từ Notion Media: ID {product_folder_id}")
+                logger.info(f"Sử dụng thư mục của sản phẩm từ thuộc tính 'Media sản phẩm': ID {product_folder_id}")
+
+        # Nếu không tìm thấy từ Notion, tự động tìm kiếm thư mục sản phẩm theo tên trong thư mục gốc Drive
+        if not product_folder_id:
+            try:
+                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title)
+                if product_folder_id:
+                    logger.info(f"Tìm thấy thư mục của sản phẩm '{title}' trên Drive gốc: ID {product_folder_id}")
+            except Exception as e:
+                logger.error(f"Lỗi khi tìm thư mục sản phẩm '{title}' từ Drive gốc: {e}")
 
         # Lấy ảnh fallback của sản phẩm chính
         fallback_image_urls = []
