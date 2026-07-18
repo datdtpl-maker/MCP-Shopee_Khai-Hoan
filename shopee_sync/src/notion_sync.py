@@ -355,7 +355,7 @@ def parse_media_links(text: str) -> Dict[int, str]:
                 
     return results
 
-def sync_notion_to_bigseller_excel() -> Tuple[str, List[str]]:
+def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> Tuple[str, List[str]]:
     """
     Quét danh sách các sản phẩm mới từ Notion, tải hình ảnh từ Google Drive,
     tách biến thể và xuất ra file Excel chuẩn BigSeller.
@@ -438,8 +438,12 @@ def sync_notion_to_bigseller_excel() -> Tuple[str, List[str]]:
         title_list = properties.get("Tên sản phẩm", {}).get("title", [])
         title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
         
-        # Lấy link Drive hình ảnh
-        drive_url = properties.get("Media sản phẩm", {}).get("url", "")
+        # Lấy link Drive hình ảnh (Sử dụng link override nếu được nhập từ UI của Web App)
+        drive_url = override_drive_url if override_drive_url else (properties.get("Media sản phẩm", {}).get("url", "") or "")
+        if not drive_url:
+            prop_ms = properties.get("Media sản phẩm", {})
+            if prop_ms.get("type") == "rich_text":
+                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
         
         # Lấy văn bản biến thể và giá
         price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))

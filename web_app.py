@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.19"
+CURRENT_VERSION = "v2.2.20"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1982,9 +1982,13 @@ HTML = r"""
               <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
                 <div>
                   <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Đồng bộ Notion sang BigSeller</h4>
-                  <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
+                  <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted); margin-bottom: 8px;">Khởi chạy tiến trình đồng bộ và xuất Excel thủ công.</p>
+                  <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; max-width: 480px; width: 100%;">
+                    <label class="md3-label" style="font-size: 11px; font-weight: 600; color: var(--text);">Link Google Drive thư mục sản phẩm (Cha) (Tùy chọn)</label>
+                    <input type="text" id="shopeeSyncDriveUrl" placeholder="Ví dụ: https://drive.google.com/drive/folders/1aBcDeFg..." style="width: 100%; min-height: 32px; font-size: 11.5px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--bg-input); color: var(--text);" oninput="localStorage.setItem('shopee_sync_drive_url', this.value)">
+                  </div>
                 </div>
-                <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;" title="Chạy đồng bộ ngay">
+                <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap; align-self: flex-end;" title="Chạy đồng bộ ngay">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                   Đồng bộ ngay
                 </button>
@@ -3281,8 +3285,10 @@ HTML = r"""
     log({step: "shopee_sync", message: "Gửi yêu cầu chạy đồng bộ Notion -> BigSeller..."});
     startPoll();
 
+    const driveUrl = document.getElementById("shopeeSyncDriveUrl") ? document.getElementById("shopeeSyncDriveUrl").value.trim() : "";
+
     try {
-      const d = await api("/api/shopee/sync/run", {});
+      const d = await api("/api/shopee/sync/run", { drive_url: driveUrl });
       log({step: "shopee_sync", message: d.message});
     } catch(e) {
       log({step: "shopee_sync", message: "Lỗi đồng bộ: " + (e.error || e.message || JSON.stringify(e))});
@@ -4505,6 +4511,15 @@ HTML = r"""
   chromeStatusInterval = setInterval(checkChromeStatus, 4000);
   checkAppUpdate(true);
   startPoll();
+
+  // Khôi phục link Drive cha cho Shopee Sync từ localStorage
+  try {
+    const savedShopeeUrl = localStorage.getItem('shopee_sync_drive_url') || '';
+    const shopeeInput = document.getElementById("shopeeSyncDriveUrl");
+    if (shopeeInput) {
+      shopeeInput.value = savedShopeeUrl;
+    }
+  } catch(e) {}
 </script>
 <!-- Modal them/sua prompt -->
 <div id="promptModal" class="modal-overlay" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center;">
@@ -8310,6 +8325,9 @@ def api_run_shopee_sync():
         if shopee_sync_active:
             return jsonify({"success": False, "error": "Tiến trình đồng bộ đang chạy ngầm, vui lòng đợi..."}), 400
 
+        payload = request.json or {}
+        drive_url = payload.get("drive_url", "").strip()
+
         # Thiết lập thư mục export Downloads
         config = load_config()
         export_dir = config.get("openai", {}).get("export_dir", "").strip()
@@ -8321,10 +8339,10 @@ def api_run_shopee_sync():
         shopee_sync_active = True
         add_event({"step": "shopee_sync", "message": "Bắt đầu tiến trình đồng bộ Notion -> BigSeller thủ công..."})
 
-        def run_sync_wrapper():
+        def run_sync_wrapper(override_url):
             global shopee_sync_active
             try:
-                excel_path, titles = notion_sync.sync_notion_to_bigseller_excel()
+                excel_path, titles = notion_sync.sync_notion_to_bigseller_excel(override_drive_url=override_url)
                 if not titles:
                     add_event({
                         "step": "shopee_sync",
@@ -8340,7 +8358,7 @@ def api_run_shopee_sync():
             finally:
                 shopee_sync_active = False
 
-        shopee_sync_thread = threading.Thread(target=run_sync_wrapper, daemon=True)
+        shopee_sync_thread = threading.Thread(target=run_sync_wrapper, args=(drive_url,), daemon=True)
         shopee_sync_thread.start()
 
         return jsonify({"success": True, "message": "Tiến trình đồng bộ Notion đã bắt đầu chạy ngầm."})
