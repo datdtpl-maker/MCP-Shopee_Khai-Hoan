@@ -88,8 +88,9 @@ def get_subfolders_of_drive_folder(folder_id: str) -> dict:
             
         html = preprocess_drive_html(res.text)
         
-        # Match folders using regex
-        folders = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*null,\s*"([^"]+)",\s*"application/vnd.google-apps.folder"', html)
+        # Match folders using robust combined regex
+        pattern = r'\[\[null,"([a-zA-Z0-9_-]{25,50})"\],null,null,null,"application/vnd.google-apps.folder".*?\[\[\["([^"]+)",null,1\]\]\]'
+        folders = re.findall(pattern, html, re.DOTALL)
         
         subfolders = {}
         for fid, name in folders:
@@ -120,9 +121,11 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
         html = preprocess_drive_html(res.text)
         files_list = []
         
-        # Pattern 1: "FILE_ID",["PARENT_ID"],"FILE_NAME","MIME_TYPE"
-        files_1 = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*\[\s*"([a-zA-Z0-9_-]{25,50})"\s*\],\s*"([^"]+)",\s*"([^"]+)"', html)
-        for fid, parent_id, name, mime in files_1:
+        # Match files using robust combined regex
+        pattern = r'\[\[null,"([a-zA-Z0-9_-]{25,50})"\],null,null,null,"([^"]+)".*?\[\[\["([^"]+)",null,1\]\]\]'
+        items = re.findall(pattern, html, re.DOTALL)
+        
+        for fid, mime, name in items:
             if fid != folder_id and ("image" in mime or "video" in mime):
                 if "video" in mime:
                     link = f"https://drive.google.com/uc?export=download&id={fid}"
@@ -137,23 +140,7 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
                         "mime": mime
                     })
                     
-        # Pattern 2: "FILE_ID",null,null,null,"MIME_TYPE"
-        files_2 = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*null,\s*null,\s*null,\s*"([^"]+)"', html)
-        for fid, mime in files_2:
-            if fid != folder_id and ("image" in mime or "video" in mime):
-                if "video" in mime:
-                    link = f"https://drive.google.com/uc?export=download&id={fid}"
-                else:
-                    link = f"https://lh3.googleusercontent.com/d/{fid}"
-                if not any(f["id"] == fid for f in files_list):
-                    files_list.append({
-                        "id": fid,
-                        "url": link,
-                        "name": f"file_{fid}",
-                        "mime": mime
-                    })
-                    
-        # Fallback: scan any 33-char ID starting with 1
+        # Fallback: scan any candidate ID in HTML if list is empty
         if not files_list:
             candidates = re.findall(r'"([a-zA-Z0-9_-]{25,50})"', html)
             for fid in candidates:
