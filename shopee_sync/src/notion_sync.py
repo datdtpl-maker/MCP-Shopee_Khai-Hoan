@@ -465,10 +465,22 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
                 drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
                 
         if drive_url:
-            folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
-            if folder_match:
-                product_folder_id = folder_match.group(1)
-                logger.info(f"Sử dụng thư mục của sản phẩm từ thuộc tính 'Media sản phẩm': ID {product_folder_id}")
+            if "drive.google.com" in drive_url:
+                folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
+                if folder_match:
+                    product_folder_id = folder_match.group(1)
+                    logger.info(f"Sử dụng thư mục của sản phẩm từ thuộc tính 'Media sản phẩm': ID {product_folder_id}")
+            else:
+                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\Imiquad Cream)
+                try:
+                    local_path = Path(drive_url)
+                    folder_name = local_path.name.strip()
+                    if folder_name and folder_name.lower() != "my drive":
+                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name)
+                        if product_folder_id:
+                            logger.info(f"Tìm thấy thư mục của sản phẩm từ đường dẫn local '{drive_url}': ID {product_folder_id}")
+                except Exception as e:
+                    logger.error(f"Lỗi khi trích xuất tên thư mục từ link local: {e}")
 
         # Nếu không tìm thấy từ Notion, tự động tìm kiếm thư mục sản phẩm theo tên trong thư mục gốc Drive
         if not product_folder_id:
@@ -886,3 +898,167 @@ if __name__ == "__main__":
     print(f"Sync completed! Excel saved at: {excel_path}")
     print(f"Processed products: {titles}")
 
+
+
+def sync_only_image_links_to_notion(override_drive_url: Optional[str] = None) -> List[str]:
+    logger.info("Bắt đầu tiến trình chỉ đồng bộ link hình Google Drive sang Notion...")
+    
+    # Nạp cấu hình từ .env
+    project_root = Path(__file__).resolve().parent.parent
+    load_dotenv(project_root / ".env")
+    
+    token = os.getenv("NOTION_TOKEN")
+    page_id = os.getenv("NOTION_DATABASE_ID")
+    
+    if not token or not page_id:
+        raise ValueError("Chưa cấu hình NOTION_TOKEN hoặc NOTION_DATABASE_ID trong file .env")
+        
+    notion = Client(auth=token)
+    
+    # Tự động lấy ID Data Source thực tế từ Page ID
+    db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=page_id)
+    data_sources = db_meta.get("data_sources", [])
+    if not data_sources:
+        raise ValueError("Không tìm thấy Data Source nào liên kết với trang Notion này.")
+        
+    data_source_id = data_sources[0].get("id")
+    res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
+    records = res.get("results", [])
+    
+    # Lọc sản phẩm: Trạng thái đăng bài shopee = False (chờ xử lý)
+    pending_products = []
+    for page in records:
+        properties = page.get("properties", {})
+        it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
+        if not it_status:
+            pending_products.append(page)
+            
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm chưa đăng shopee để quét đồng bộ link hình.")
+    
+    if not pending_products:
+        return []
+        
+    updated_pages = []
+    root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
+    
+    for page in pending_products:
+        properties = page.get("properties", {})
+        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+        title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
+        
+        # Lấy link Drive hình ảnh
+        drive_url = override_drive_url if override_drive_url else (properties.get("Media sản phẩm", {}).get("url", "") or "")
+        if not drive_url:
+            prop_ms = properties.get("Media sản phẩm", {})
+            if prop_ms.get("type") == "rich_text":
+                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+                
+        logger.info(f"Đang xử lý sản phẩm: {title} (Drive URL: {drive_url})")
+        
+        # Resolve ra product_folder_id
+        product_folder_id = None
+        if drive_url:
+            if "drive.google.com" in drive_url:
+                folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
+                if folder_match:
+                    product_folder_id = folder_match.group(1)
+            else:
+                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\Imiquad Cream)
+                try:
+                    local_path = Path(drive_url)
+                    folder_name = local_path.name.strip()
+                    if folder_name and folder_name.lower() != "my drive":
+                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name)
+                except Exception as e:
+                    logger.error(f"Lỗi khi trích xuất tên thư mục từ link local: {e}")
+                    
+        # Nếu vẫn không có, thử tìm kiếm tự động theo tên sản phẩm
+        if not product_folder_id:
+            try:
+                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title)
+            except Exception as e:
+                logger.error(f"Lỗi tìm kiếm thư mục tự động: {e}")
+                
+        if not product_folder_id:
+            logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}")
+            continue
+            
+        # Cào danh sách thư mục con
+        subfolders = {}
+        try:
+            subfolders = convert_zicum.get_subfolders_of_drive_folder(product_folder_id)
+        except Exception as e:
+            logger.error(f"Lỗi khi cào thư mục con từ Drive: {e}")
+            continue
+            
+        if not subfolders:
+            logger.warning(f"Thư mục Drive sản phẩm không có thư mục con nào: {product_folder_id}")
+            continue
+            
+        # Lọc danh sách Insight từ Insight Library
+        insight_prop = properties.get("Insight Library", {})
+        insight_items = []
+        if insight_prop.get("type") == "rich_text":
+            insight_items = parse_insight_mentions(insight_prop.get("rich_text", []))
+            
+        if not insight_items:
+            logger.info(f"Sản phẩm {title} không có trang Insight con nào trong Insight Library.")
+            continue
+            
+        for idx, item in enumerate(insight_items):
+            ins_name = item["insight_name"]
+            ins_page_id = item["page_id"]
+            
+            # Đọc thuộc tính Link hình hiện tại của trang Insight con
+            try:
+                ins_page_data = call_notion_with_retry(notion.pages.retrieve, page_id=ins_page_id)
+                ins_properties = ins_page_data.get("properties", {})
+                
+                link_hinh = ""
+                prop_lh = ins_properties.get("Link hình", {})
+                prop_type = prop_lh.get("type", "url")
+                
+                if prop_type == "url":
+                    link_hinh = prop_lh.get("url", "") or ""
+                elif prop_type == "rich_text":
+                    link_hinh = "".join([t.get("plain_text", "") for t in prop_lh.get("rich_text", [])]).strip()
+                    
+                # Nếu đã có link hình rồi thì bỏ qua không ghi đè
+                if link_hinh:
+                    logger.info(f"Bỏ qua Insight '{ins_name}' (Đã có sẵn link hình: {link_hinh})")
+                    continue
+                    
+                # Tìm thư mục Drive tương ứng
+                clean_insight = convert_zicum.clean_name(ins_name)
+                clean_folder_name = convert_zicum.clean_name(f"Insight {idx+1}")
+                
+                target_folder_id = None
+                if clean_insight in subfolders:
+                    target_folder_id = subfolders[clean_insight]
+                else:
+                    for sf_name, sf_id in subfolders.items():
+                        if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_insight in sf_name or sf_name in clean_insight:
+                            target_folder_id = sf_id
+                            break
+                            
+                if target_folder_id:
+                    new_link = f"https://drive.google.com/drive/folders/{target_folder_id}"
+                    
+                    if prop_type == "url":
+                        update_props = {"Link hình": {"url": new_link}}
+                    else:
+                        update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
+                        
+                    call_notion_with_retry(
+                        notion.pages.update,
+                        page_id=ins_page_id,
+                        properties=update_props
+                    )
+                    logger.info(f"Đã cập nhật Link hình cho Insight '{ins_name}': {new_link}")
+                    updated_pages.append(ins_name)
+                else:
+                    logger.warning(f"Không tìm thấy thư mục Drive con cho Insight: {ins_name}")
+            except Exception as ex:
+                logger.error(f"Lỗi khi cập nhật Insight {ins_name}: {ex}")
+                
+    return updated_pages

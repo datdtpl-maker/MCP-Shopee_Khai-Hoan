@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.20"
+CURRENT_VERSION = "v2.2.21"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1988,10 +1988,16 @@ HTML = r"""
                     <input type="text" id="shopeeSyncDriveUrl" placeholder="Ví dụ: https://drive.google.com/drive/folders/1aBcDeFg..." style="width: 100%; min-height: 32px; font-size: 11.5px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--bg-input); color: var(--text);" oninput="localStorage.setItem('shopee_sync_drive_url', this.value)">
                   </div>
                 </div>
-                <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap; align-self: flex-end;" title="Chạy đồng bộ ngay">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                  Đồng bộ ngay
-                </button>
+                <div style="display: flex; gap: 8px; align-self: flex-end;">
+                  <button class="md3-btn-secondary" onclick="syncNotionImageLinks()" style="padding: 8px 16px; font-size: 12px; white-space: nowrap; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 700; transition: all 0.2s;" title="Chỉ đồng bộ link hình từ Drive sang trang Notion con">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    Đồng bộ link hình Notion
+                  </button>
+                  <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;" title="Chạy đồng bộ ngay">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Đồng bộ ngay
+                  </button>
+                </div>
               </div>
               <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
@@ -3293,6 +3299,22 @@ HTML = r"""
     } catch(e) {
       log({step: "shopee_sync", message: "Lỗi đồng bộ: " + (e.error || e.message || JSON.stringify(e))});
       alert("Lỗi kích hoạt đồng bộ: " + (e.error || e.message || JSON.stringify(e)));
+    }
+  }
+
+  async function syncNotionImageLinks() {
+    document.getElementById("shopeeSyncLogBox").innerHTML = "";
+    log({step: "shopee_sync", message: "Bắt đầu tiến trình đồng bộ link hình ảnh Google Drive sang Notion..."});
+    startPoll();
+
+    const driveUrl = document.getElementById("shopeeSyncDriveUrl") ? document.getElementById("shopeeSyncDriveUrl").value.trim() : "";
+
+    try {
+      const d = await api("/api/shopee/sync/links", { drive_url: driveUrl });
+      log({step: "shopee_sync", message: d.message});
+    } catch(e) {
+      log({step: "shopee_sync", message: "Lỗi đồng bộ link hình: " + (e.error || e.message || JSON.stringify(e))});
+      alert("Lỗi kích hoạt đồng bộ link hình: " + (e.error || e.message || JSON.stringify(e)));
     }
   }
 
@@ -8312,6 +8334,50 @@ def api_generate_product_insights():
     except Exception as exc:
         return error_response(exc, 500)
 
+
+@app.post("/api/shopee/sync/links")
+def api_sync_shopee_links():
+    try:
+        global shopee_sync_thread, shopee_sync_active
+        try:
+            from shopee_sync.src import notion_sync
+        except ImportError:
+            from src import notion_sync
+
+        if shopee_sync_active:
+            return jsonify({"success": False, "error": "Tiến trình đồng bộ đang chạy ngầm, vui lòng đợi..."}), 400
+
+        payload = request.json or {}
+        drive_url = payload.get("drive_url", "").strip()
+
+        shopee_sync_active = True
+        add_event({"step": "shopee_sync", "message": "Khởi chạy tiến trình đồng bộ link hình lên Notion..."})
+
+        def run_links_wrapper(override_url):
+            global shopee_sync_active
+            try:
+                updated = notion_sync.sync_only_image_links_to_notion(override_drive_url=override_url)
+                if not updated:
+                    add_event({
+                        "step": "shopee_sync",
+                        "message": "Không có link hình nào cần cập nhật (Tất cả đã có hình hoặc không tìm thấy thư mục con)."
+                    })
+                else:
+                    add_event({
+                        "step": "shopee_sync",
+                        "message": f"🎉 Đã cập nhật thành công link hình Drive cho {len(updated)} trang Insight Notion con!"
+                    })
+            except Exception as e:
+                add_event({"step": "shopee_sync", "message": f"❌ Lỗi đồng bộ link hình: {str(e)}"})
+            finally:
+                shopee_sync_active = False
+
+        shopee_sync_thread = threading.Thread(target=run_links_wrapper, args=(drive_url,), daemon=True)
+        shopee_sync_thread.start()
+
+        return jsonify({"success": True, "message": "Tiến trình đồng bộ link hình Notion đã bắt đầu chạy ngầm."})
+    except Exception as exc:
+        return error_response(exc, 500)
 
 @app.post("/api/shopee/sync/run")
 def api_run_shopee_sync():
