@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.23"
+CURRENT_VERSION = "v2.2.24"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1806,6 +1806,10 @@ HTML = r"""
                   <input id="shopeeManagerChatId" class="md3-input" type="text" placeholder="ID người quản lý nhận thông báo...">
                 </div>
                 <div class="field-span-2">
+                  <label for="shopeeDriveRootId" class="md3-label">Google Drive Root ID (DRIVE_ROOT_FOLDER_ID)</label>
+                  <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ">
+                </div>
+                <div class="field-span-2">
                   <label for="shopeeGeminiApiKey" class="md3-label">Gemini/OpenAI API Key (GEMINI_API_KEY)</label>
                   <div class="field-action">
                     <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="sk-... hoặc API Key của Gemini...">
@@ -2488,6 +2492,7 @@ HTML = r"""
       document.getElementById("shopeeTelegramToken").value = d.TELEGRAM_BOT_TOKEN || "";
       document.getElementById("shopeeManagerChatId").value = d.MANAGER_CHAT_ID || "";
       document.getElementById("shopeeGeminiApiKey").value = d.GEMINI_API_KEY || "";
+      document.getElementById("shopeeDriveRootId").value = d.DRIVE_ROOT_FOLDER_ID || "";
     } catch(e) {
       console.error("Lỗi tải cấu hình Shopee Sync:", e);
     }
@@ -2500,6 +2505,7 @@ HTML = r"""
       const telegramToken = document.getElementById("shopeeTelegramToken").value.trim();
       const managerChatId = document.getElementById("shopeeManagerChatId").value.trim();
       const geminiApiKey = document.getElementById("shopeeGeminiApiKey").value.trim();
+      const driveRootId = document.getElementById("shopeeDriveRootId").value.trim();
 
       const payload = {
         NOTION_TOKEN: notionToken,
@@ -2507,6 +2513,7 @@ HTML = r"""
         TELEGRAM_BOT_TOKEN: telegramToken,
         MANAGER_CHAT_ID: managerChatId,
         GEMINI_API_KEY: geminiApiKey,
+        DRIVE_ROOT_FOLDER_ID: driveRootId,
         PARTNER_ID: "0",
         PARTNER_KEY: "",
         SHOP_ID: "0",
@@ -8129,7 +8136,8 @@ def api_get_shopee_config():
             "PARTNER_ID": "0",
             "PARTNER_KEY": "",
             "SHOP_ID": "0",
-            "MOCK_MODE": "True"
+            "MOCK_MODE": "True",
+            "DRIVE_ROOT_FOLDER_ID": ""
         }
         if env_file.exists():
             content = env_file.read_text(encoding="utf-8")
@@ -8164,6 +8172,7 @@ def api_save_shopee_config():
         lines.append(f"NOTION_DATABASE_ID={payload.get('NOTION_DATABASE_ID', '')}")
         lines.append(f"GEMINI_API_KEY={payload.get('GEMINI_API_KEY', '')}")
         lines.append(f"MANAGER_CHAT_ID={payload.get('MANAGER_CHAT_ID', '')}")
+        lines.append(f"DRIVE_ROOT_FOLDER_ID={payload.get('DRIVE_ROOT_FOLDER_ID', '')}")
 
         env_file.write_text("\n".join(lines), encoding="utf-8")
 
