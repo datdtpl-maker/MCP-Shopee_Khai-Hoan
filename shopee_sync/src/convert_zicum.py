@@ -89,7 +89,7 @@ def get_subfolders_of_drive_folder(folder_id: str) -> dict:
         html = preprocess_drive_html(res.text)
         
         # Match folders using regex
-        folders = re.findall(r'"(1[a-zA-Z0-9_-]{32})",\s*null,\s*"([^"]+)",\s*"application/vnd.google-apps.folder"', html)
+        folders = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*null,\s*"([^"]+)",\s*"application/vnd.google-apps.folder"', html)
         
         subfolders = {}
         for fid, name in folders:
@@ -121,7 +121,7 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
         files_list = []
         
         # Pattern 1: "FILE_ID",["PARENT_ID"],"FILE_NAME","MIME_TYPE"
-        files_1 = re.findall(r'"(1[a-zA-Z0-9_-]{32})",\s*\[\s*"(1[a-zA-Z0-9_-]{32})"\s*\],\s*"([^"]+)",\s*"([^"]+)"', html)
+        files_1 = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*\[\s*"([a-zA-Z0-9_-]{25,50})"\s*\],\s*"([^"]+)",\s*"([^"]+)"', html)
         for fid, parent_id, name, mime in files_1:
             if fid != folder_id and ("image" in mime or "video" in mime):
                 if "video" in mime:
@@ -138,7 +138,7 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
                     })
                     
         # Pattern 2: "FILE_ID",null,null,null,"MIME_TYPE"
-        files_2 = re.findall(r'"(1[a-zA-Z0-9_-]{32})",\s*null,\s*null,\s*null,\s*"([^"]+)"', html)
+        files_2 = re.findall(r'"([a-zA-Z0-9_-]{25,50})",\s*null,\s*null,\s*null,\s*"([^"]+)"', html)
         for fid, mime in files_2:
             if fid != folder_id and ("image" in mime or "video" in mime):
                 if "video" in mime:
@@ -155,7 +155,7 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
                     
         # Fallback: scan any 33-char ID starting with 1
         if not files_list:
-            candidates = re.findall(r'"(1[a-zA-Z0-9_-]{32})"', html)
+            candidates = re.findall(r'"([a-zA-Z0-9_-]{25,50})"', html)
             for fid in candidates:
                 if fid != folder_id:
                     link = f"https://lh3.googleusercontent.com/d/{fid}"
