@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Tìm đường dẫn tuyệt đối của file .env
 # Nếu có ENV_FILE_PATH từ biến môi trường (khi chạy qua MCP client), ưu tiên sử dụng
 env_path = os.getenv("ENV_FILE_PATH")
+project_root = Path(__file__).resolve().parent.parent
 if env_path:
     load_dotenv(env_path)
 else:
@@ -13,7 +14,6 @@ else:
     if getattr(sys, 'frozen', False):
         load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
     else:
-        project_root = Path(__file__).resolve().parent.parent
         load_dotenv(project_root / ".env")
 
 PARTNER_ID = int(os.getenv("PARTNER_ID", "0"))
