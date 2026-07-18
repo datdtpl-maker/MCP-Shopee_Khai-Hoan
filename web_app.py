@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.17"
+CURRENT_VERSION = "v2.2.18"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9437,12 +9437,60 @@ def api_review_save_shopee():
 
         from shopee_sync.src.notion_sync import call_notion_with_retry
 
+        # Lấy driveUrl từ dữ liệu frontend truyền lên
+        drive_url = product_data.get("driveUrl", "").strip()
+        if not drive_url and saved_product_page_id:
+            try:
+                product_page = notion.pages.retrieve(page_id=saved_product_page_id)
+                drive_url = product_page.get("properties", {}).get("Media sản phẩm", {}).get("url", "") or ""
+            except Exception:
+                pass
+
+        # Phân tích product_folder_id và lấy các thư mục con của nó trên Drive
+        product_folder_id = None
+        subfolders = {}
+        if drive_url:
+            import re
+            folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
+            if folder_match:
+                product_folder_id = folder_match.group(1)
+                try:
+                    from shopee_sync.src import convert_zicum
+                except ImportError:
+                    from src import convert_zicum
+                try:
+                    subfolders = convert_zicum.get_subfolders_of_drive_folder(product_folder_id)
+                except Exception as e:
+                    print(f"[Notion Save] Lỗi khi cào thư mục con từ Drive: {e}")
+
         for idx, item in enumerate(insights):
             order_num = idx + 1
             angle = item.get("angle", "").strip() or f"Insight {order_num}"
             post_title = item.get("postTitle", f"{product_name} - Insight {order_num}")
             insight_content = item.get("insightContent", "")
             keywords = item.get("keywords", "")
+
+            # Tìm link hình cho Insight con này
+            insight_drive_url = None
+            if subfolders:
+                try:
+                    from shopee_sync.src import convert_zicum
+                except ImportError:
+                    from src import convert_zicum
+                
+                clean_angle = convert_zicum.clean_name(angle)
+                clean_folder_name = convert_zicum.clean_name(f"Insight {order_num}")
+                
+                target_folder_id = None
+                if clean_angle in subfolders:
+                    target_folder_id = subfolders[clean_angle]
+                else:
+                    for sf_name, sf_id in subfolders.items():
+                        if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_angle in sf_name or sf_name in clean_angle:
+                            target_folder_id = sf_id
+                            break
+                if target_folder_id:
+                    insight_drive_url = f"https://drive.google.com/drive/folders/{target_folder_id}"
 
             # 1. Gọi AI sinh bài viết chi tiết dựa trên insight đã được duyệt/sửa
             body = generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords)
@@ -9459,12 +9507,26 @@ def api_review_save_shopee():
                 "Trạng thái tạo hình": {"select": {"name": "Chờ tạo hình"}},
                 "Format": {"select": {"name": "Shopee Post"}}
             }
+            if insight_drive_url:
+                page_properties["Link hình"] = {"url": insight_drive_url}
 
-            new_insight_page = call_notion_with_retry(
-                notion.pages.create,
-                parent={"database_id": insight_database_id},
-                properties=page_properties
-            )
+            try:
+                new_insight_page = call_notion_with_retry(
+                    notion.pages.create,
+                    parent={"database_id": insight_database_id},
+                    properties=page_properties
+                )
+            except Exception as e:
+                # Nếu lỗi do kiểu dữ liệu của Link hình, thử đổi sang rich_text
+                if insight_drive_url and "Link hình" in page_properties and "url" in page_properties["Link hình"]:
+                    page_properties["Link hình"] = {"rich_text": [{"text": {"content": insight_drive_url}}]}
+                    new_insight_page = call_notion_with_retry(
+                        notion.pages.create,
+                        parent={"database_id": insight_database_id},
+                        properties=page_properties
+                    )
+                else:
+                    raise e
             new_page_id = new_insight_page["id"]
             created_pages_info.append({
                 "page_id": new_page_id,

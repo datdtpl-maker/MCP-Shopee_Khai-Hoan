@@ -511,13 +511,59 @@ def sync_notion_to_bigseller_excel() -> Tuple[str, List[str]]:
         if insight_items:
             import concurrent.futures
             
-            def process_single_insight(idx_item):
+            # Lấy danh sách subfolders của sản phẩm cha
+            subfolders = {}
+            if product_folder_id:
+                try:
+                    subfolders = convert_zicum.get_subfolders_of_drive_folder(product_folder_id)
+                except Exception as e:
+                    logger.error(f"Lỗi khi cào thư mục con từ Drive: {e}")
+            
+            def process_single_insight(idx_item, subfolders):
                 idx, item = idx_item
                 ins_name = item["insight_name"]
                 ins_page_id = item["page_id"]
                 logger.info(f"Đang tải bài viết chuẩn bị sẵn cho Insight '{ins_name}' từ Notion page ID: {ins_page_id}...")
                 try:
                     title_from_page, description_from_page, link_hinh_from_page = fetch_insight_page_content(notion, ins_page_id)
+                    
+                    # Tự động tìm thư mục Drive và cập nhật trường Link hình nếu trên Notion đang rỗng
+                    if not link_hinh_from_page and subfolders:
+                        clean_insight = convert_zicum.clean_name(ins_name)
+                        clean_folder_name = convert_zicum.clean_name(f"Insight {idx+1}")
+                        
+                        target_folder_id = None
+                        if clean_insight in subfolders:
+                            target_folder_id = subfolders[clean_insight]
+                        else:
+                            for sf_name, sf_id in subfolders.items():
+                                if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_insight in sf_name or sf_name in clean_insight:
+                                    target_folder_id = sf_id
+                                    break
+                                    
+                        if target_folder_id:
+                            new_link = f"https://drive.google.com/drive/folders/{target_folder_id}"
+                            try:
+                                # Kiểm tra kiểu của thuộc tính Link hình để cập nhật chuẩn xác
+                                ins_page = call_notion_with_retry(notion.pages.retrieve, page_id=ins_page_id)
+                                prop_lh = ins_page.get("properties", {}).get("Link hình", {})
+                                prop_type = prop_lh.get("type", "url")
+                                
+                                if prop_type == "url":
+                                    update_props = {"Link hình": {"url": new_link}}
+                                else:
+                                    update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
+                                    
+                                call_notion_with_retry(
+                                    notion.pages.update,
+                                    page_id=ins_page_id,
+                                    properties=update_props
+                                )
+                                logger.info(f"Đã cập nhật thuộc tính 'Link hình' cho trang Insight {ins_name}: {new_link}")
+                                link_hinh_from_page = new_link
+                            except Exception as e:
+                                logger.error(f"Không thể cập nhật thuộc tính 'Link hình' cho trang Insight {ins_name}: {e}")
+
                     # Kiểm duyệt mô tả qua AI để đảm bảo phù hợp chính sách Shopee
                     logger.info(f"Đang tiến hành kiểm duyệt AI cho mô tả Insight '{ins_name}'...")
                     description_from_page = ai_generator.moderate_and_fix_shopee_description(description_from_page, api_key)
@@ -539,7 +585,7 @@ def sync_notion_to_bigseller_excel() -> Tuple[str, List[str]]:
             
             # Sử dụng ThreadPoolExecutor để xử lý song song các Insight cùng lúc
             with concurrent.futures.ThreadPoolExecutor(max_workers=len(insight_items)) as executor:
-                results = list(executor.map(process_single_insight, enumerate(insight_items)))
+                results = list(executor.map(lambda x: process_single_insight(x, subfolders), enumerate(insight_items)))
                 
             content_versions.extend(results)
         else:
