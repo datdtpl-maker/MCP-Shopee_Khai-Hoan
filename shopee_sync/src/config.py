@@ -9,8 +9,12 @@ if env_path:
     load_dotenv(env_path)
 else:
     # Mặc định tìm .env ở thư mục gốc của project
-    project_root = Path(__file__).resolve().parent.parent
-    load_dotenv(project_root / ".env")
+    import sys
+    if getattr(sys, 'frozen', False):
+        load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+    else:
+        project_root = Path(__file__).resolve().parent.parent
+        load_dotenv(project_root / ".env")
 
 PARTNER_ID = int(os.getenv("PARTNER_ID", "0"))
 PARTNER_KEY = os.getenv("PARTNER_KEY", "")

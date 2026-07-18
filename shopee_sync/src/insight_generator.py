@@ -188,8 +188,12 @@ def generate_and_create_insights(product_page_id: str, progress_callback: Option
         if progress_callback:
             progress_callback(msg)
             
-    project_root = Path(__file__).resolve().parent.parent
-    load_dotenv(project_root / ".env")
+    import sys
+    if getattr(sys, 'frozen', False):
+        load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+    else:
+        project_root = Path(__file__).resolve().parent.parent
+        load_dotenv(project_root / ".env")
     
     token = os.getenv("NOTION_TOKEN")
     api_key = os.getenv("GEMINI_API_KEY")

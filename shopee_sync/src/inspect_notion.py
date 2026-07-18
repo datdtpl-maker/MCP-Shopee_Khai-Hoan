@@ -6,8 +6,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Tìm file .env
-project_root = Path(__file__).resolve().parent.parent
-load_dotenv(project_root / ".env")
+import sys
+if getattr(sys, 'frozen', False):
+    load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+else:
+    project_root = Path(__file__).resolve().parent.parent
+    load_dotenv(project_root / ".env")
 
 def inspect():
     token = os.getenv("NOTION_TOKEN")

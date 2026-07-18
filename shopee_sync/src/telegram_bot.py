@@ -18,8 +18,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("telegram_bot")
 
 # Nạp file .env
-project_root = Path(__file__).resolve().parent.parent
-load_dotenv(project_root / ".env")
+import sys
+if getattr(sys, 'frozen', False):
+    load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+else:
+    project_root = Path(__file__).resolve().parent.parent
+    load_dotenv(project_root / ".env")
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 

@@ -367,8 +367,12 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
     logger.info("Khởi động quy trình đồng bộ Notion -> BigSeller Excel...")
     
     # Nạp cấu hình từ .env
-    project_root = Path(__file__).resolve().parent.parent
-    load_dotenv(project_root / ".env")
+    import sys
+    if getattr(sys, 'frozen', False):
+        load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+    else:
+        project_root = Path(__file__).resolve().parent.parent
+        load_dotenv(project_root / ".env")
     
     token = os.getenv("NOTION_TOKEN")
     page_id = os.getenv("NOTION_DATABASE_ID")
@@ -911,8 +915,12 @@ def sync_only_image_links_to_notion(override_drive_url: Optional[str] = None) ->
     logger.info("Bắt đầu tiến trình chỉ đồng bộ link hình Google Drive sang Notion...")
     
     # Nạp cấu hình từ .env
-    project_root = Path(__file__).resolve().parent.parent
-    load_dotenv(project_root / ".env")
+    import sys
+    if getattr(sys, 'frozen', False):
+        load_dotenv(Path(sys.executable).parent / "shopee_sync" / ".env")
+    else:
+        project_root = Path(__file__).resolve().parent.parent
+        load_dotenv(project_root / ".env")
     
     token = os.getenv("NOTION_TOKEN")
     page_id = os.getenv("NOTION_DATABASE_ID")
