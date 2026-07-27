@@ -1092,24 +1092,22 @@ def create_notion_page_safe(notion_client, parent_db_id: str, properties: Dict[s
         db_meta = notion_client.databases.retrieve(database_id=parent_db_id)
         db_props = db_meta.get("properties", {})
         
-        # Nếu "Sản phẩm Shopee" có trong props nhưng không có trong db_props
-        if "Sản phẩm Shopee" in props and "Sản phẩm Shopee" not in db_props:
+        # Nếu "Sản phẩm Shopee" có trong props, map sang tất cả các cột relation sản phẩm có trong db_props
+        if "Sản phẩm Shopee" in props:
             rel_val = props.pop("Sản phẩm Shopee")
-            found_rel = None
-            # Ưu tiên các tên cột phổ biến
-            preferred_names = ["Công việc Shopee", "Sản phẩm", "Sản phẩm Shopee", "Product", "Sản phẩm quản lý"]
-            for pref in preferred_names:
-                if pref in db_props and db_props[pref].get("type") == "relation":
-                    found_rel = pref
-                    break
-            if not found_rel:
+            relation_keys = ["Công việc Shopee", "Sản phẩm quản lý", "Sản phẩm Shopee", "Sản phẩm", "Product"]
+            matched_any = False
+            for key in relation_keys:
+                if key in db_props and db_props[key].get("type") == "relation":
+                    props[key] = rel_val
+                    matched_any = True
+                    logger.info(f"Đã tự động liên kết sản phẩm vào cột relation '{key}'.")
+            if not matched_any:
                 for p_name, p_info in db_props.items():
                     if p_info.get("type") == "relation":
-                        found_rel = p_name
+                        props[p_name] = rel_val
+                        logger.info(f"Đã tự động liên kết sản phẩm vào cột relation '{p_name}'.")
                         break
-            if found_rel:
-                props[found_rel] = rel_val
-                logger.info(f"Đã tự động chuyển đổi thuộc tính relation sang tên '{found_rel}' theo Notion Database.")
     except Exception as err:
         logger.warning(f"Không thể kiểm tra schema Notion Database: {err}")
 
