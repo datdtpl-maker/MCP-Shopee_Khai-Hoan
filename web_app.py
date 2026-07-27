@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.32"
+CURRENT_VERSION = "v2.2.33"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9366,8 +9366,9 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
   "hashtags": "#TenSanPham #Hashtag1 #Hashtag2..."
 }}
 """
-    is_openai = api_key.startswith("sk-")
+    is_openai = api_key and api_key.startswith("sk-")
     try:
+        raw_text = ""
         if is_openai:
             url = "https://api.openai.com/v1/chat/completions"
             headers = {
@@ -9377,49 +9378,100 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
             payload = {
                 "model": "gpt-4o-mini",
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.7
+                "temperature": 0.7,
+                "response_format": {"type": "json_object"}
             }
             res = requests.post(url, headers=headers, json=payload, timeout=60)
             if res.status_code == 200:
                 raw_text = res.json()["choices"][0]["message"]["content"]
-            else:
-                raw_text = ""
         else:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
             headers = {"Content-Type": "application/json"}
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}]
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "response_mime_type": "application/json"
+                }
             }
             res = requests.post(url, headers=headers, json=payload, timeout=60)
             if res.status_code == 200:
                 raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
-            else:
-                raw_text = ""
 
-        # Parse JSON from AI response
-        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
-        if json_match:
-            return json.loads(json_match.group(0))
-        return {
-            "description": raw_text or f"Mô tả sản phẩm {product_name} dành riêng cho góc bán hàng {angle}.",
-            "ingredients": [],
-            "benefits": [],
-            "target_users": [],
-            "usage": "",
-            "notes": [],
-            "hashtags": f"#{product_name.replace(' ', '')}"
-        }
+        parsed_json = None
+        if raw_text:
+            cleaned = re.sub(r'```(?:json)?', '', raw_text, flags=re.IGNORECASE).strip()
+            json_match = re.search(r'\{.*\}', cleaned, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+                try:
+                    parsed_json = json.loads(json_str)
+                except Exception:
+                    try:
+                        fixed_str = re.sub(r'(?<!\\)\n', r'\\n', json_str)
+                        fixed_str = re.sub(r'(?<!\\)\r', r'\\r', fixed_str)
+                        fixed_str = re.sub(r'(?<!\\)\t', r'\\t', fixed_str)
+                        parsed_json = json.loads(fixed_str)
+                    except Exception:
+                        pass
+
+        if isinstance(parsed_json, dict):
+            desc = parsed_json.get("description", "")
+            ing = parsed_json.get("ingredients", [])
+            ben = parsed_json.get("benefits", [])
+            tar = parsed_json.get("target_users", [])
+            usg = parsed_json.get("usage", "")
+            nts = parsed_json.get("notes", [])
+            hash_tags = parsed_json.get("hashtags", "")
+
+            if not desc:
+                desc = f"Mô tả sản phẩm {product_name} chuẩn SEO Shopee dành riêng cho góc bán hàng {angle}."
+            if not ing or not isinstance(ing, list) or len(ing) == 0:
+                ing = [f"Hoạt chất chăm sóc chuyên sâu của {product_name}: Hỗ trợ dịu da và cân bằng tự nhiên.", "Dưỡng chất bổ sung tự nhiên an toàn."]
+            if not ben or not isinstance(ben, list) or len(ben) == 0:
+                ben = [f"Hỗ trợ giải quyết hiệu quả nỗi lo của khách hàng theo góc bán hàng {angle}.", "Làm dịu da và mang lại cảm giác dễ chịu tức thì."]
+            if not tar or not isinstance(tar, list) or len(tar) == 0:
+                tar = ["Người lớn và trẻ em từ 6 tuổi trở lên có nhu cầu chăm sóc da chuyên sâu."]
+            if not usg:
+                usg = "Sử dụng trực tiếp 1-2 lần/ngày sau khi vệ sinh vùng da cần chăm sóc."
+            if not nts or not isinstance(nts, list) or len(nts) == 0:
+                nts = ["Bảo quản nơi khô ráo, tránh ánh nắng trực tiếp.", "Sản phẩm dùng ngoài da, không dán lên vết thương hở."]
+            if not hash_tags:
+                hash_tags = f"#{product_name.replace(' ', '')} #ShopeeSEO #Chamsocda"
+
+            return {
+                "description": desc,
+                "ingredients": ing,
+                "benefits": ben,
+                "target_users": tar,
+                "usage": usg,
+                "notes": nts,
+                "hashtags": hash_tags
+            }
     except Exception as e:
         print(f"[AI Post Gen] Lỗi khi tạo bài viết chi tiết: {e}")
-        return {
-            "description": f"Mô tả sản phẩm {product_name} dành riêng cho góc bán hàng {angle}.",
-            "ingredients": [],
-            "benefits": [],
-            "target_users": [],
-            "usage": "",
-            "notes": [],
-            "hashtags": f"#{product_name.replace(' ', '')}"
-        }
+
+    return {
+        "description": f"Sản phẩm {product_name} là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội, được thiết kế chuyên biệt để đáp ứng nỗi đau của khách hàng ở góc bán hàng {angle}. Sản phẩm mang đến công thức cải tiến, an toàn và lành tính, hỗ trợ tối đa quá trình chăm sóc và cân bằng sức khỏe da.",
+        "ingredients": [
+            f"Thành phần chính của {product_name}: Hỗ trợ làm dịu tổn thương và nuôi dưỡng chuyên sâu.",
+            "Dưỡng chất tự nhiên bổ sung: Tăng cường bảo vệ da và duy trì độ ẩm tự nhiên."
+        ],
+        "benefits": [
+            f"Hỗ trợ giải quyết góc bán hàng {angle} một cách an toàn, hiệu quả.",
+            "Giảm nhanh cảm giác khó chịu, mang lại cảm giác thoải mái lâu dài.",
+            "Cung cấp dưỡng chất thiết yếu hỗ trợ da và cơ thể luôn khỏe mạnh."
+        ],
+        "target_users": [
+            "Người lớn và trẻ em từ 6 tuổi trở lên cần chăm sóc chuyên sâu.",
+            "Người gặp các triệu chứng hoặc vấn đề liên quan đến góc bán hàng chỉ định."
+        ],
+        "usage": "Sử dụng trực tiếp 1-2 lần/ngày sau khi làm sạch. Xem chi tiết hướng dẫn trên bao bì.",
+        "notes": [
+            "Không sử dụng cho người mẫn cảm với thành phần sản phẩm.",
+            "Bảo quản nơi khô ráo, tránh ánh nắng trực tiếp."
+        ],
+        "hashtags": f"#{product_name.replace(' ', '')} #ShopeeSEO #DuocMyPham"
+    }
 
 
 @app.post("/api/review-save")
