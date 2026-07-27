@@ -1096,10 +1096,17 @@ def create_notion_page_safe(notion_client, parent_db_id: str, properties: Dict[s
         if "Sản phẩm Shopee" in props and "Sản phẩm Shopee" not in db_props:
             rel_val = props.pop("Sản phẩm Shopee")
             found_rel = None
-            for p_name, p_info in db_props.items():
-                if p_info.get("type") == "relation":
-                    found_rel = p_name
+            # Ưu tiên các tên cột phổ biến
+            preferred_names = ["Công việc Shopee", "Sản phẩm", "Sản phẩm Shopee", "Product", "Sản phẩm quản lý"]
+            for pref in preferred_names:
+                if pref in db_props and db_props[pref].get("type") == "relation":
+                    found_rel = pref
                     break
+            if not found_rel:
+                for p_name, p_info in db_props.items():
+                    if p_info.get("type") == "relation":
+                        found_rel = p_name
+                        break
             if found_rel:
                 props[found_rel] = rel_val
                 logger.info(f"Đã tự động chuyển đổi thuộc tính relation sang tên '{found_rel}' theo Notion Database.")
