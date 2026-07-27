@@ -461,11 +461,12 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
         if not target_drive_folder_id and status_name == "Đã đăng":
             continue
 
-        # Sản phẩm đủ điều kiện xuất Excel nếu: content_xong = True HOẶC bài_viết = True HOẶC đã có Insight
-        if content_xong or bai_viet or has_insights:
+        # Sản phẩm đủ điều kiện xuất Excel nếu: Trạng thái xử lý == 'Content đang làm' hoặc (bài_viết = True / có Insight) và chưa 'Đã đăng'
+        is_pending = (status_name == "Content đang làm") or (status_name != "Đã đăng" and (bai_viet or has_insights or content_xong))
+        if is_pending:
             pending_products.append(page)
             
-    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện để xuất Excel.")
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện ('Content đang làm') để xuất Excel.")
     
     if not pending_products:
         return "", []
