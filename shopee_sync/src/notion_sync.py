@@ -402,20 +402,58 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
     res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
     records = res.get("results", [])
     
-    # 3. Lọc sản phẩm: Bài viết = True và Trạng thái đăng bài shopee = False
+    # 3. Lọc sản phẩm: BẮT BUỘC ô 'Content xong' = True và khớp link Drive chỉ định (nếu có)
     pending_products = []
+    target_drive_folder_id = None
+    if override_drive_url and 'drive.google.com' in override_drive_url:
+        m = re.search(r'/folders/([a-zA-Z0-9_-]+)', override_drive_url)
+        if m:
+            target_drive_folder_id = m.group(1)
+
     for page in records:
         properties = page.get("properties", {})
         
-        # Kiểm tra checkbox "Bài viết"
-        bai_viet = properties.get("Bài viết", {}).get("checkbox", False)
-        # Kiểm tra checkbox "Trạng thái đăng bài shopee"
-        it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
-        
-        if bai_viet and not it_status:
+        # Lấy tên sản phẩm
+        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+        title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        if not title:
+            continue
+
+        # Kiểm tra ô checkbox "Content xong" (hoặc "Bài viết")
+        content_xong = False
+        if "Content xong" in properties:
+            content_xong = properties.get("Content xong", {}).get("checkbox", False)
+        elif "Trạng thái đăng bài Shopee" in properties:
+            content_xong = properties.get("Trạng thái đăng bài Shopee", {}).get("checkbox", False)
+        elif "Trạng thái đăng bài shopee" in properties:
+            content_xong = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
+        else:
+            content_xong = properties.get("Bài viết", {}).get("checkbox", False)
+
+        # Lấy link Media sản phẩm
+        media_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
+        if not media_url:
+            prop_ms = properties.get("Media sản phẩm", {})
+            if prop_ms.get("type") == "rich_text":
+                media_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+
+        # Nếu có override_drive_url từ giao diện Web (chỉ đồng bộ 1 sản phẩm chỉ định)
+        if target_drive_folder_id:
+            page_folder_id = None
+            if media_url and '/folders/' in media_url:
+                fm = re.search(r'/folders/([a-zA-Z0-9_-]+)', media_url)
+                if fm:
+                    page_folder_id = fm.group(1)
+            
+            # Nếu sản phẩm này có link Drive và không khớp với link chỉ định -> bỏ qua
+            if page_folder_id and page_folder_id != target_drive_folder_id:
+                continue
+
+        # Bắt buộc ô 'Content xong' phải được tích chọn
+        if content_xong:
             pending_products.append(page)
             
-    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm mới chờ xử lý.")
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện ('Content xong' = True) để xuất Excel.")
     
     if not pending_products:
         return "", []
@@ -850,16 +888,28 @@ Mỗi viên nang cứng chứa:
     new_df.to_excel(excel_output_path, index=False)
     logger.info(f"Đã xuất file Excel đồng bộ thành công tại: {excel_output_path}")
     
-    # 7. Cập nhật trạng thái Trạng thái đăng bài shopee = True trên Notion (Bỏ note nội dung đăng theo yêu cầu)
+    # 7. Cập nhật trạng thái hoàn thành trên Notion an toàn (không bị lỗi thuộc tính)
     for p_id in processed_page_ids:
         logger.info(f"Đang đánh dấu hoàn thành trên Notion cho page_id: {p_id}")
-        update_notion_page_safe(
-            notion,
-            page_id=p_id,
-            properties={
-                "Trạng thái đăng bài shopee": {"checkbox": True}
-            }
-        )
+        try:
+            p_data = call_notion_with_retry(notion.pages.retrieve, page_id=p_id)
+            p_props = p_data.get("properties", {})
+            update_payload = {}
+            if "Trạng thái đăng bài Shopee" in p_props:
+                update_payload["Trạng thái đăng bài Shopee"] = {"checkbox": True}
+            elif "Trạng thái đăng bài shopee" in p_props:
+                update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
+            elif "Đã xuất Excel" in p_props:
+                update_payload["Đã xuất Excel"] = {"checkbox": True}
+
+            if update_payload:
+                update_notion_page_safe(
+                    notion,
+                    page_id=p_id,
+                    properties=update_payload
+                )
+        except Exception as update_err:
+            logger.warning(f"Không thể cập nhật thuộc tính hoàn thành trên Notion cho {p_id}: {update_err}")
         
     return str(excel_output_path), processed_titles
 
