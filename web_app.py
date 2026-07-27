@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.31"
+CURRENT_VERSION = "v2.2.32"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9632,131 +9632,146 @@ def api_review_save_shopee():
                 "angle": angle
             })
 
-            # 3. Soạn nội dung các block bài viết chi tiết
-            blocks = [
-                {
+            # 3. Soạn nội dung các block bài viết chi tiết an toàn cho Notion API
+            def build_rich_text_safe(text_val):
+                if not text_val:
+                    return [{"type": "text", "text": {"content": "Chưa có thông tin"}}]
+                s = str(text_val).strip()
+                if not s:
+                    return [{"type": "text", "text": {"content": "Chưa có thông tin"}}]
+                chunks = [s[i:i+1900] for i in range(0, len(s), 1900)]
+                return [{"type": "text", "text": {"content": c}} for c in chunks]
+
+            blocks = []
+            if post_title:
+                blocks.append({
                     "object": "block",
                     "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"text": {"content": post_title, "link": None}}],
-                        "color": "default"
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
-                        "rich_text": [{"text": {"content": "Mô tả sản phẩm"}}]
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"text": {"content": body.get("description", "")}}]
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
-                        "rich_text": [{"text": {"content": "Thành phần nổi bật"}}]
-                    }
-                }
-            ]
-
-            for ing in body.get("ingredients", []):
-                blocks.append({
-                    "object": "block",
-                    "type": "bulleted_list_item",
-                    "bulleted_list_item": {
-                        "rich_text": [{"text": {"content": ing}}]
-                    }
+                    "paragraph": {"rich_text": build_rich_text_safe(post_title)}
                 })
+            
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Mô tả sản phẩm"}}]}
+            })
+
+            desc_text = body.get("description", "")
+            if isinstance(desc_text, list):
+                desc_text = "\n\n".join([str(x) for x in desc_text])
+            
+            for paragraph_str in str(desc_text).split("\n\n"):
+                if paragraph_str.strip():
+                    blocks.append({
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {"rich_text": build_rich_text_safe(paragraph_str.strip())}
+                    })
 
             blocks.append({
                 "object": "block",
                 "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"text": {"content": "Công dung hỗ trợ"}}]
-                }
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Thành phần nổi bật"}}]}
             })
-            for ben in body.get("benefits", []):
-                blocks.append({
-                    "object": "block",
-                    "type": "bulleted_list_item",
-                    "bulleted_list_item": {
-                        "rich_text": [{"text": {"content": ben}}]
-                    }
-                })
+
+            ingredients = body.get("ingredients", [])
+            if isinstance(ingredients, str):
+                ingredients = [x.strip() for x in ingredients.split("\n") if x.strip()]
+            for ing in ingredients:
+                if str(ing).strip():
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {"rich_text": build_rich_text_safe(str(ing).strip())}
+                    })
 
             blocks.append({
                 "object": "block",
                 "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"text": {"content": "Đối tượng sử dụng"}}]
-                }
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Công dung hỗ trợ"}}]}
             })
-            for target in body.get("target_users", []):
-                blocks.append({
-                    "object": "block",
-                    "type": "bulleted_list_item",
-                    "bulleted_list_item": {
-                        "rich_text": [{"text": {"content": target}}]
-                    }
-                })
+            benefits = body.get("benefits", [])
+            if isinstance(benefits, str):
+                benefits = [x.strip() for x in benefits.split("\n") if x.strip()]
+            for ben in benefits:
+                if str(ben).strip():
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {"rich_text": build_rich_text_safe(str(ben).strip())}
+                    })
 
             blocks.append({
                 "object": "block",
                 "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"text": {"content": "Cách dùng"}}]
-                }
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Đối tượng sử dụng"}}]}
             })
+            target_users = body.get("target_users", [])
+            if isinstance(target_users, str):
+                target_users = [x.strip() for x in target_users.split("\n") if x.strip()]
+            for target in target_users:
+                if str(target).strip():
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {"rich_text": build_rich_text_safe(str(target).strip())}
+                    })
+
+            blocks.append({
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Cách dùng"}}]}
+            })
+            usage_text = body.get("usage", "")
+            if isinstance(usage_text, list):
+                usage_text = "\n".join([str(x) for x in usage_text])
             blocks.append({
                 "object": "block",
                 "type": "paragraph",
-                "paragraph": {
-                    "rich_text": [{"text": {"content": body.get("usage", "")}}]
-                }
+                "paragraph": {"rich_text": build_rich_text_safe(str(usage_text).strip())}
             })
 
             blocks.append({
                 "object": "block",
                 "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"text": {"content": "Lưu ý"}}]
-                }
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Lưu ý"}}]}
             })
-            for note in body.get("notes", []):
-                blocks.append({
-                    "object": "block",
-                    "type": "bulleted_list_item",
-                    "bulleted_list_item": {
-                        "rich_text": [{"text": {"content": note}}]
-                    }
-                })
+            notes = body.get("notes", [])
+            if isinstance(notes, str):
+                notes = [x.strip() for x in notes.split("\n") if x.strip()]
+            for note in notes:
+                if str(note).strip():
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {"rich_text": build_rich_text_safe(str(note).strip())}
+                    })
 
             blocks.append({
                 "object": "block",
                 "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"text": {"content": "Hashtag"}}]
-                }
+                "heading_2": {"rich_text": [{"type": "text", "text": {"content": "Hashtag"}}]}
             })
+            hashtags_text = body.get("hashtags", "")
+            if isinstance(hashtags_text, list):
+                hashtags_text = " ".join([str(x) for x in hashtags_text])
             blocks.append({
                 "object": "block",
                 "type": "paragraph",
-                "paragraph": {
-                    "rich_text": [{"text": {"content": body.get("hashtags", "")}}]
-                }
+                "paragraph": {"rich_text": build_rich_text_safe(str(hashtags_text).strip())}
             })
 
-            call_notion_with_retry(
-                notion.blocks.children.append,
-                block_id=new_page_id,
-                children=blocks
-            )
+            # Gửi từng batch 10 blocks để tránh lỗi payload hoặc quá số ký tự Notion API
+            for chunk_idx in range(0, len(blocks), 10):
+                batch = blocks[chunk_idx:chunk_idx + 10]
+                try:
+                    call_notion_with_retry(
+                        notion.blocks.children.append,
+                        block_id=new_page_id,
+                        children=batch
+                    )
+                except Exception as b_err:
+                    print(f"[Notion Block Append] Lỗi khi thêm batch block Notion: {b_err}")
 
         # 4. Cập nhật thuộc tính Insight Library của trang sản phẩm cha
         rich_text_list = []

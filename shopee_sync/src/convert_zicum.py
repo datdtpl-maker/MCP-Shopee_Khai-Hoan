@@ -166,24 +166,33 @@ def find_product_folder(root_folder_id: str, product_title: str) -> Optional[str
     if not clean_title:
         return None
         
-    # 1. Khớp chính xác hoặc substring
+    # Pass 1: Ưu tiên khớp CHÍNH XÁC 100% tên thư mục
     for sf_clean_name, sf_id in subfolders.items():
-        if sf_clean_name == clean_title or sf_clean_name in clean_title or clean_title in sf_clean_name:
-            logger.info(f"Tìm thấy thư mục sản phẩm khớp chuẩn: '{sf_clean_name}' -> ID: {sf_id}")
+        if sf_clean_name == clean_title:
+            logger.info(f"Tìm thấy thư mục sản phẩm KHỚP CHÍNH XÁC 100%: '{sf_clean_name}' -> ID: {sf_id}")
             return sf_id
             
-    # 2. Khớp mềm bằng SequenceMatcher (trên 50% tương đồng)
+    # Pass 2: Nếu không khớp 100%, chọn thư mục có tỉ lệ khớp cao nhất và độ phủ tên lớn nhất
     from difflib import SequenceMatcher
     best_match_id = None
     best_ratio = 0.0
+    best_name = ""
     for sf_clean_name, sf_id in subfolders.items():
         ratio = SequenceMatcher(None, sf_clean_name, clean_title).ratio()
+        if sf_clean_name in clean_title:
+            match_coverage = len(sf_clean_name) / float(len(clean_title))
+            ratio = max(ratio, 0.6 + (0.39 * match_coverage))
+        elif clean_title in sf_clean_name:
+            match_coverage = len(clean_title) / float(len(sf_clean_name))
+            ratio = max(ratio, 0.6 + (0.39 * match_coverage))
+
         if ratio > best_ratio:
             best_ratio = ratio
             best_match_id = sf_id
+            best_name = sf_clean_name
             
-    if best_ratio >= 0.5:
-        logger.info(f"Tìm thấy thư mục sản phẩm khớp mềm (tương đồng {best_ratio*100:.1f}%): ID {best_match_id}")
+    if best_ratio >= 0.65 and best_match_id:
+        logger.info(f"Tìm thấy thư mục sản phẩm khớp cao nhất '{best_name}' (tương đồng {best_ratio*100:.1f}%): ID {best_match_id}")
         return best_match_id
         
     return None
