@@ -590,8 +590,8 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
                                 else:
                                     update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
                                     
-                                call_notion_with_retry(
-                                    notion.pages.update,
+                                update_notion_page_safe(
+                                    notion,
                                     page_id=ins_page_id,
                                     properties=update_props
                                 )
@@ -853,8 +853,8 @@ Mỗi viên nang cứng chứa:
     # 7. Cập nhật trạng thái Trạng thái đăng bài shopee = True trên Notion (Bỏ note nội dung đăng theo yêu cầu)
     for p_id in processed_page_ids:
         logger.info(f"Đang đánh dấu hoàn thành trên Notion cho page_id: {p_id}")
-        call_notion_with_retry(
-            notion.pages.update,
+        update_notion_page_safe(
+            notion,
             page_id=p_id,
             properties={
                 "Trạng thái đăng bài shopee": {"checkbox": True}
@@ -1067,8 +1067,8 @@ def sync_only_image_links_to_notion(override_drive_url: Optional[str] = None) ->
                     else:
                         update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
                         
-                    call_notion_with_retry(
-                        notion.pages.update,
+                    update_notion_page_safe(
+                        notion,
                         page_id=ins_page_id,
                         properties=update_props
                     )
@@ -1080,3 +1080,107 @@ def sync_only_image_links_to_notion(override_drive_url: Optional[str] = None) ->
                 logger.error(f"Lỗi khi cập nhật Insight {ins_name}: {ex}")
                 
     return updated_pages
+
+
+def create_notion_page_safe(notion_client, parent_db_id: str, properties: Dict[str, Any]) -> Dict[str, Any]:
+    """Tạo trang Notion an toàn, tự động dò tìm/bỏ qua các thuộc tính không tồn tại trong DB schema hoặc sai kiểu dữ liệu."""
+    import re
+    props = dict(properties)
+
+    # 1. Kiểm tra schema của Database để tự động điều chỉnh tên trường Relation nếu bị đổi tên
+    try:
+        db_meta = notion_client.databases.retrieve(database_id=parent_db_id)
+        db_props = db_meta.get("properties", {})
+        
+        # Nếu "Sản phẩm Shopee" có trong props nhưng không có trong db_props
+        if "Sản phẩm Shopee" in props and "Sản phẩm Shopee" not in db_props:
+            rel_val = props.pop("Sản phẩm Shopee")
+            found_rel = None
+            for p_name, p_info in db_props.items():
+                if p_info.get("type") == "relation":
+                    found_rel = p_name
+                    break
+            if found_rel:
+                props[found_rel] = rel_val
+                logger.info(f"Đã tự động chuyển đổi thuộc tính relation sang tên '{found_rel}' theo Notion Database.")
+    except Exception as err:
+        logger.warning(f"Không thể kiểm tra schema Notion Database: {err}")
+
+    # 2. Thử tạo page, nếu gặp lỗi thuộc tính không tồn tại thì tự động loại bỏ trường đó và thử lại
+    attempt_props = dict(props)
+    while True:
+        try:
+            return call_notion_with_retry(
+                notion_client.pages.create,
+                parent={"database_id": parent_db_id},
+                properties=attempt_props,
+                max_retries=2
+            )
+        except Exception as e:
+            err_msg = str(e)
+            if "is not a property that exists" in err_msg:
+                match = re.search(r"([^'\"]+?)\s+is not a property that exists", err_msg)
+                if match:
+                    missing_prop = match.group(1).strip()
+                    if "properties." in missing_prop:
+                        missing_prop = missing_prop.split("properties.")[-1]
+                    if missing_prop in attempt_props:
+                        logger.warning(f"Thuộc tính '{missing_prop}' không tồn tại trong Notion Database, tự động loại bỏ và thử lại...")
+                        attempt_props.pop(missing_prop, None)
+                        continue
+            
+            # Xử lý trường hợp "Link hình" sai kiểu dữ liệu (url vs rich_text)
+            if "Link hình" in attempt_props:
+                link_val = attempt_props["Link hình"]
+                if "url" in link_val and link_val["url"]:
+                    logger.warning("Đổi kiểu dữ liệu 'Link hình' sang rich_text và thử lại...")
+                    attempt_props["Link hình"] = {"rich_text": [{"text": {"content": link_val["url"]}}]}
+                    continue
+                elif "rich_text" in link_val:
+                    logger.warning("Loại bỏ 'Link hình' và thử lại...")
+                    attempt_props.pop("Link hình", None)
+                    continue
+            
+            raise e
+
+
+def update_notion_page_safe(notion_client, page_id: str, properties: Dict[str, Any]):
+    """Cập nhật trang Notion an toàn, tự động thử lại nếu sai thuộc tính/kiểu dữ liệu."""
+    import re
+    props = dict(properties)
+    while True:
+        try:
+            return call_notion_with_retry(
+                notion_client.pages.update,
+                page_id=page_id,
+                properties=props,
+                max_retries=2
+            )
+        except Exception as e:
+            err_msg = str(e)
+            if "is not a property that exists" in err_msg:
+                match = re.search(r"([^'\"]+?)\s+is not a property that exists", err_msg)
+                if match:
+                    missing_prop = match.group(1).strip()
+                    if "properties." in missing_prop:
+                        missing_prop = missing_prop.split("properties.")[-1]
+                    if missing_prop in props:
+                        logger.warning(f"Thuộc tính '{missing_prop}' không tồn tại trong Notion Page, tự động bỏ qua...")
+                        props.pop(missing_prop, None)
+                        if not props:
+                            return None
+                        continue
+            
+            # Xử lý Link hình type mismatch
+            if "Link hình" in props:
+                link_val = props["Link hình"]
+                if "url" in link_val and link_val["url"]:
+                    props["Link hình"] = {"rich_text": [{"text": {"content": link_val["url"]}}]}
+                    continue
+                elif "rich_text" in link_val:
+                    props.pop("Link hình", None)
+                    if not props:
+                        return None
+                    continue
+            
+            raise e

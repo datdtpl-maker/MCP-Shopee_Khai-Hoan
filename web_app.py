@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.27"
+CURRENT_VERSION = "v2.2.28"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9520,9 +9520,15 @@ def api_review_save_shopee():
             if len(variant_lines) > 1:
                 new_product_properties["Biến thể 2"] = {"rich_text": [{"text": {"content": variant_lines[1]}}]}
 
-            product_page = notion.pages.create(
-                parent={"database_id": parent_db_id},
-                properties=new_product_properties
+            try:
+                from shopee_sync.src.notion_sync import create_notion_page_safe
+            except ImportError:
+                from src.notion_sync import create_notion_page_safe
+
+            product_page = create_notion_page_safe(
+                notion,
+                parent_db_id,
+                new_product_properties
             )
             saved_product_page_id = product_page["id"]
 
@@ -9604,22 +9610,15 @@ def api_review_save_shopee():
                 page_properties["Link hình"] = {"url": insight_drive_url}
 
             try:
-                new_insight_page = call_notion_with_retry(
-                    notion.pages.create,
-                    parent={"database_id": insight_database_id},
-                    properties=page_properties
-                )
-            except Exception as e:
-                # Nếu lỗi do kiểu dữ liệu của Link hình, thử đổi sang rich_text
-                if insight_drive_url and "Link hình" in page_properties and "url" in page_properties["Link hình"]:
-                    page_properties["Link hình"] = {"rich_text": [{"text": {"content": insight_drive_url}}]}
-                    new_insight_page = call_notion_with_retry(
-                        notion.pages.create,
-                        parent={"database_id": insight_database_id},
-                        properties=page_properties
-                    )
-                else:
-                    raise e
+                from shopee_sync.src.notion_sync import create_notion_page_safe
+            except ImportError:
+                from src.notion_sync import create_notion_page_safe
+
+            new_insight_page = create_notion_page_safe(
+                notion,
+                insight_database_id,
+                page_properties
+            )
             new_page_id = new_insight_page["id"]
             created_pages_info.append({
                 "page_id": new_page_id,
@@ -9772,8 +9771,13 @@ def api_review_save_shopee():
                     "text": {"content": "\n"}
                 })
 
-        call_notion_with_retry(
-            notion.pages.update,
+        try:
+            from shopee_sync.src.notion_sync import update_notion_page_safe
+        except ImportError:
+            from src.notion_sync import update_notion_page_safe
+
+        update_notion_page_safe(
+            notion,
             page_id=saved_product_page_id,
             properties={
                 "Insight Library": {"rich_text": rich_text_list},

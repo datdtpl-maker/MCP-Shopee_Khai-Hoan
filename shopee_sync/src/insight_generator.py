@@ -14,7 +14,7 @@ logger = logging.getLogger("insight_generator")
 INSIGHT_DATABASE_ID = "88159c90-46fb-426d-b3c9-a0d79358e76c"
 
 # Sử dụng cơ chế retry của notion_sync
-from .notion_sync import call_notion_with_retry, get_rich_text_content
+from .notion_sync import call_notion_with_retry, create_notion_page_safe, update_notion_page_safe, get_rich_text_content
 
 # Bộ lọc từ cấm của Shopee VN
 from .ai_generator import clean_banned_words
@@ -251,10 +251,10 @@ def generate_and_create_insights(product_page_id: str, progress_callback: Option
             "Format": {"select": {"name": "Shopee Post"}}
         }
         
-        new_page = call_notion_with_retry(
-            notion.pages.create,
-            parent={"database_id": INSIGHT_DATABASE_ID},
-            properties=page_properties
+        new_page = create_notion_page_safe(
+            notion,
+            INSIGHT_DATABASE_ID,
+            page_properties
         )
         new_page_id = new_page["id"]
         created_pages_info.append({
