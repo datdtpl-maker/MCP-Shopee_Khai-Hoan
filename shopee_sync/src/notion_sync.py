@@ -419,16 +419,24 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
         if not title:
             continue
 
-        # Kiểm tra ô checkbox "Content xong" (hoặc "Bài viết")
-        content_xong = False
-        if "Content xong" in properties:
-            content_xong = properties.get("Content xong", {}).get("checkbox", False)
-        elif "Trạng thái đăng bài Shopee" in properties:
-            content_xong = properties.get("Trạng thái đăng bài Shopee", {}).get("checkbox", False)
-        elif "Trạng thái đăng bài shopee" in properties:
-            content_xong = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
-        else:
-            content_xong = properties.get("Bài viết", {}).get("checkbox", False)
+        # Kiểm tra các cờ trạng thái sản phẩm
+        content_xong = properties.get("Content xong", {}).get("checkbox", False)
+        bai_viet = properties.get("Bài viết", {}).get("checkbox", False)
+        
+        # Kiểm tra danh sách Insight (relation hoặc rich_text)
+        has_insights = False
+        prop_ins = properties.get("Insight Library", {})
+        if prop_ins.get("type") == "relation" and len(prop_ins.get("relation", [])) > 0:
+            has_insights = True
+        elif prop_ins.get("type") == "rich_text" and len(prop_ins.get("rich_text", [])) > 0:
+            has_insights = True
+
+        # Lấy trạng thái xử lý hiện tại
+        status_name = ""
+        if "Trạng thái xử lý" in properties:
+            sel = properties["Trạng thái xử lý"].get("select")
+            if sel:
+                status_name = sel.get("name", "").strip()
 
         # Lấy link Media sản phẩm
         media_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
@@ -449,11 +457,15 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
             if page_folder_id and page_folder_id != target_drive_folder_id:
                 continue
 
-        # Bắt buộc ô 'Content xong' phải được tích chọn
-        if content_xong:
+        # Nếu sản phẩm đã ở trạng thái 'Đã đăng' -> bỏ qua (trừ khi được chỉ định đích danh qua link Drive)
+        if not target_drive_folder_id and status_name == "Đã đăng":
+            continue
+
+        # Sản phẩm đủ điều kiện xuất Excel nếu: content_xong = True HOẶC bài_viết = True HOẶC đã có Insight
+        if content_xong or bai_viet or has_insights:
             pending_products.append(page)
             
-    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện ('Content xong' = True) để xuất Excel.")
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện để xuất Excel.")
     
     if not pending_products:
         return "", []
