@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.35"
+CURRENT_VERSION = "v2.2.36"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9857,7 +9857,7 @@ def api_review_save_shopee():
                 "Insight Library": {"rich_text": rich_text_list},
                 "Bài viết": {"checkbox": True},
                 "Content xong": {"checkbox": True},
-                "Trạng thái xử lý": {"select": {"name": "Báo Shopee đăng"}}
+                "Trạng thái xử lý": {"select": {"name": "Đã đăng"}}
             }
         )
 
