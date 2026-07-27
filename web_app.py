@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.30"
+CURRENT_VERSION = "v2.2.31"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9332,40 +9332,37 @@ def generate_single_post_body(api_key, product_name, angle, post_title, insight_
     import re
 
     prompt = f"""
-Bạn là chuyên gia viết bài bán hàng Shopee xuất sắc tại Việt Nam cho shop dược phẩm/sản phẩm chăm sóc sức khỏe.
-Hãy viết bài chi tiết cho sản phẩm "{product_name}" dựa trên thông tin insight sau:
+Bạn là chuyên gia copywriter bán hàng xuất sắc tại Việt Nam cho shop dược phẩm, dược mỹ phẩm và sản phẩm chăm sóc sức khỏe.
+Hãy viết một bài bán hàng chuẩn SEO Shopee THẬT CHI TIẾT, ĐẦY ĐỦ VÀ SÂU SẮC (độ dài từ 400 - 600 từ) cho sản phẩm "{product_name}".
+
+THÔNG TIN ĐẦU VÀO:
 - Góc bán hàng (Angle): "{angle}"
-- Tiêu đề post Shopee: "{post_title}"
-- Tóm tắt Insight: "{insight_content}"
+- Tiêu đề bài viết Shopee: "{post_title}"
+- Tóm tắt Insight khách hàng: "{insight_content}"
 - Từ khóa chính: "{keywords}"
 
 QUY TẮC TUÂN THỦ CHÍNH SÁCH SHOPEE VIỆT NAM (BẮT BUỘC):
 1. KHÔNG dùng các từ khẳng định y khoa, chữa bệnh như: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "trị dứt điểm", "chữa khỏi", "thuốc".
-2. THAY THẾ bằng các từ an toàn thương mại điện tử: "hỗ trợ giảm", "giúp cải thiện", "chăm sóc", "bổ sung", "hiệu quả", "cân bằng".
+2. THAY THẾ bằng các từ an toàn thương mại điện tử: "hỗ trợ giảm", "giúp cải thiện", "chăm sóc", "bổ sung", "hiệu quả", "cân bằng", "giải pháp".
 3. TUYỆT ĐỐI KHÔNG dùng từ nói quá: "100%", "tốt nhất", "số 1", "cam kết hoàn tiền", "vĩnh viễn".
 
-CẤU TRÚC CHI TIẾT BÀI ĐĂNG (BẮT BUỘC TRẢ VỀ JSON):
-Trả về kết quả ở định dạng JSON duy nhất, không kèm giải thích, cấu trúc như sau:
+YÊU CẦU NỘI DUNG CHI TIẾT DÀI SÂU (BẮT BUỘC):
+- "description": Viết 2 - 3 đoạn văn dài chi tiết (từ 150 - 200 từ) phân tích sâu nỗi đau khách hàng, cơ chế tác động của sản phẩm, cảm giác khi sử dụng và vì sao góc bán hàng "{angle}" này là giải pháp tối ưu nhất.
+- "ingredients": Liệt kê 3 - 5 thành phần chính, mỗi thành phần kèm 1 - 2 câu giải thích công dụng chi tiết.
+- "benefits": Liệt kê 4 - 6 công dụng nổi bật, viết thành các câu hoàn chỉnh, sinh động và giàu sức thuyết phục.
+- "target_users": Liệt kê 3 - 5 nhóm đối tượng người dùng phù hợp cụ thể.
+- "usage": Viết hướng dẫn sử dụng chi tiết từng bước (cách dùng, liều dùng, tần suất, thời gian dùng).
+- "notes": 2 - 3 lưu ý quan trọng khi sử dụng và bảo quản.
+- "hashtags": 8 - 12 hashtags hot SEO liên quan trực tiếp đến sản phẩm.
+
+BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
 {{
-  "description": "Đoạn văn mô tả sản phẩm chi tiết chuyên nghiệp hướng tới góc bán hàng này...",
-  "ingredients": [
-    "Tên thành phần 1: mô tả công dụng...",
-    "Tên thành phần 2: mô tả công dụng..."
-  ],
-  "benefits": [
-    "Công dụng hỗ trợ 1...",
-    "Công dụng hỗ trợ 2...",
-    "Công dụng hỗ trợ 3..."
-  ],
-  "target_users": [
-    "Đối tượng sử dụng phù hợp 1...",
-    "Đối tượng sử dụng phù hợp 2..."
-  ],
-  "usage": "Hướng dẫn cách dùng ngắn gọn...",
-  "notes": [
-    "Sản phẩm không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.",
-    "Hiệu quả có thể khác nhau tùy cơ địa từng người."
-  ],
+  "description": "Đoạn văn mô tả dài chi tiết...",
+  "ingredients": ["Thành phần 1: giải thích...", "Thành phần 2: giải thích..."],
+  "benefits": ["Công dụng 1...", "Công dụng 2...", "Công dụng 3..."],
+  "target_users": ["Đối tượng 1...", "Đối tượng 2..."],
+  "usage": "Hướng dẫn sử dụng chi tiết từng bước...",
+  "notes": ["Lưu ý 1...", "Lưu ý 2..."],
   "hashtags": "#TenSanPham #Hashtag1 #Hashtag2..."
 }}
 """
@@ -9379,72 +9376,51 @@ Trả về kết quả ở định dạng JSON duy nhất, không kèm giải th
             }
             payload = {
                 "model": "gpt-4o-mini",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a professional Shopee VN copywriting assistant. You must reply with a valid JSON object matching the requested schema. Do not write anything outside the JSON."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "response_format": {"type": "json_object"}
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7
             }
-            response = requests.post(url, headers=headers, json=payload, timeout=40)
-            response.raise_for_status()
-            result_json = response.json()
-            raw_text = result_json["choices"][0]["message"]["content"].strip()
+            res = requests.post(url, headers=headers, json=payload, timeout=60)
+            if res.status_code == 200:
+                raw_text = res.json()["choices"][0]["message"]["content"]
+            else:
+                raw_text = ""
         else:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
             headers = {"Content-Type": "application/json"}
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "responseMimeType": "application/json"
-                }
+                "contents": [{"parts": [{"text": prompt}]}]
             }
-            response = requests.post(url, headers=headers, json=payload, timeout=40)
-            response.raise_for_status()
-            result_json = response.json()
-            raw_text = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+            res = requests.post(url, headers=headers, json=payload, timeout=60)
+            if res.status_code == 200:
+                raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+            else:
+                raw_text = ""
 
-            if raw_text.startswith("```"):
-                match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", raw_text)
-                if match:
-                    raw_text = match.group(1).strip()
-
-        data = json.loads(raw_text)
-
-        try:
-            from shopee_sync.src.ai_generator import clean_banned_words
-        except ImportError:
-            try:
-                from src.ai_generator import clean_banned_words
-            except ImportError:
-                def clean_banned_words(x): return x
-
-        cleaned_data = {
-            "description": clean_banned_words(data.get("description", "")),
-            "ingredients": [clean_banned_words(x) for x in data.get("ingredients", [])],
-            "benefits": [clean_banned_words(x) for x in data.get("benefits", [])],
-            "target_users": [clean_banned_words(x) for x in data.get("target_users", [])],
-            "usage": clean_banned_words(data.get("usage", "")),
-            "notes": [clean_banned_words(x) for x in data.get("notes", [])],
-            "hashtags": clean_banned_words(data.get("hashtags", ""))
-        }
-        return cleaned_data
-    except Exception as e:
-        print(f"[AI Write Post] Lỗi viết bài: {e}")
+        # Parse JSON from AI response
+        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(0))
         return {
-            "description": f"Mô tả sản phẩm {product_name} dành cho góc bán hàng {angle}.",
-            "ingredients": ["Thành phần tự nhiên an toàn"],
-            "benefits": ["Hỗ trợ hiệu quả tối đa"],
-            "target_users": ["Người lớn và trẻ em theo chỉ định"],
-            "usage": "Xem chi tiết hướng dẫn trên bao bì.",
-            "notes": ["Sản phẩm không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh."],
+            "description": raw_text or f"Mô tả sản phẩm {product_name} dành riêng cho góc bán hàng {angle}.",
+            "ingredients": [],
+            "benefits": [],
+            "target_users": [],
+            "usage": "",
+            "notes": [],
             "hashtags": f"#{product_name.replace(' ', '')}"
         }
+    except Exception as e:
+        print(f"[AI Post Gen] Lỗi khi tạo bài viết chi tiết: {e}")
+        return {
+            "description": f"Mô tả sản phẩm {product_name} dành riêng cho góc bán hàng {angle}.",
+            "ingredients": [],
+            "benefits": [],
+            "target_users": [],
+            "usage": "",
+            "notes": [],
+            "hashtags": f"#{product_name.replace(' ', '')}"
+        }
+
 
 @app.post("/api/review-save")
 def api_review_save_shopee():
@@ -9490,35 +9466,32 @@ def api_review_save_shopee():
         insight_database_id = "88159c90-46fb-426d-b3c9-a0d79358e76c"
 
         saved_product_page_id = product_page_id
+
+        variant_lines = [x.strip() for x in product_data.get("variants", "").split("\n") if x.strip()]
+        variant_price_text = ""
+        parts = []
+        if product_data.get("price"):
+            parts.append(f"Giá sản phẩm: {product_data['price']}")
+        if product_data.get("classification"):
+            parts.append(f"Phân loại: {product_data['classification']}")
+        if product_data.get("variants"):
+            parts.append(f"Biến thể / giá:\n{product_data['variants']}")
+        variant_price_text = "\n".join(parts)
+
+        classification_options = [x.strip() for x in product_data.get("classification", "").split(",") if x.strip()]
+
+        product_props_to_save = {
+            "Tên sản phẩm": {"title": [{"text": {"content": product_name}}]}
+        }
+        if variant_price_text:
+            product_props_to_save["Biến thể & giá"] = {"rich_text": [{"text": {"content": variant_price_text}}]}
+        if classification_options:
+            product_props_to_save["Biến thể"] = {"multi_select": [{"name": x} for x in classification_options]}
+
         if not saved_product_page_id:
-            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip()
+            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
             if not parent_db_id:
                 return jsonify({"error": "Chưa cấu hình NOTION_DATABASE_ID sản phẩm."}), 400
-
-            variant_lines = [x.strip() for x in product_data.get("variants", "").split("\n") if x.strip()]
-            variant_price_text = ""
-            parts = []
-            if product_data.get("price"):
-                parts.append(f"Giá sản phẩm: {product_data['price']}")
-            if product_data.get("classification"):
-                parts.append(f"Phân loại: {product_data['classification']}")
-            if product_data.get("variants"):
-                parts.append(f"Biến thể / giá:\n{product_data['variants']}")
-            variant_price_text = "\n".join(parts)
-
-            classification_options = [x.strip() for x in product_data.get("classification", "").split(",") if x.strip()]
-
-            new_product_properties = {
-                "Tên sản phẩm": {"title": [{"text": {"content": product_name}}]}
-            }
-            if variant_price_text:
-                new_product_properties["Biến thể & giá"] = {"rich_text": [{"text": {"content": variant_price_text}}]}
-            if classification_options:
-                new_product_properties["Biến thể"] = {"multi_select": [{"name": x} for x in classification_options]}
-            if len(variant_lines) > 0:
-                new_product_properties["Biến thể 1"] = {"rich_text": [{"text": {"content": variant_lines[0]}}]}
-            if len(variant_lines) > 1:
-                new_product_properties["Biến thể 2"] = {"rich_text": [{"text": {"content": variant_lines[1]}}]}
 
             try:
                 from shopee_sync.src.notion_sync import create_notion_page_safe
@@ -9528,15 +9501,31 @@ def api_review_save_shopee():
             product_page = create_notion_page_safe(
                 notion,
                 parent_db_id,
-                new_product_properties
+                product_props_to_save
             )
             saved_product_page_id = product_page["id"]
+        else:
+            # Cập nhật thông tin biến thể & giá cho trang sản phẩm sẵn có
+            if variant_price_text or classification_options:
+                try:
+                    from shopee_sync.src.notion_sync import update_notion_page_safe
+                except ImportError:
+                    from src.notion_sync import update_notion_page_safe
+
+                try:
+                    update_notion_page_safe(
+                        notion,
+                        page_id=saved_product_page_id,
+                        properties=product_props_to_save
+                    )
+                except Exception as e:
+                    print(f"[Notion Update Product] Lỗi khi cập nhật biến thể sản phẩm: {e}")
 
         created_pages_info = []
 
         from shopee_sync.src.notion_sync import call_notion_with_retry
 
-        # Lấy driveUrl từ dữ liệu frontend truyền lên
+        # Lấy driveUrl từ dữ liệu frontend truyền lên hoặc từ trang sản phẩm Notion
         drive_url = product_data.get("driveUrl", "").strip()
         if not drive_url and saved_product_page_id:
             try:
@@ -9547,20 +9536,32 @@ def api_review_save_shopee():
 
         # Phân tích product_folder_id và lấy các thư mục con của nó trên Drive
         product_folder_id = None
-        subfolders = {}
-        if drive_url:
-            import re
+        if drive_url and '/folders/' in drive_url:
             folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
             if folder_match:
                 product_folder_id = folder_match.group(1)
-                try:
-                    from shopee_sync.src import convert_zicum
-                except ImportError:
-                    from src import convert_zicum
-                try:
-                    subfolders = convert_zicum.get_subfolders_of_drive_folder(product_folder_id)
-                except Exception as e:
-                    print(f"[Notion Save] Lỗi khi cào thư mục con từ Drive: {e}")
+
+        # Nếu chưa trích xuất được ID từ URL (do dán đường dẫn local hoặc chưa chọn), tự tìm thư mục sản phẩm trên Drive
+        if not product_folder_id:
+            try:
+                from shopee_sync.src import convert_zicum
+            except ImportError:
+                from src import convert_zicum
+            
+            root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "").strip() or "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ"
+            product_folder_id = convert_zicum.find_product_folder(root_folder_id, product_name)
+
+        subfolders = {}
+        if product_folder_id:
+            try:
+                from shopee_sync.src import convert_zicum
+            except ImportError:
+                from src import convert_zicum
+            try:
+                subfolders = convert_zicum.get_subfolders_of_drive_folder(product_folder_id)
+                print(f"[Notion Save] Đã lấy {len(subfolders)} thư mục con cho product_folder_id={product_folder_id}")
+            except Exception as e:
+                print(f"[Notion Save] Lỗi khi cào thư mục con từ Drive: {e}")
 
         for idx, item in enumerate(insights):
             order_num = idx + 1
@@ -9583,6 +9584,8 @@ def api_review_save_shopee():
                 target_folder_id = None
                 if clean_angle in subfolders:
                     target_folder_id = subfolders[clean_angle]
+                elif clean_folder_name in subfolders:
+                    target_folder_id = subfolders[clean_folder_name]
                 else:
                     for sf_name, sf_id in subfolders.items():
                         if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_angle in sf_name or sf_name in clean_angle:
@@ -9590,6 +9593,10 @@ def api_review_save_shopee():
                             break
                 if target_folder_id:
                     insight_drive_url = f"https://drive.google.com/drive/folders/{target_folder_id}"
+
+            # Fallback về link thư mục sản phẩm chính trên Drive nếu chưa khớp thư mục con
+            if not insight_drive_url and product_folder_id:
+                insight_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
 
             # 1. Gọi AI sinh bài viết chi tiết dựa trên insight đã được duyệt/sửa
             body = generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords)
