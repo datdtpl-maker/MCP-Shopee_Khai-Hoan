@@ -888,19 +888,23 @@ Mỗi viên nang cứng chứa:
     new_df.to_excel(excel_output_path, index=False)
     logger.info(f"Đã xuất file Excel đồng bộ thành công tại: {excel_output_path}")
     
-    # 7. Cập nhật trạng thái hoàn thành trên Notion an toàn (không bị lỗi thuộc tính)
+    # 7. Cập nhật trạng thái hoàn thành trên Notion: 'Trạng thái xử lý' = 'Đã đăng', 'Content xong' = True
     for p_id in processed_page_ids:
-        logger.info(f"Đang đánh dấu hoàn thành trên Notion cho page_id: {p_id}")
+        logger.info(f"Đang cập nhật 'Trạng thái xử lý' = 'Đã đăng' và 'Content xong' = True cho page_id: {p_id}")
         try:
             p_data = call_notion_with_retry(notion.pages.retrieve, page_id=p_id)
             p_props = p_data.get("properties", {})
             update_payload = {}
+            if "Trạng thái xử lý" in p_props:
+                update_payload["Trạng thái xử lý"] = {"select": {"name": "Đã đăng"}}
+            if "Content xong" in p_props:
+                update_payload["Content xong"] = {"checkbox": True}
+            if "Bài viết" in p_props:
+                update_payload["Bài viết"] = {"checkbox": True}
             if "Trạng thái đăng bài Shopee" in p_props:
                 update_payload["Trạng thái đăng bài Shopee"] = {"checkbox": True}
-            elif "Trạng thái đăng bài shopee" in p_props:
+            if "Trạng thái đăng bài shopee" in p_props:
                 update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
-            elif "Đã xuất Excel" in p_props:
-                update_payload["Đã xuất Excel"] = {"checkbox": True}
 
             if update_payload:
                 update_notion_page_safe(
