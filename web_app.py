@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.43"
+CURRENT_VERSION = "v2.2.44"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1998,7 +1998,11 @@ HTML = r"""
                 </table>
               </div>
 
-              <div class="actions save-actions" style="display: flex; justify-content: flex-end;">
+              <div class="actions save-actions" style="display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+                <button type="button" id="btnPreviewPosts" class="secondary" onclick="openFullPostsEditorModal()" style="min-height: 42px; padding: 0 20px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span>Xem & Chỉnh sửa bài viết AI</span>
+                </button>
                 <button id="save-button" class="md3-btn-primary" type="submit" style="min-height: 42px; padding: 0 32px;">Ghi nhận vào Notion</button>
               </div>
             </form>
@@ -3397,6 +3401,170 @@ HTML = r"""
       setStatus("analyze-status", "Lỗi viết lại: " + e.message, "is-error");
     } finally {
       button.disabled = false;
+    }
+  }
+
+  let activeModalPostIndex = 0;
+
+  async function openFullPostsEditorModal() {
+    if (!state.insights || state.insights.length === 0) {
+      alert("Chưa có danh sách 5 Insight. Vui lòng phân tích ảnh để sinh Insight trước!");
+      return;
+    }
+
+    const btn = document.getElementById("btnPreviewPosts");
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.innerHTML = '<span style="color:var(--brand);">Đang chuẩn bị 5 bài viết AI...</span>';
+      btn.disabled = true;
+    }
+
+    try {
+      // Kiểm tra xem đã có bài viết chi tiết cho cả 5 insight chưa
+      const needGenerate = state.insights.some(item => !item.full_post);
+      if (needGenerate) {
+        const product = collectProductInfo();
+        const res = await api("/api/insight/generate-all-posts", {
+          productName: product.name || state.productName,
+          productDescription: product.description || "",
+          classification: product.classification || "",
+          insights: state.insights
+        });
+        if (res.full_posts && res.full_posts.length > 0) {
+          for (let i = 0; i < state.insights.length; i++) {
+            if (res.full_posts[i]) {
+              state.insights[i].full_post = res.full_posts[i];
+            }
+          }
+        }
+      }
+
+      activeModalPostIndex = 0;
+      renderFullPostsModalTabs();
+      loadPostToModalFields(activeModalPostIndex);
+
+      const modal = document.getElementById("fullPostsModal");
+      if (modal) modal.style.display = "flex";
+    } catch (e) {
+      alert("Lỗi tải bài viết chi tiết: " + (e.error || e.message || JSON.stringify(e)));
+    } finally {
+      if (btn) {
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+      }
+    }
+  }
+
+  function closeFullPostsEditorModal() {
+    const modal = document.getElementById("fullPostsModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  function renderFullPostsModalTabs() {
+    const header = document.getElementById("fullPostsTabHeader");
+    if (!header) return;
+    header.innerHTML = "";
+
+    state.insights.forEach((item, idx) => {
+      const tabBtn = document.createElement("button");
+      tabBtn.type = "button";
+      tabBtn.className = idx === activeModalPostIndex ? "md3-btn-primary" : "secondary";
+      tabBtn.style.padding = "6px 14px";
+      tabBtn.style.fontSize = "12px";
+      tabBtn.style.minHeight = "32px";
+      tabBtn.style.borderRadius = "6px";
+      tabBtn.style.whiteSpace = "nowrap";
+      tabBtn.style.cursor = "pointer";
+      tabBtn.textContent = `Bài #${idx + 1}: ${item.angle || ('Insight ' + (idx + 1))}`;
+      tabBtn.onclick = () => {
+        saveModalFieldsToPost(activeModalPostIndex);
+        activeModalPostIndex = idx;
+        renderFullPostsModalTabs();
+        loadPostToModalFields(activeModalPostIndex);
+      };
+      header.appendChild(tabBtn);
+    });
+  }
+
+  function loadPostToModalFields(idx) {
+    const item = state.insights[idx];
+    if (!item) return;
+    const post = item.full_post || {};
+
+    document.getElementById("modalEditPostTitle").value = item.postTitle || "";
+    document.getElementById("modalEditAngle").value = item.angle || "";
+    document.getElementById("modalEditDescription").value = typeof post.description === "string" ? post.description : (post.description || []).join("\n\n");
+    document.getElementById("modalEditIngredients").value = Array.isArray(post.ingredients) ? post.ingredients.join("\n") : (post.ingredients || "");
+    document.getElementById("modalEditBenefits").value = Array.isArray(post.benefits) ? post.benefits.join("\n") : (post.benefits || "");
+    document.getElementById("modalEditTargetUsers").value = Array.isArray(post.target_users) ? post.target_users.join("\n") : (post.target_users || "");
+    document.getElementById("modalEditUsage").value = Array.isArray(post.usage) ? post.usage.join("\n") : (post.usage || "");
+    document.getElementById("modalEditNotes").value = Array.isArray(post.notes) ? post.notes.join("\n") : (post.notes || "");
+    document.getElementById("modalEditHashtags").value = Array.isArray(post.hashtags) ? post.hashtags.join(" ") : (post.hashtags || "");
+  }
+
+  function saveModalFieldsToPost(idx) {
+    if (!state.insights[idx]) return;
+
+    state.insights[idx].postTitle = document.getElementById("modalEditPostTitle").value.trim();
+    state.insights[idx].angle = document.getElementById("modalEditAngle").value.trim();
+
+    const ingText = document.getElementById("modalEditIngredients").value.trim();
+    const benText = document.getElementById("modalEditBenefits").value.trim();
+    const tarText = document.getElementById("modalEditTargetUsers").value.trim();
+    const noteText = document.getElementById("modalEditNotes").value.trim();
+
+    state.insights[idx].full_post = {
+      description: document.getElementById("modalEditDescription").value.trim(),
+      ingredients: ingText ? ingText.split("\n").map(s => s.trim()).filter(Boolean) : [],
+      benefits: benText ? benText.split("\n").map(s => s.trim()).filter(Boolean) : [],
+      target_users: tarText ? tarText.split("\n").map(s => s.trim()).filter(Boolean) : [],
+      usage: document.getElementById("modalEditUsage").value.trim(),
+      notes: noteText ? noteText.split("\n").map(s => s.trim()).filter(Boolean) : [],
+      hashtags: document.getElementById("modalEditHashtags").value.trim()
+    };
+  }
+
+  function saveFullPostsFromModal() {
+    saveModalFieldsToPost(activeModalPostIndex);
+    renderInsightsTable(); // Cập nhật lại tiêu đề và angle lên bảng review
+    closeFullPostsEditorModal();
+
+    const previewBtn = document.getElementById("btnPreviewPosts");
+    if (previewBtn) {
+      previewBtn.innerHTML = '<span style="color:var(--success);">✔ Đã chỉnh sửa 5 bài viết</span>';
+    }
+    alert("Đã lưu 5 bài viết chi tiết! Bây giờ bạn có thể bấm 'Ghi nhận vào Notion' để đẩy toàn bộ lên hệ thống.");
+  }
+
+  async function regenerateCurrentPostWithAI() {
+    const idx = activeModalPostIndex;
+    const item = state.insights[idx];
+    if (!item) return;
+
+    const btn = document.getElementById("btnRegenSinglePost");
+    if (btn) btn.disabled = true;
+
+    try {
+      const product = collectProductInfo();
+      const res = await api("/api/insight/generate-single-post", {
+        productName: product.name || state.productName,
+        productDescription: product.description || "",
+        classification: product.classification || "",
+        angle: document.getElementById("modalEditAngle").value.trim() || item.angle,
+        postTitle: document.getElementById("modalEditPostTitle").value.trim() || item.postTitle,
+        insightContent: item.insightContent || "",
+        keywords: item.keywords || ""
+      });
+
+      if (res.full_post) {
+        state.insights[idx].full_post = res.full_post;
+        loadPostToModalFields(idx);
+        alert(`Đã tạo lại bài viết #${idx + 1} thành công bằng Gemini AI!`);
+      }
+    } catch (e) {
+      alert("Lỗi viết lại bài bằng AI: " + (e.error || e.message || JSON.stringify(e)));
+    } finally {
+      if (btn) btn.disabled = false;
     }
   }
 
@@ -4857,6 +5025,87 @@ HTML = r"""
     <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--panel-border); padding-top: 14px;">
       <button type="button" class="secondary" onclick="closePasteConfigModal()" style="min-height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600;">Hủy</button>
       <button type="button" class="md3-btn-primary" onclick="applyPastedConfig()" style="min-height: 36px; padding: 0 20px; font-size: 13px; font-weight: 700;">Áp dụng & Lưu cấu hình</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal xem và chỉnh sửa bài viết 5 Insight -->
+<div id="fullPostsModal" class="modal-overlay" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:9999; justify-content:center; align-items:center; padding: 20px;">
+  <div class="panel" style="width: 900px; max-width: 95vw; max-height: 90vh; padding: 24px; display: flex; flex-direction: column; gap: 16px; border: 1px solid var(--panel-border); box-shadow: 0 25px 35px -5px rgb(0 0 0 / 0.6); background: var(--bg); border-radius: 14px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+      <div>
+        <h3 style="font-family: var(--font-title); font-weight: 700; margin: 0; font-size: 18px; color: var(--text);">Xem & Chỉnh Sửa Chi Tiết Bài Viết 5 Insight (Gemini AI)</h3>
+        <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Kiểm tra và sửa trực tiếp từng mục trước khi ghi nhận lên Notion</p>
+      </div>
+      <button type="button" onclick="closeFullPostsEditorModal()" style="background:none; border:none; color:var(--muted); font-size:24px; cursor:pointer; padding:0 6px; line-height:1;">&times;</button>
+    </div>
+
+    <!-- Tabs chọn Insight 1 -> 5 -->
+    <div id="fullPostsTabHeader" style="display: flex; gap: 8px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; overflow-x: auto;">
+      <!-- Sẽ được render động bằng JS -->
+    </div>
+
+    <!-- Form chỉnh sửa nội dung bài viết của tab hiện tại -->
+    <div id="fullPostsTabBody" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 6px; max-height: calc(90vh - 220px);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="md3-label">Tiêu đề bài viết Shopee</label>
+          <input type="text" id="modalEditPostTitle" class="md3-input" placeholder="Tiêu đề bài viết...">
+        </div>
+        <div>
+          <label class="md3-label">Góc tiếp cận (Angle)</label>
+          <input type="text" id="modalEditAngle" class="md3-input" placeholder="Góc bán hàng...">
+        </div>
+      </div>
+
+      <div>
+        <label class="md3-label">Mô tả sản phẩm chi tiết (Chuẩn Shopee)</label>
+        <textarea id="modalEditDescription" class="md3-input" rows="4" style="height: 100px; resize: vertical;" placeholder="Đoạn văn giới thiệu sản phẩm..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="md3-label">Thành phần nổi bật (Mỗi thành phần 1 dòng)</label>
+          <textarea id="modalEditIngredients" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Hoạt chất 1: giải thích...&#10;Hoạt chất 2: giải thích..."></textarea>
+        </div>
+        <div>
+          <label class="md3-label">Công dụng hỗ trợ (Mỗi công dụng 1 dòng)</label>
+          <textarea id="modalEditBenefits" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Công dụng 1...&#10;Công dụng 2..."></textarea>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="md3-label">Đối tượng sử dụng (Mỗi đối tượng 1 dòng)</label>
+          <textarea id="modalEditTargetUsers" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Đối tượng 1...&#10;Đối tượng 2..."></textarea>
+        </div>
+        <div>
+          <label class="md3-label">Lưu ý khi sử dụng (Mỗi lưu ý 1 dòng)</label>
+          <textarea id="modalEditNotes" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Lưu ý 1...&#10;Lưu ý 2..."></textarea>
+        </div>
+      </div>
+
+      <div>
+        <label class="md3-label">Hướng dẫn sử dụng</label>
+        <textarea id="modalEditUsage" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Hướng dẫn sử dụng từng bước..."></textarea>
+      </div>
+
+      <div>
+        <label class="md3-label">Hashtags bài viết</label>
+        <input type="text" id="modalEditHashtags" class="md3-input" placeholder="#TenSanPham #khaihoanskincare #khaihoanderma...">
+      </div>
+    </div>
+
+    <!-- Footer buttons -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 14px; margin-top: 4px;">
+      <button type="button" class="secondary" id="btnRegenSinglePost" onclick="regenerateCurrentPostWithAI()" style="min-height: 38px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        ✨ Viết lại bài này bằng Gemini AI
+      </button>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="secondary" onclick="closeFullPostsEditorModal()" style="min-height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;">Đóng</button>
+        <button type="button" class="md3-btn-primary" onclick="saveFullPostsFromModal()" style="min-height: 38px; padding: 0 22px; font-size: 13px; font-weight: 700;">💾 Lưu thay đổi bài viết</button>
+      </div>
     </div>
   </div>
 </div>
@@ -9763,8 +10012,8 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
             if res.status_code == 200:
                 raw_text = res.json()["choices"][0]["message"]["content"]
         else:
-            # Thử các model Gemini phổ biến
-            for g_model in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]:
+            # Thử các model Gemini (ưu tiên thế hệ mới nhất Gemini 3.7 / 2.0 / 1.5 Flash)
+            for g_model in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash", "gemini-1.5-pro"]:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={api_key}"
                 headers = {"Content-Type": "application/json"}
                 payload = {
@@ -9865,6 +10114,78 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
         "notes": notes,
         "hashtags": hashtags
     }
+
+
+@app.post("/api/insight/generate-all-posts")
+def api_generate_all_posts():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+        api_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+        
+        data = request.json or {}
+        product_name = data.get("productName", "").strip()
+        product_desc = data.get("productDescription", "").strip()
+        classification = data.get("classification", "").strip()
+        insights = data.get("insights", [])
+        
+        full_posts = []
+        for idx, item in enumerate(insights):
+            if item.get("full_post") and isinstance(item.get("full_post"), dict):
+                full_posts.append(item.get("full_post"))
+                continue
+                
+            angle = item.get("angle", f"Insight {idx+1}")
+            post_title = item.get("postTitle", f"{product_name} - Insight {idx+1}")
+            insight_content = item.get("insightContent", "")
+            keywords = item.get("keywords", "")
+            
+            post_body = generate_single_post_body(
+                api_key,
+                product_name,
+                angle,
+                post_title,
+                insight_content,
+                keywords,
+                product_desc=product_desc,
+                classification=classification
+            )
+            full_posts.append(post_body)
+            
+        return jsonify({"success": True, "full_posts": full_posts})
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/insight/generate-single-post")
+def api_generate_single_post():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+        api_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+        
+        data = request.json or {}
+        product_name = data.get("productName", "").strip()
+        product_desc = data.get("productDescription", "").strip()
+        classification = data.get("classification", "").strip()
+        angle = data.get("angle", "").strip()
+        post_title = data.get("postTitle", "").strip()
+        insight_content = data.get("insightContent", "").strip()
+        keywords = data.get("keywords", "").strip()
+        
+        post_body = generate_single_post_body(
+            api_key,
+            product_name,
+            angle,
+            post_title,
+            insight_content,
+            keywords,
+            product_desc=product_desc,
+            classification=classification
+        )
+        return jsonify({"success": True, "full_post": post_body})
+    except Exception as exc:
+        return error_response(exc, 500)
 
 
 @app.post("/api/review-save")
@@ -10108,19 +10429,22 @@ def api_review_save_shopee():
             if not insight_drive_url and product_folder_id:
                 insight_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
 
-            # 1. Gọi AI sinh bài viết chi tiết dựa trên insight đã được duyệt/sửa
-            product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
-            classification = product_data.get("classification", "") or ""
-            body = generate_single_post_body(
-                api_key, 
-                product_name, 
-                angle, 
-                post_title, 
-                insight_content, 
-                keywords,
-                product_desc=product_desc,
-                classification=classification
-            )
+            # 1. Lấy bài viết chi tiết đã được xem/sửa (hoặc tự động sinh nếu chưa có)
+            if item.get("full_post") and isinstance(item.get("full_post"), dict):
+                body = item.get("full_post")
+            else:
+                product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
+                classification = product_data.get("classification", "") or ""
+                body = generate_single_post_body(
+                    api_key, 
+                    product_name, 
+                    angle, 
+                    post_title, 
+                    insight_content, 
+                    keywords,
+                    product_desc=product_desc,
+                    classification=classification
+                )
 
             # 2. Tạo trang con Notion
             page_properties = {
