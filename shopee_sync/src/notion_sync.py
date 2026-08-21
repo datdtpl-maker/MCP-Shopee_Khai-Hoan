@@ -457,16 +457,15 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
             if page_folder_id and page_folder_id != target_drive_folder_id:
                 continue
 
-        # Nếu sản phẩm đã ở trạng thái 'Đã đăng' -> bỏ qua (trừ khi được chỉ định đích danh qua link Drive)
-        if not target_drive_folder_id and status_name == "Đã đăng":
+        # Nếu sản phẩm đã ở trạng thái 'Đã đăng' hoặc 'Chờ đăng' -> bỏ qua (trừ khi được chỉ định đích danh qua link Drive)
+        if not target_drive_folder_id and status_name in ["Đã đăng", "Chờ đăng"]:
             continue
 
-        # Sản phẩm đủ điều kiện xuất Excel nếu: Trạng thái xử lý == 'Content đang làm' hoặc (bài_viết = True / có Insight) và chưa 'Đã đăng'
-        is_pending = (status_name == "Content đang làm") or (status_name != "Đã đăng" and (bai_viet or has_insights or content_xong))
-        if is_pending:
+        # Sản phẩm CHỈ đủ điều kiện xuất Excel khi ĐÃ CÓ INSIGHT trong Insight Library và chưa ở trạng thái 'Đã đăng' / 'Chờ đăng'
+        if has_insights and (status_name == "Content đang làm" or status_name not in ["Đã đăng", "Chờ đăng"]):
             pending_products.append(page)
             
-    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm đủ điều kiện ('Content đang làm') để xuất Excel.")
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm có đầy đủ Insight để xuất Excel.")
     
     if not pending_products:
         return "", []
@@ -676,30 +675,8 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
                 
             content_versions.extend(results)
         else:
-            # Fallback nếu không có Insight nào
-            if "Zicum" in title or "zicum" in title.lower():
-                description = """Viên uống bổ sung kẽm ZicumGSV là giải pháp hỗ trợ điều trị mụn trứng cá, mụn viêm và tăng cường sức đề kháng cho cơ thể một cách hiệu quả, an toàn. Sản phẩm được sản xuất bởi Công ty Cổ phần Dược phẩm Hà Tây uy tín hàng đầu Việt Nam.
-
-🍀 THÀNH PHẦN CHI TIẾT
-Mỗi viên nang cứng chứa:
-- Kẽm gluconat: 105mg (tương đương với 15mg kẽm nguyên tố).
-- Tá dược vừa đủ 1 viên: Lactose, amidon, gelatin, magnesi stearat, bột talc.
-
-⭐ CÔNG DỤNG VƯỢT TRỘI
-- Hỗ trợ giảm mụn trứng cá, mụn viêm, làm dịu da tổn thương và ngăn ngừa sẹo mụn hiệu quả từ bên trong.
-- Kích thích sản sinh tế bào da mới, hỗ trợ làm lành vết thương ngoài da nhanh chóng.
-- Tăng cường hệ miễn dịch, nâng cao sức đề kháng trước các bệnh nhiễm trùng đường hô hấp, tiêu hóa.
-- Hỗ trợ cải thiện tình trạng tiêu chảy cấp và mãn tính, rối loạn tiêu hóa, kích thích ăn ngon miệng cho người chán ăn, suy nhược thể chất.
-- Bổ sung lượng kẽm thiết yếu cho phụ nữ có thai và cho con bú."""
-            else:
-                description = generate_seo_description(title)
-                
-            content_versions.append({
-                "insight": "Mặc định",
-                "title": title,
-                "description": description,
-                "suffix": ""
-            })
+            logger.warning(f"Sản phẩm '{title}' không có bài viết Insight nào trong Insight Library. Bỏ qua không xuất Excel.")
+            continue
             
         # Xuất các dòng Excel và lưu mô tả để cập nhật vào Notion
         desc_logs = []
@@ -901,15 +878,15 @@ Mỗi viên nang cứng chứa:
     new_df.to_excel(excel_output_path, index=False)
     logger.info(f"Đã xuất file Excel đồng bộ thành công tại: {excel_output_path}")
     
-    # 7. Cập nhật trạng thái hoàn thành trên Notion: 'Trạng thái xử lý' = 'Đã đăng', 'Content xong' = True
+    # 7. Cập nhật trạng thái hoàn thành trên Notion: 'Trạng thái xử lý' = 'Chờ đăng', 'Content xong' = True
     for p_id in processed_page_ids:
-        logger.info(f"Đang cập nhật 'Trạng thái xử lý' = 'Đã đăng' và 'Content xong' = True cho page_id: {p_id}")
+        logger.info(f"Đang cập nhật 'Trạng thái xử lý' = 'Chờ đăng' và 'Content xong' = True cho page_id: {p_id}")
         try:
             p_data = call_notion_with_retry(notion.pages.retrieve, page_id=p_id)
             p_props = p_data.get("properties", {})
             update_payload = {}
             if "Trạng thái xử lý" in p_props:
-                update_payload["Trạng thái xử lý"] = {"select": {"name": "Đã đăng"}}
+                update_payload["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
             if "Content xong" in p_props:
                 update_payload["Content xong"] = {"checkbox": True}
             if "Bài viết" in p_props:

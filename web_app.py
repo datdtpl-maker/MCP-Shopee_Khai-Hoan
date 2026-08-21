@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.38"
+CURRENT_VERSION = "v2.2.39"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1835,7 +1835,7 @@ HTML = r"""
 
                 <div>
                   <label class="md3-label">Tên sản phẩm</label>
-                  <input id="productNameInput" class="md3-input" name="productName" type="text" placeholder="Tên sản phẩm..." required />
+                  <input id="productNameInput" class="md3-input" name="productName" type="text" placeholder="Tên sản phẩm..." required oninput="if (state.product && state.product.name && this.value.trim().toLowerCase() !== state.product.name.toLowerCase()) { document.getElementById('productPageId').value = ''; }" />
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -3206,6 +3206,13 @@ HTML = r"""
       loadPendingProducts();
       clearImageState();
       state.insights = [];
+      document.getElementById("productPageId").value = "";
+      document.getElementById("productNameInput").value = "";
+      document.getElementById("productPrice").value = "";
+      document.getElementById("productClassification").value = "";
+      document.getElementById("productVariants").value = "";
+      state.product = {};
+      state.productName = "";
       document.getElementById("empty-state").hidden = false;
       document.getElementById("save-form").hidden = true;
     } catch(e) {
@@ -9540,11 +9547,48 @@ def api_review_save_shopee():
         if classification_options:
             product_props_to_save["Biến thể"] = {"multi_select": [{"name": x} for x in classification_options]}
 
-        if not saved_product_page_id:
-            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
-            if not parent_db_id:
-                return jsonify({"error": "Chưa cấu hình NOTION_DATABASE_ID sản phẩm."}), 400
+        parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+        if not parent_db_id:
+            return jsonify({"error": "Chưa cấu hình NOTION_DATABASE_ID sản phẩm."}), 400
 
+        from shopee_sync.src.notion_sync import call_notion_with_retry
+        saved_product_page_id = None
+
+        # 1. Kiểm tra product_page_id được truyền lên xem có đúng là trang của product_name không
+        if product_page_id:
+            try:
+                chk_page = call_notion_with_retry(notion.pages.retrieve, page_id=product_page_id)
+                chk_props = chk_page.get("properties", {})
+                chk_title_list = chk_props.get("Tên sản phẩm", {}).get("title", [])
+                chk_title = chk_title_list[0].get("plain_text", "").strip() if chk_title_list else ""
+                if chk_title and chk_title.lower() == product_name.lower():
+                    saved_product_page_id = product_page_id
+                else:
+                    print(f"[Notion Save] productPageId {product_page_id} có tiêu đề '{chk_title}' không khớp với tên '{product_name}'. Sẽ tìm hoặc tạo trang mới.")
+            except Exception as e:
+                print(f"[Notion Save] Không thể kiểm tra page_id {product_page_id}: {e}")
+
+        # 2. Nếu chưa xác định được page_id, tìm kiếm trong database Notion theo tên sản phẩm chính xác
+        if not saved_product_page_id:
+            try:
+                db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=parent_db_id)
+                data_sources = db_meta.get("data_sources", [])
+                if data_sources:
+                    ds_id = data_sources[0].get("id")
+                    query_res = call_notion_with_retry(notion.data_sources.query, data_source_id=ds_id)
+                    for rec in query_res.get("results", []):
+                        r_props = rec.get("properties", {})
+                        r_title_list = r_props.get("Tên sản phẩm", {}).get("title", [])
+                        r_title = r_title_list[0].get("plain_text", "").strip() if r_title_list else ""
+                        if r_title and r_title.lower() == product_name.lower():
+                            saved_product_page_id = rec.get("id")
+                            print(f"[Notion Save] Tìm thấy trang sẵn có cho sản phẩm '{product_name}': {saved_product_page_id}")
+                            break
+            except Exception as q_err:
+                print(f"[Notion Save] Lỗi khi tìm kiếm trang sản phẩm trong database: {q_err}")
+
+        # 3. Nếu vẫn chưa có trang nào, tạo mới trang sản phẩm
+        if not saved_product_page_id:
             try:
                 from shopee_sync.src.notion_sync import create_notion_page_safe
             except ImportError:
