@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.45"
+CURRENT_VERSION = "v2.2.46"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1829,7 +1829,7 @@ HTML = r"""
                 </div>
                 <div class="field-span-2">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mô hình Gemini 3.7 / 2.0 / 1.5 Flash)</label>
+                    <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mặc định Gemini 3.7 Flash)</label>
                     <span id="geminiKeyStatus" style="font-size: 12px; font-weight: 600;"></span>
                   </div>
                   <div class="field-action" style="display: flex; gap: 8px; align-items: center;">
@@ -8742,55 +8742,59 @@ def api_test_gemini():
             except Exception:
                 pass
                 
-            # Ưu tiên chọn model Gemini Flash thế hệ mới nhất
+            # Ưu tiên chọn các dòng Gemini 3.7 / 3.6 / 3.5 Flash mới nhất
             flash_priorities = [
-                "gemini-2.0-flash", 
-                "gemini-1.5-flash", 
-                "gemini-2.5-flash", 
-                "gemini-2.0-flash-lite", 
-                "gemini-1.5-flash-8b", 
+                "gemini-3.7-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash",
+                "gemini-2.0-flash",
+                "gemini-1.5-flash",
                 "gemini-flash"
             ]
-            chosen_model = None
+            candidate_models = []
             for p in flash_priorities:
                 for m in available_models:
-                    if m == p or m.startswith(p):
-                        chosen_model = m
-                        break
-                if chosen_model:
-                    break
-                        
-            if not chosen_model and available_models:
-                for m in available_models:
-                    if "flash" in m.lower():
-                        chosen_model = m
-                        break
-                if not chosen_model:
-                    chosen_model = available_models[0]
-            elif not chosen_model:
-                chosen_model = "gemini-2.0-flash"
-                
-            # Thử gửi 1 câu prompt ngắn
+                    if (m == p or m.startswith(p)) and m not in candidate_models:
+                        candidate_models.append(m)
+
+            for m in available_models:
+                if "flash" in m.lower() and m not in candidate_models:
+                    candidate_models.append(m)
+
+            if not candidate_models:
+                candidate_models = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+
+            # Thử lần lượt các model candidate cho đến khi thành công
+            success_model = None
+            last_err = ""
             test_prompt = "Xin chào, phản hồi ngắn: 'API hoạt động tốt'."
-            gen_url = f"https://generativelanguage.googleapis.com/v1beta/models/{chosen_model}:generateContent?key={api_key}"
-            headers = {"Content-Type": "application/json"}
-            payload = {"contents": [{"parts": [{"text": test_prompt}]}]}
-            
-            gen_res = requests.post(gen_url, headers=headers, json=payload, timeout=15)
-            if gen_res.status_code == 200:
-                display_name = chosen_model.replace("gemini-", "Gemini ").title()
+
+            for c_model in candidate_models:
+                gen_url = f"https://generativelanguage.googleapis.com/v1beta/models/{c_model}:generateContent?key={api_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {"contents": [{"parts": [{"text": test_prompt}]}]}
+                try:
+                    gen_res = requests.post(gen_url, headers=headers, json=payload, timeout=15)
+                    if gen_res.status_code == 200:
+                        success_model = c_model
+                        break
+                    else:
+                        try:
+                            last_err = gen_res.json().get("error", {}).get("message", gen_res.text)
+                        except Exception:
+                            last_err = gen_res.text
+                except Exception as ex:
+                    last_err = str(ex)
+
+            if success_model:
+                display_name = success_model.replace("gemini-", "Gemini ").title()
                 return jsonify({
                     "success": True,
                     "model": display_name,
-                    "message": f"API Key Gemini chính xác! Đã kết nối thành công với mô hình chuyên dụng '{display_name}'."
+                    "message": f"API Key Gemini chính xác! Đã kết nối thành công với mô hình '{display_name}'."
                 })
             else:
-                err_text = gen_res.text
-                try:
-                    err_text = gen_res.json().get("error", {}).get("message", gen_res.text)
-                except Exception:
-                    pass
-                return jsonify({"success": False, "error": f"Lỗi khởi tạo mô hình {chosen_model}: {err_text}"}), 400
+                return jsonify({"success": False, "error": f"Lỗi khởi tạo mô hình Gemini: {last_err}"}), 400
     except Exception as exc:
         return error_response(exc, 500)
 
@@ -10050,8 +10054,8 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
             if res.status_code == 200:
                 raw_text = res.json()["choices"][0]["message"]["content"]
         else:
-            # Chỉ sử dụng các mô hình Gemini Flash thế hệ mới
-            for g_model in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash-8b"]:
+            # Mặc định sử dụng Gemini 3.7 Flash và các dòng Flash thế hệ mới
+            for g_model in ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={api_key}"
                 headers = {"Content-Type": "application/json"}
                 payload = {
