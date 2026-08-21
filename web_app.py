@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.40"
+CURRENT_VERSION = "v2.2.41"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9520,12 +9520,41 @@ def api_get_product_details():
             if len(parts) > 1:
                 variants = price_variant_text[len(parts[0]) + len("biến thể / giá:"):].strip()
 
+        # Tự động đồng bộ selected_drive_folder trong config.json sang thư mục của sản phẩm này
+        matched_folder_name = ""
+        try:
+            root = validate_drive_root(drive_root())
+            if root and root.exists():
+                try:
+                    from shopee_sync.src import convert_zicum
+                except ImportError:
+                    from src import convert_zicum
+                target_clean = convert_zicum.clean_name(title)
+                for item in root.iterdir():
+                    if item.is_dir() and convert_zicum.clean_name(item.name) == target_clean:
+                        matched_folder_name = item.name
+                        break
+                if not matched_folder_name and title:
+                    new_f = root / title
+                    new_f.mkdir(parents=True, exist_ok=True)
+                    matched_folder_name = new_f.name
+                    
+                if matched_folder_name:
+                    cfg = load_config()
+                    if "paths" not in cfg:
+                        cfg["paths"] = {}
+                    cfg["paths"]["selected_drive_folder"] = matched_folder_name
+                    save_config(cfg)
+        except Exception as e:
+            print(f"[Product Details] Lỗi đồng bộ selected_drive_folder: {e}")
+
         return jsonify({
             "id": page_id,
             "title": title,
             "price": price,
             "classification": classification,
-            "variants": variants
+            "variants": variants,
+            "selected_folder": matched_folder_name
         })
     except Exception as exc:
         return error_response(exc, 500)
@@ -9689,11 +9718,29 @@ def api_review_save_shopee():
         insights = payload.get("insights", [])
         product_page_id = product_data.get("productPageId", "").strip()
 
-        # Tự động xuất file insights_data.json vào thư mục sản phẩm để tab AI Edit/Video có thể quét được
+        # Tự động xuất file insights_data.json vào đúng thư mục sản phẩm để tab AI Edit/Video có thể quét được
         try:
             root = validate_drive_root(drive_root())
-            product_folder = root / product_name
-            if product_folder.exists() and product_folder.is_dir():
+            product_folder = None
+            
+            if root and root.exists():
+                try:
+                    from shopee_sync.src import convert_zicum
+                except ImportError:
+                    from src import convert_zicum
+                    
+                target_clean = convert_zicum.clean_name(product_name)
+                for item in root.iterdir():
+                    if item.is_dir() and convert_zicum.clean_name(item.name) == target_clean:
+                        product_folder = item
+                        break
+                        
+                # Nếu chưa có thư mục nào khớp, tự động tạo mới thư mục đúng theo tên sản phẩm
+                if not product_folder:
+                    product_folder = root / product_name
+                    product_folder.mkdir(parents=True, exist_ok=True)
+                    
+            if product_folder and product_folder.exists() and product_folder.is_dir():
                 json_path = product_folder / "insights_data.json"
                 insights_save_data = {
                     "productName": product_name,
@@ -9702,6 +9749,16 @@ def api_review_save_shopee():
                 }
                 json_path.write_text(json.dumps(insights_save_data, indent=2, ensure_ascii=False), encoding="utf-8")
                 print(f"[Notion Save] Đã lưu thành công insights_data.json tại: {json_path}")
+                
+                # Cập nhật selected_drive_folder trong config.json sang đúng sản phẩm này
+                try:
+                    cfg = load_config()
+                    if "paths" not in cfg:
+                        cfg["paths"] = {}
+                    cfg["paths"]["selected_drive_folder"] = product_folder.name
+                    save_config(cfg)
+                except Exception as cf_err:
+                    print(f"[Notion Save] Lỗi cập nhật config selected_drive_folder: {cf_err}")
         except Exception as e:
             print(f"[Notion Save] Lỗi ghi file insights_data.json: {e}")
 

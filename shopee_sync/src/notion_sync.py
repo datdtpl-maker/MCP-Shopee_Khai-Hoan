@@ -878,6 +878,40 @@ def sync_notion_to_bigseller_excel(override_drive_url: Optional[str] = None) -> 
     new_df.to_excel(excel_output_path, index=False)
     logger.info(f"Đã xuất file Excel đồng bộ thành công tại: {excel_output_path}")
     
+    # Tự động lưu 1 bản sao file Excel trực tiếp vào thư mục Drive cục bộ của từng sản phẩm
+    try:
+        cfg_path = project_root / "config.json"
+        drive_root_dir = None
+        if cfg_path.exists():
+            try:
+                with open(cfg_path, "r", encoding="utf-8") as f:
+                    cfg_data = json.load(f)
+                    drive_root_dir = cfg_data.get("paths", {}).get("drive_root_dir")
+            except Exception:
+                pass
+        if not drive_root_dir:
+            drive_root_dir = "G:\\My Drive\\Hình ảnh Shopee"
+            
+        drive_root_path = Path(drive_root_dir)
+        if drive_root_path.exists():
+            import shutil
+            for p_title in processed_titles:
+                target_clean = convert_zicum.clean_name(p_title)
+                matched_folder = None
+                for item in drive_root_path.iterdir():
+                    if item.is_dir() and convert_zicum.clean_name(item.name) == target_clean:
+                        matched_folder = item
+                        break
+                if not matched_folder:
+                    matched_folder = drive_root_path / p_title
+                    matched_folder.mkdir(parents=True, exist_ok=True)
+                    
+                prod_excel_path = matched_folder / f"bigseller_sync_{timestamp}.xlsx"
+                shutil.copy2(excel_output_path, prod_excel_path)
+                logger.info(f"📁 Đã lưu bản sao file Excel vào thư mục chính của sản phẩm: {prod_excel_path}")
+    except Exception as drive_cp_err:
+        logger.warning(f"Không thể sao chép file Excel vào thư mục Drive cục bộ: {drive_cp_err}")
+    
     # 7. Cập nhật trạng thái hoàn thành trên Notion: 'Trạng thái xử lý' = 'Chờ đăng', 'Content xong' = True
     for p_id in processed_page_ids:
         logger.info(f"Đang cập nhật 'Trạng thái xử lý' = 'Chờ đăng' và 'Content xong' = True cho page_id: {p_id}")
