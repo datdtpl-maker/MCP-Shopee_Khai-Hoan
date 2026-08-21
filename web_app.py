@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.42"
+CURRENT_VERSION = "v2.2.43"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1828,10 +1828,17 @@ HTML = r"""
                   <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ">
                 </div>
                 <div class="field-span-2">
-                  <label for="shopeeGeminiApiKey" class="md3-label">Gemini/OpenAI API Key (GEMINI_API_KEY)</label>
-                  <div class="field-action">
-                    <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="sk-... hoặc API Key của Gemini...">
-                    <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 20px;">Lưu cấu hình</button>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mô hình Gemini 3.7 / 2.0 / 1.5 Flash)</label>
+                    <span id="geminiKeyStatus" style="font-size: 12px; font-weight: 600;"></span>
+                  </div>
+                  <div class="field-action" style="display: flex; gap: 8px; align-items: center;">
+                    <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="Nhập API Key Gemini (AIzaSy...) hoặc OpenAI (sk-...)" style="flex: 1;">
+                    <button type="button" id="btnTestGemini" onclick="testGeminiApiKey()" class="secondary" style="min-height: 40px; padding: 0 14px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      Kiểm tra Key
+                    </button>
+                    <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 18px; white-space: nowrap;">Lưu cấu hình</button>
                   </div>
                 </div>
               </div>
@@ -2627,6 +2634,52 @@ HTML = r"""
       saveShopeeConfig();
     } else {
       alert(`Đã nạp thành công ${count} thông số cấu hình. Vui lòng bấm "Lưu cấu hình" để lưu lại.`);
+    }
+
+    if (configObj.GEMINI_API_KEY) {
+      testGeminiApiKey(true);
+    }
+  }
+
+  async function testGeminiApiKey(silent = false) {
+    const statusEl = document.getElementById("geminiKeyStatus");
+    const keyInput = document.getElementById("shopeeGeminiApiKey");
+    const keyVal = keyInput ? keyInput.value.trim() : "";
+    const btn = document.getElementById("btnTestGemini");
+
+    if (!keyVal) {
+      if (!silent) alert("Vui lòng nhập API Key trước khi kiểm tra!");
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color: var(--danger);">Chưa có API Key</span>';
+      }
+      return false;
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = '<span style="color: var(--brand);">Đang kiểm tra API...</span>';
+    }
+    if (btn) btn.disabled = true;
+
+    try {
+      const res = await api("/api/shopee/config/test-gemini", { api_key: keyVal });
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color: var(--success);">✔ ${res.model || "Hợp lệ"}</span>`;
+      }
+      if (!silent) {
+        alert(res.message || "API Key hoạt động rất tốt!");
+      }
+      return true;
+    } catch (err) {
+      const errMsg = err.error || err.message || JSON.stringify(err);
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color: var(--danger);">✖ Lỗi Key API</span>';
+      }
+      if (!silent) {
+        alert("Kiểm tra API Key thất bại: " + errMsg);
+      }
+      return false;
+    } finally {
+      if (btn) btn.disabled = false;
     }
   }
 
@@ -8387,6 +8440,72 @@ def api_save_shopee_config():
         return jsonify({"success": True, "message": "Đã lưu cấu hình Notion & Telegram thành công!"})
     except Exception as exc:
         return error_response(exc, 400)
+
+@app.post("/api/shopee/config/test-gemini")
+def api_test_gemini():
+    try:
+        data = request.json or {}
+        api_key = data.get("api_key", "").strip()
+        if not api_key:
+            from dotenv import load_dotenv
+            load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+            api_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+            
+        if not api_key:
+            return jsonify({"success": False, "error": "Chưa nhập API Key để kiểm tra."}), 400
+            
+        is_openai = api_key.startswith("sk-")
+        if is_openai:
+            url = "https://api.openai.com/v1/models"
+            headers = {"Authorization": f"Bearer {api_key}"}
+            res = requests.get(url, headers=headers, timeout=15)
+            if res.status_code == 200:
+                return jsonify({"success": True, "model": "GPT-4o mini", "message": "API Key OpenAI (GPT-4o mini) hoạt động hoàn hảo! Đã sẵn sàng viết bài."})
+            else:
+                err_msg = ""
+                try:
+                    err_msg = res.json().get("error", {}).get("message", res.text)
+                except Exception:
+                    err_msg = res.text
+                return jsonify({"success": False, "error": f"Lỗi OpenAI: {err_msg}"}), 400
+        else:
+            # Thử các model Gemini (ưu tiên thế hệ mới nhất Gemini 3.7 / 2.0 Flash)
+            test_prompt = "Xin chào, hãy trả lời đúng 3 từ: 'API Hoạt Tốt'."
+            success_model = None
+            last_err = ""
+            for g_model in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash", "gemini-1.5-pro"]:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={api_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "contents": [{"parts": [{"text": test_prompt}]}]
+                }
+                try:
+                    res = requests.post(url, headers=headers, json=payload, timeout=15)
+                    if res.status_code == 200:
+                        success_model = g_model
+                        break
+                    else:
+                        last_err = res.text
+                except Exception as ex:
+                    last_err = str(ex)
+                    
+            if success_model:
+                display_name = success_model.replace("gemini-", "Gemini ").title()
+                return jsonify({
+                    "success": True, 
+                    "model": display_name,
+                    "message": f"API Key Gemini kết nối thành công với mô hình '{display_name}'! Đã sẵn sàng viết bài."
+                })
+            else:
+                err_text = "API Key không hợp lệ hoặc bị từ chối truy cập."
+                try:
+                    err_json = json.loads(last_err)
+                    err_text = err_json.get("error", {}).get("message", last_err)
+                except Exception:
+                    pass
+                return jsonify({"success": False, "error": f"Lỗi Gemini: {err_text}"}), 400
+    except Exception as exc:
+        return error_response(exc, 500)
 
 @app.get("/api/shopee/bot/status")
 def api_get_shopee_bot_status():
