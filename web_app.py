@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.41"
+CURRENT_VERSION = "v2.2.42"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -9559,44 +9559,70 @@ def api_get_product_details():
     except Exception as exc:
         return error_response(exc, 500)
 
-def generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords):
+def generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords, product_desc="", classification=""):
     import requests
     import json
     import re
+    import unicodedata
+
+    # Tạo hashtag tên sản phẩm viết liền không dấu
+    clean_tag = unicodedata.normalize('NFKD', product_name).encode('ascii', 'ignore').decode('utf-8')
+    clean_tag = re.sub(r'[^a-zA-Z0-9]', '', clean_tag).lower()
 
     prompt = f"""
-Bạn là chuyên gia copywriter bán hàng xuất sắc tại Việt Nam cho shop dược phẩm, dược mỹ phẩm và sản phẩm chăm sóc sức khỏe.
-Hãy viết một bài bán hàng chuẩn SEO Shopee THẬT CHI TIẾT, ĐẦY ĐỦ VÀ SÂU SẮC (độ dài từ 400 - 600 từ) cho sản phẩm "{product_name}".
+Bạn là chuyên gia tư vấn da liễu & copywriter bán hàng hàng đầu tại Việt Nam cho shop Dược Mỹ Phẩm (Khai Hoan Skincare / Khai Hoan Derma).
+Hãy viết một bài giới thiệu sản phẩm bán hàng chuẩn Shopee (dài khoảng 350 - 500 từ) tự nhiên, chân thật, thuyết phục và giàu cảm xúc mua sắm cho sản phẩm dưới đây:
 
-THÔNG TIN ĐẦU VÀO:
-- Góc bán hàng (Angle): "{angle}"
-- Tiêu đề bài viết Shopee: "{post_title}"
-- Tóm tắt Insight khách hàng: "{insight_content}"
-- Từ khóa chính: "{keywords}"
+THÔNG TIN SẢN PHẨM:
+- Tên sản phẩm: "{product_name}"
+- Phân loại / Quy cách: "{classification}"
+- Thông tin / Ghi chú bán hàng từ shop: "{product_desc}"
+- Tiêu đề bài đăng Shopee: "{post_title}"
+- Góc tiếp cận / Khía cạnh nổi bật (Angle): "{angle}"
+- Tóm tắt điểm nhấn cốt lõi (Insight): "{insight_content}"
+- Từ khóa quan trọng: "{keywords}"
 
-QUY TẮC TUÂN THỦ CHÍNH SÁCH SHOPEE VIỆT NAM (BẮT BUỘC):
-1. KHÔNG dùng các từ khẳng định y khoa, chữa bệnh như: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "trị dứt điểm", "chữa khỏi", "thuốc".
-2. THAY THẾ bằng các từ an toàn thương mại điện tử: "hỗ trợ giảm", "giúp cải thiện", "chăm sóc", "bổ sung", "hiệu quả", "cân bằng", "giải pháp".
-3. TUYỆT ĐỐI KHÔNG dùng từ nói quá: "100%", "tốt nhất", "số 1", "cam kết hoàn tiền", "vĩnh viễn".
-
-YÊU CẦU NỘI DUNG CHI TIẾT DÀI SÂU (BẮT BUỘC):
-- "description": Viết 2 - 3 đoạn văn dài chi tiết (từ 150 - 200 từ) phân tích sâu nỗi đau khách hàng, cơ chế tác động của sản phẩm, cảm giác khi sử dụng và vì sao góc bán hàng "{angle}" này là giải pháp tối ưu nhất.
-- "ingredients": Liệt kê 3 - 5 thành phần chính, mỗi thành phần kèm 1 - 2 câu giải thích công dụng chi tiết.
-- "benefits": Liệt kê 4 - 6 công dụng nổi bật, viết thành các câu hoàn chỉnh, sinh động và giàu sức thuyết phục.
-- "target_users": Liệt kê 3 - 5 nhóm đối tượng người dùng phù hợp cụ thể.
-- "usage": Viết hướng dẫn sử dụng chi tiết từng bước (cách dùng, liều dùng, tần suất, thời gian dùng).
-- "notes": 2 - 3 lưu ý quan trọng khi sử dụng và bảo quản.
-- "hashtags": 8 - 12 hashtags hot SEO liên quan trực tiếp đến sản phẩm.
+QUY TẮC BẮT BUỘC VỀ GIỌNG VĂN & CHÍNH SÁCH SHOPEE:
+1. GIỌNG VĂN TỰ NHIÊN, BÁN HÀNG THỰC TẾ:
+   - Viết như một Dược sĩ / Chuyên viên tư vấn da liễu đang giới thiệu sản phẩm tận tâm cho khách hàng trên Shopee.
+   - TUYỆT ĐỐI KHÔNG dùng văn phong máy móc rập khuôn hoặc các cụm từ lý thuyết như: "là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội", "đáp ứng nỗi đau của khách hàng ở góc bán hàng...", "chuẩn SEO Shopee", "vượt trội hàng đầu".
+   - Bắt đầu phần mô tả trực diện: Giới thiệu thẳng sản phẩm {product_name}, công dụng nổi bật và cảm giác êm ái/hiệu quả khi sử dụng.
+2. ĐỐI TƯỢNG SỬ DỤNG CHÍNH XÁC THEO BẢN CHẤT SẢN PHẨM:
+   - TUYỆT ĐỐI KHÔNG mặc định câu "Người lớn và trẻ em từ 6 tuổi trở lên cần chăm sóc chuyên sâu".
+   - Phải xác định đúng đối tượng người dùng dựa theo bản chất sản phẩm (Ví dụ: Sản phẩm trị mụn -> Người gặp tình trạng mụn viêm, mụn sưng đỏ, dầu nhờn bít tắc; Sản phẩm dầu gội -> Người có da đầu gàu, ngứa; Kem dưỡng ẩm -> Người có da khô ráp, nứt nẻ...).
+3. TUÂN THỦ CHÍNH SÁCH BÁN HÀNG SHOPEE (AN TOÀN Y KHOA):
+   - KHÔNG dùng từ khẳng định y khoa chữa bệnh: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "trị dứt điểm", "chữa khỏi", "thuốc".
+   - THAY BẰNG từ an toàn thương mại điện tử: "hỗ trợ giảm mụn", "giúp làm dịu sưng đỏ", "hỗ trợ gom cồi", "chăm sóc da mụn", "cải thiện", "giúp thông thoáng", "bảo vệ da".
+   - KHÔNG dùng từ nói quá: "100%", "tốt nhất", "số 1", "cam kết hoàn tiền", "vĩnh viễn".
+4. HASHTAGS BÁN HÀNG THỰC TẾ:
+   - Tạo 8 - 12 hashtag thực tế mà người mua hay tìm kiếm trên Shopee:
+     + Hashtag tên sản phẩm viết liền không dấu (VD: #{clean_tag})
+     + Hashtag công dụng / loại sản phẩm (VD: #gelchammun #giammunviem #gomcoimun #chamsocdamun #kemchammun)
+     + Hashtag thương hiệu & shop: #khaihoanskincare #khaihoanderma #myphamchinhhang #duocmypham
+     + TUYỆT ĐỐI KHÔNG ĐƯA #ShopeeSEO hay các hashtag vô nghĩa vào bài.
 
 BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
 {{
-  "description": "Đoạn văn mô tả dài chi tiết...",
-  "ingredients": ["Thành phần 1: giải thích...", "Thành phần 2: giải thích..."],
-  "benefits": ["Công dụng 1...", "Công dụng 2...", "Công dụng 3..."],
-  "target_users": ["Đối tượng 1...", "Đối tượng 2..."],
-  "usage": "Hướng dẫn sử dụng chi tiết từng bước...",
-  "notes": ["Lưu ý 1...", "Lưu ý 2..."],
-  "hashtags": "#TenSanPham #Hashtag1 #Hashtag2..."
+  "description": "2 - 3 đoạn văn giới thiệu tự nhiên cuốn hút, phân tích lý do vì sao sản phẩm phù hợp với nhu cầu/vấn đề của khách hàng, cơ chế tác động dịu nhẹ...",
+  "ingredients": [
+    "Tên thành phần 1: giải thích công dụng cụ thể...",
+    "Tên thành phần 2: giải thích công dụng cụ thể..."
+  ],
+  "benefits": [
+    "Công dụng nổi bật 1 (viết câu sinh động, tự nhiên)...",
+    "Công dụng nổi bật 2...",
+    "Công dụng nổi bật 3..."
+  ],
+  "target_users": [
+    "Đối tượng phù hợp 1 (sát với loại da/vấn đề của sản phẩm)...",
+    "Đối tượng phù hợp 2..."
+  ],
+  "usage": "Hướng dẫn sử dụng chi tiết từng bước: 1. Làm sạch... 2. Thoa một lượng vừa đủ... 3. Tần suất...",
+  "notes": [
+    "Lưu ý sử dụng an toàn 1 (VD: chỉ chấm nốt mụn, tránh vùng mắt)...",
+    "Bảo quản nơi khô ráo thoáng mát, tránh ánh nắng trực tiếp..."
+  ],
+  "hashtags": "#{clean_tag} #congdung1 #congdung2 #khaihoanskincare #khaihoanderma #myphamchinhhang"
 }}
 """
     is_openai = api_key and api_key.startswith("sk-")
@@ -9618,17 +9644,20 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
             if res.status_code == 200:
                 raw_text = res.json()["choices"][0]["message"]["content"]
         else:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-            headers = {"Content-Type": "application/json"}
-            payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "response_mime_type": "application/json"
+            # Thử các model Gemini phổ biến
+            for g_model in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={api_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "response_mime_type": "application/json"
+                    }
                 }
-            }
-            res = requests.post(url, headers=headers, json=payload, timeout=60)
-            if res.status_code == 200:
-                raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+                res = requests.post(url, headers=headers, json=payload, timeout=60)
+                if res.status_code == 200:
+                    raw_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+                    break
 
         parsed_json = None
         if raw_text:
@@ -9656,54 +9685,66 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
             nts = parsed_json.get("notes", [])
             hash_tags = parsed_json.get("hashtags", "")
 
-            if not desc:
-                desc = f"Mô tả sản phẩm {product_name} chuẩn SEO Shopee dành riêng cho góc bán hàng {angle}."
-            if not ing or not isinstance(ing, list) or len(ing) == 0:
-                ing = [f"Hoạt chất chăm sóc chuyên sâu của {product_name}: Hỗ trợ dịu da và cân bằng tự nhiên.", "Dưỡng chất bổ sung tự nhiên an toàn."]
-            if not ben or not isinstance(ben, list) or len(ben) == 0:
-                ben = [f"Hỗ trợ giải quyết hiệu quả nỗi lo của khách hàng theo góc bán hàng {angle}.", "Làm dịu da và mang lại cảm giác dễ chịu tức thì."]
-            if not tar or not isinstance(tar, list) or len(tar) == 0:
-                tar = ["Người lớn và trẻ em từ 6 tuổi trở lên có nhu cầu chăm sóc da chuyên sâu."]
-            if not usg:
-                usg = "Sử dụng trực tiếp 1-2 lần/ngày sau khi vệ sinh vùng da cần chăm sóc."
-            if not nts or not isinstance(nts, list) or len(nts) == 0:
-                nts = ["Bảo quản nơi khô ráo, tránh ánh nắng trực tiếp.", "Sản phẩm dùng ngoài da, không dán lên vết thương hở."]
-            if not hash_tags:
-                hash_tags = f"#{product_name.replace(' ', '')} #ShopeeSEO #Chamsocda"
-
-            return {
-                "description": desc,
-                "ingredients": ing,
-                "benefits": ben,
-                "target_users": tar,
-                "usage": usg,
-                "notes": nts,
-                "hashtags": hash_tags
-            }
+            if desc and ing and ben and tar and usg:
+                return {
+                    "description": desc,
+                    "ingredients": ing,
+                    "benefits": ben,
+                    "target_users": tar,
+                    "usage": usg,
+                    "notes": nts if nts else ["Bảo quản nơi khô ráo thoáng mát, tránh ánh nắng trực tiếp."],
+                    "hashtags": hash_tags if hash_tags else f"#{clean_tag} #khaihoanskincare #khaihoanderma #myphamchinhhang"
+                }
     except Exception as e:
-        print(f"[AI Post Gen] Lỗi khi tạo bài viết chi tiết: {e}")
+        print(f"[AI Post Gen] Lỗi khi gọi AI tạo bài viết: {e}")
+
+    # Bộ sinh nội dung thông minh tự nhiên (Smart Dynamic Fallback khi offline / lỗi API key)
+    is_acne = any(k in (product_name + ' ' + keywords + ' ' + insight_content + ' ' + angle).lower() for k in ['mụn', 'mun', 'clinoper', 'clascon', 'aldocont', 'adapalene', 'benzoyl', 'clindamycin', 'zicum'])
+    
+    if is_acne:
+        desc = f"{product_name} là dòng sản phẩm chăm sóc chuyên sâu dành riêng cho làn da đang gặp tình trạng mụn sưng viêm, mụn đỏ và bít tắc lỗ chân lông.\n\nSản phẩm sở hữu công thức dịu nhẹ, thẩm thấu nhanh vào bề mặt da, hỗ trợ làm dịu nhanh cảm giác sưng tấy khó chịu và thúc đẩy gom cồi mụn tự nhiên mà không gây khô ráp hay bong tróc quá mức."
+        ing = [
+            f"Hoạt chất chăm sóc cốt lõi trong {product_name}: Hỗ trợ kháng khuẩn, làm dịu vùng da mụn và gom cồi nhanh chóng.",
+            "Các dưỡng chất bổ trợ lành tính: Giúp duy trì độ ẩm tự nhiên, củng cố hàng rào bảo vệ da khỏe mạnh."
+        ]
+        ben = [
+            f"Hỗ trợ làm dịu nhanh tình trạng sưng đỏ, căng tức tại các nốt mụn theo góc {angle}.",
+            "Hỗ trợ gom cồi mụn, giúp quá trình làm sạch mụn diễn ra nhẹ nhàng và tự nhiên.",
+            "Kiểm soát bã nhờn, làm thông thoáng bề mặt da và hạn chế hình thành thâm sẹo sau mụn."
+        ]
+        target = [
+            "Người có làn da đang bị mụn sưng đỏ, mụn bọc, mụn viêm hoặc mụn ẩn dai dẳng.",
+            "Người có làn da dầu mụn, lỗ chân lông bít tắc cần giải pháp chấm mụn hiệu quả và êm dịu."
+        ]
+        usage = "1. Rửa sạch mặt với sữa rửa mặt dịu nhẹ và thấm khô bằng khăn mềm.\n2. Lấy một lượng gel/kem vừa đủ chấm trực tiếp lên các nốt mụn cần chăm sóc (không thoa toàn mặt).\n3. Sử dụng đều đặn 1 - 2 lần mỗi ngày (sáng và tối) để đạt hiệu quả tối ưu."
+        notes = [
+            "Chỉ sử dụng chấm nốt mụn ngoài da, tránh tiếp xúc trực tiếp với mắt, môi và niêm mạc.",
+            "Bảo quản nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp và nhiệt độ cao."
+        ]
+        hashtags = f"#{clean_tag} #gelchammun #giammunviem #gomcoimun #chamsocdamun #khaihoanskincare #khaihoanderma #myphamchinhhang"
+    else:
+        desc = f"{product_name} là sản phẩm chăm sóc chuyên sâu chính hãng từ Khai Hoàn, được nghiên cứu để mang lại hiệu quả tối ưu và cảm giác êm dịu cho người sử dụng.\n\nSản phẩm hỗ trợ cải thiện và phục hồi theo đúng nhu cầu chăm sóc mỗi ngày, an toàn và lành tính cho làn da."
+        ing = [f"Thành phần chính của {product_name}: Cung cấp dưỡng chất thiết yếu giúp chăm sóc và bảo vệ hiệu quả."]
+        ben = [
+            f"Hỗ trợ cải thiện rõ rệt theo nhu cầu {angle}.",
+            "Mang lại cảm giác dễ chịu, an toàn và duy trì trạng thái khỏe mạnh cho làn da."
+        ]
+        target = [
+            "Người có nhu cầu chăm sóc và phục hồi chuyên sâu theo đúng tính năng sản phẩm.",
+            "Phù hợp cho cả nam và nữ muốn tìm kiếm sản phẩm chính hãng, chất lượng."
+        ]
+        usage = "1. Làm sạch vùng da cần chăm sóc.\n2. Lấy lượng sản phẩm vừa đủ thoa đều và vỗ nhẹ để dưỡng chất thẩm thấu.\n3. Sử dụng 1 - 2 lần mỗi ngày."
+        notes = ["Bảo quản nơi khô ráo, tránh ánh nắng trực tiếp.", "Đậy kín nắp sau khi sử dụng."]
+        hashtags = f"#{clean_tag} #khaihoanskincare #khaihoanderma #myphamchinhhang #chamsocda"
 
     return {
-        "description": f"Sản phẩm {product_name} là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội, được thiết kế chuyên biệt để đáp ứng nỗi đau của khách hàng ở góc bán hàng {angle}. Sản phẩm mang đến công thức cải tiến, an toàn và lành tính, hỗ trợ tối đa quá trình chăm sóc và cân bằng sức khỏe da.",
-        "ingredients": [
-            f"Thành phần chính của {product_name}: Hỗ trợ làm dịu tổn thương và nuôi dưỡng chuyên sâu.",
-            "Dưỡng chất tự nhiên bổ sung: Tăng cường bảo vệ da và duy trì độ ẩm tự nhiên."
-        ],
-        "benefits": [
-            f"Hỗ trợ giải quyết góc bán hàng {angle} một cách an toàn, hiệu quả.",
-            "Giảm nhanh cảm giác khó chịu, mang lại cảm giác thoải mái lâu dài.",
-            "Cung cấp dưỡng chất thiết yếu hỗ trợ da và cơ thể luôn khỏe mạnh."
-        ],
-        "target_users": [
-            "Người lớn và trẻ em từ 6 tuổi trở lên cần chăm sóc chuyên sâu.",
-            "Người gặp các triệu chứng hoặc vấn đề liên quan đến góc bán hàng chỉ định."
-        ],
-        "usage": "Sử dụng trực tiếp 1-2 lần/ngày sau khi làm sạch. Xem chi tiết hướng dẫn trên bao bì.",
-        "notes": [
-            "Không sử dụng cho người mẫn cảm với thành phần sản phẩm.",
-            "Bảo quản nơi khô ráo, tránh ánh nắng trực tiếp."
-        ],
-        "hashtags": f"#{product_name.replace(' ', '')} #ShopeeSEO #DuocMyPham"
+        "description": desc,
+        "ingredients": ing,
+        "benefits": ben,
+        "target_users": target,
+        "usage": usage,
+        "notes": notes,
+        "hashtags": hashtags
     }
 
 
@@ -9949,7 +9990,18 @@ def api_review_save_shopee():
                 insight_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
 
             # 1. Gọi AI sinh bài viết chi tiết dựa trên insight đã được duyệt/sửa
-            body = generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords)
+            product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
+            classification = product_data.get("classification", "") or ""
+            body = generate_single_post_body(
+                api_key, 
+                product_name, 
+                angle, 
+                post_title, 
+                insight_content, 
+                keywords,
+                product_desc=product_desc,
+                classification=classification
+            )
 
             # 2. Tạo trang con Notion
             page_properties = {
