@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.39"
+CURRENT_VERSION = "v2.2.40"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1785,8 +1785,26 @@ HTML = r"""
           <!-- Cấu hình kết nối Notion / Telegram / API (Cột ẩn/hiện, mặc định ẩn) -->
           <div id="configSectionWrapper" style="display: none; flex-direction: column; gap: 16px; width: 100%; transition: all 0.3s ease;">
             <section class="panel">
-              <div class="panel-head" style="padding: 14px 20px;">
-                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 14px;">Cấu hình Notion & Telegram</h4>
+              <div class="panel-head" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 14px;">Cấu hình Notion & Telegram</h4>
+                  <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Nhập thông tin kết nối hoặc nạp nhanh từ file <code>đồng bộ shopee.txt</code> / <code>.env</code></p>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <input type="file" id="configFileInput" accept=".txt,.env,.json" style="display: none;" onchange="handleConfigFileUpload(this.files)">
+                  <button type="button" class="secondary" onclick="document.getElementById('configFileInput').click()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    📂 Nhập file .txt
+                  </button>
+                  <button type="button" class="secondary" onclick="openPasteConfigModal()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    📋 Dán nội dung
+                  </button>
+                  <button type="button" class="secondary" onclick="exportConfigFile()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Xuất file mẫu cấu hình .txt">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    📥 Xuất file .txt
+                  </button>
+                </div>
               </div>
               <div class="panel-body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 16px;">
                 <div>
@@ -2526,6 +2544,167 @@ HTML = r"""
     } catch(e) {
       alert("Lỗi lưu cấu hình: " + (e.error || e.message || JSON.stringify(e)));
     }
+  }
+
+  function parseConfigFileText(text) {
+    const result = {};
+    if (!text) return result;
+    
+    const rawLines = text.split(/\r?\n/);
+    const cleanLines = rawLines.map(l => l.trim()).filter(l => l && !l.startsWith("---") && !l.startsWith("===") && !l.startsWith("###"));
+
+    // 1. Quét định dạng KEY=VALUE chuẩn của .env
+    for (const line of cleanLines) {
+      if (line.includes("=") && !line.startsWith("#")) {
+        const idx = line.indexOf("=");
+        const k = line.substring(0, idx).trim().toUpperCase();
+        const v = line.substring(idx + 1).trim();
+        if (k.includes("NOTION_TOKEN")) result.NOTION_TOKEN = v;
+        else if (k.includes("NOTION_DATABASE_ID") || k.includes("NOTION_DB_ID")) result.NOTION_DATABASE_ID = v;
+        else if (k.includes("TELEGRAM_BOT_TOKEN") || k.includes("TELEGRAM_TOKEN")) result.TELEGRAM_BOT_TOKEN = v;
+        else if (k.includes("MANAGER_CHAT_ID") || k.includes("CHAT_ID")) result.MANAGER_CHAT_ID = v;
+        else if (k.includes("GEMINI_API_KEY") || k.includes("OPENAI_API_KEY") || k.includes("API_KEY")) result.GEMINI_API_KEY = v;
+        else if (k.includes("DRIVE_ROOT_FOLDER_ID") || k.includes("DRIVE_ROOT_ID") || k.includes("DRIVE_FOLDER_ID")) result.DRIVE_ROOT_FOLDER_ID = v;
+      }
+    }
+
+    // 2. Quét định dạng phân cách khối theo dòng (như trong file đồng bộ shopee.txt)
+    for (let i = 0; i < cleanLines.length; i++) {
+      const line = cleanLines[i];
+      const upper = line.toUpperCase();
+
+      const getVal = (idx, currLine) => {
+        const colon = currLine.indexOf(":");
+        if (colon !== -1) {
+          const inlineV = currLine.substring(colon + 1).trim();
+          if (inlineV) return inlineV;
+        }
+        if (idx + 1 < cleanLines.length) {
+          return cleanLines[idx + 1];
+        }
+        return "";
+      };
+
+      if (upper.includes("NOTION") && (upper.includes("TOKEN") || upper.includes("INTEGRATION"))) {
+        const val = getVal(i, line);
+        if (val) result.NOTION_TOKEN = val;
+      } else if (upper.includes("NOTION") && (upper.includes("DATABASE") || upper.includes("DB_ID"))) {
+        const val = getVal(i, line);
+        if (val) result.NOTION_DATABASE_ID = val;
+      } else if (upper.includes("TELEGRAM") && (upper.includes("BOT_TOKEN") || upper.includes("TOKEN"))) {
+        const val = getVal(i, line);
+        if (val) result.TELEGRAM_BOT_TOKEN = val;
+      } else if (upper.includes("MANAGER") && upper.includes("CHAT")) {
+        const val = getVal(i, line);
+        if (val) result.MANAGER_CHAT_ID = val;
+      } else if (upper.includes("GEMINI") || upper.includes("OPENAI") || upper.includes("API_KEY") || upper.includes("API KEY")) {
+        const val = getVal(i, line);
+        if (val) result.GEMINI_API_KEY = val;
+      } else if (upper.includes("DRIVE") || upper.includes("ROOT_FOLDER_ID") || upper.includes("GOOGLE DRIVE")) {
+        const val = getVal(i, line);
+        if (val) result.DRIVE_ROOT_FOLDER_ID = val;
+      }
+    }
+
+    return result;
+  }
+
+  function applyParsedConfig(configObj, autoSave = true) {
+    let count = 0;
+    if (configObj.NOTION_TOKEN) { document.getElementById("shopeeNotionToken").value = configObj.NOTION_TOKEN; count++; }
+    if (configObj.NOTION_DATABASE_ID) { document.getElementById("shopeeNotionDbId").value = configObj.NOTION_DATABASE_ID; count++; }
+    if (configObj.TELEGRAM_BOT_TOKEN) { document.getElementById("shopeeTelegramToken").value = configObj.TELEGRAM_BOT_TOKEN; count++; }
+    if (configObj.MANAGER_CHAT_ID) { document.getElementById("shopeeManagerChatId").value = configObj.MANAGER_CHAT_ID; count++; }
+    if (configObj.GEMINI_API_KEY) { document.getElementById("shopeeGeminiApiKey").value = configObj.GEMINI_API_KEY; count++; }
+    if (configObj.DRIVE_ROOT_FOLDER_ID) { document.getElementById("shopeeDriveRootId").value = configObj.DRIVE_ROOT_FOLDER_ID; count++; }
+
+    if (count === 0) {
+      alert("Không tìm thấy thông tin cấu hình hợp lệ trong file!");
+      return;
+    }
+
+    if (autoSave) {
+      saveShopeeConfig();
+    } else {
+      alert(`Đã nạp thành công ${count} thông số cấu hình. Vui lòng bấm "Lưu cấu hình" để lưu lại.`);
+    }
+  }
+
+  function handleConfigFileUpload(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const parsed = parseConfigFileText(text);
+      applyParsedConfig(parsed, true);
+      document.getElementById("configFileInput").value = "";
+    };
+    reader.readAsText(file, "UTF-8");
+  }
+
+  function openPasteConfigModal() {
+    const modal = document.getElementById("pasteConfigModal");
+    if (modal) {
+      document.getElementById("pasteConfigTextarea").value = "";
+      modal.style.display = "flex";
+    }
+  }
+
+  function closePasteConfigModal() {
+    const modal = document.getElementById("pasteConfigModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  function applyPastedConfig() {
+    const text = document.getElementById("pasteConfigTextarea").value.trim();
+    if (!text) {
+      alert("Vui lòng dán nội dung cấu hình!");
+      return;
+    }
+    const parsed = parseConfigFileText(text);
+    applyParsedConfig(parsed, true);
+    closePasteConfigModal();
+  }
+
+  function exportConfigFile() {
+    const notionToken = document.getElementById("shopeeNotionToken").value.trim();
+    const notionDbId = document.getElementById("shopeeNotionDbId").value.trim();
+    const telegramToken = document.getElementById("shopeeTelegramToken").value.trim();
+    const managerChatId = document.getElementById("shopeeManagerChatId").value.trim();
+    const geminiApiKey = document.getElementById("shopeeGeminiApiKey").value.trim();
+    const driveRootId = document.getElementById("shopeeDriveRootId").value.trim();
+
+    const lines = [
+      "NOTION INTEGRATION TOKEN (NOTION_TOKEN) :",
+      notionToken,
+      "------------------------------------------------",
+      "NOTION DATABASE ID (NOTION_DATABASE_ID) :",
+      notionDbId,
+      "------------------------------------------------",
+      "TELEGRAM BOT TOKEN (TELEGRAM_BOT_TOKEN) :",
+      telegramToken,
+      "------------------------------------------------",
+      "MANAGER CHAT ID (MANAGER_CHAT_ID) :",
+      managerChatId,
+      "------------------------------------------------",
+      "GEMINI/OPENAI API KEY (GEMINI_API_KEY) :",
+      geminiApiKey,
+      "------------------------------------------------",
+      "DRIVE_ROOT_FOLDER_ID :",
+      driveRootId
+    ];
+
+    const content = lines.join("\\r\\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dong_bo_shopee.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   async function loadPendingProducts() {
@@ -4607,6 +4786,24 @@ HTML = r"""
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
       <button type="button" class="secondary" onclick="closeCategoryModal()" style="min-height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600;">Hủy</button>
       <button type="button" class="btn-capture" onclick="saveCategoriesFromModal()" style="min-height: 36px; padding: 0 20px; font-size: 13px; font-weight: 700;">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal dán cấu hình nhanh -->
+<div id="pasteConfigModal" class="modal-overlay" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center;">
+  <div class="panel" style="width: 540px; padding: 24px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--panel-border); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); background: var(--bg);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-family: var(--font-title); font-weight: 700; margin: 0; font-size: 17px;">Dán Nội Dung Cấu Hình</h3>
+      <button type="button" onclick="closePasteConfigModal()" style="background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; padding:0 4px; line-height:1;">&times;</button>
+    </div>
+    <p style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4;">
+      Dán nội dung từ file cấu hình <code>đồng bộ shopee.txt</code> hoặc file <code>.env</code> vào ô bên dưới. Hệ thống sẽ tự động phân tích tất cả các khóa và giá trị tương ứng.
+    </p>
+    <textarea id="pasteConfigTextarea" placeholder="NOTION INTEGRATION TOKEN (NOTION_TOKEN) :&#10;ntn_...&#10;------------------------------------------------&#10;NOTION DATABASE ID (NOTION_DATABASE_ID) :&#10;ca055...&#10;------------------------------------------------&#10;TELEGRAM BOT TOKEN (TELEGRAM_BOT_TOKEN) :&#10;...&#10;------------------------------------------------&#10;MANAGER CHAT ID (MANAGER_CHAT_ID) :&#10;...&#10;------------------------------------------------&#10;GEMINI/OPENAI API KEY (GEMINI_API_KEY) :&#10;...&#10;------------------------------------------------&#10;DRIVE_ROOT_FOLDER_ID :&#10;..." style="width: 100%; height: 220px; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--soft); color: var(--text); resize: vertical; box-sizing: border-box;"></textarea>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--panel-border); padding-top: 14px;">
+      <button type="button" class="secondary" onclick="closePasteConfigModal()" style="min-height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600;">Hủy</button>
+      <button type="button" class="md3-btn-primary" onclick="applyPastedConfig()" style="min-height: 36px; padding: 0 20px; font-size: 13px; font-weight: 700;">Áp dụng & Lưu cấu hình</button>
     </div>
   </div>
 </div>
