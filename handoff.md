@@ -230,12 +230,42 @@ gh run list --limit 3
 
 ---
 
-## ⚠️ 9. NGUYÊN TẮC BẤT DI BẤT DỊCH CHO CODEX
+## ⚠️ 9. CHÍN NGUYÊN TẮC BẤT DI BẤT DỊCH CHO CODEX (9 GOLDEN RULES)
 
-1. **Làm việc tại thư mục chỉ định**: Mọi thao tác mã nguồn bắt buộc diễn ra tại `D:\Project Anti\MCP Shopee`.
-2. **Chỉnh sửa khoanh vùng (Targeted Edits)**: `web_app.py` có dung lượng rất lớn. Luôn sử dụng lệnh thay thế khoanh vùng (`replace_file_content`), **tuyệt đối không ghi đè toàn bộ file** để bảo toàn các logic khác.
-3. **Mô hình AI**: Luôn đặt **`Gemini 3.7 Flash`** làm mặc định ưu tiên số 1 (kế tiếp là `Gemini 3.6 Flash`, `Gemini 3.5 Flash`, `Gemini 2.0 Flash`).
-4. **Tính nhất quán dữ liệu**: Khi xuất Excel hoặc ghi Notion, chỉ thao tác trên đúng 5 Insight của sản phẩm đang chọn, không làm ảnh hưởng đến các sản phẩm khác.
+1. **Làm việc tại thư mục chỉ định (Workspace Rule)**:
+   * Mọi thao tác đọc, sửa, tạo file bắt buộc diễn ra trực tiếp tại `D:\Project Anti\MCP Shopee`.
+   * Tuyệt đối không thao tác hoặc lưu file tạm/dự án sang ổ `C:`.
+
+2. **Chỉnh sửa khoanh vùng (Targeted Edits)**:
+   * File `web_app.py` có dung lượng rất lớn (>10.000 dòng). Luôn sử dụng lệnh thay thế khoanh vùng (`replace_file_content`).
+   * Tuyệt đối không ghi đè toàn bộ file lớn để tránh mất mát logic, đứt gãy kết nối hoặc xung đột mã nguồn.
+
+3. **Mô hình AI mặc định Gemini 3.7 Flash**:
+   * Luôn thiết lập **`Gemini 3.7 Flash`** làm mô hình mặc định ưu tiên số 1 (kế tiếp là `Gemini 3.6 Flash`, `Gemini 3.5 Flash`, `Gemini 2.0 Flash`).
+   * Tuyệt đối không gọi các model cũ bị ngưng hỗ trợ như `gemini-2.5-flash` hay các dòng `gemini-pro` cũ.
+
+4. **Bảo vệ tính nhất quán dữ liệu sản phẩm**:
+   * Khi xuất Excel hoặc ghi Notion, chỉ thao tác trên đúng 5 Insight của sản phẩm đang chọn.
+   * Tuyệt đối không ghi đè, không làm xáo trộn và không gom lẫn Insight của các sản phẩm khác nhau.
+
+5. **Tuân thủ quy chuẩn Prompt Dược sĩ Khai Hoàn**:
+   * Giọng văn tư vấn chân thật, tự nhiên, đi thẳng vào công dụng và trải nghiệm êm ái.
+   * Cấm tuyệt đối các câu văn máy móc rập khuôn (*"đáp ứng nỗi đau của khách hàng ở góc bán hàng..."*, *"chuẩn SEO Shopee"*).
+   * Cấm các từ khẳng định y khoa chữa bệnh trên Shopee (*"đặc trị"*, *"trị mụn"*, *"chữa khỏi"*, *"thuốc"*); thay bằng từ an toàn E-commerce (*"hỗ trợ giảm"*, *"làm dịu"*, *"gom cồi"*).
+
+6. **Đồng bộ đa nền tảng (Notion - Drive - BigSeller)**:
+   * Mọi file Excel xuất ra (`bigseller_sync_<timestamp>.xlsx`) và file metadata `insights_data.json` bắt buộc phải tự động lưu trực tiếp vào thư mục Google Drive của sản phẩm (`G:\My Drive\Hình ảnh Shopee\<Tên sản phẩm>\`).
+
+7. **Quy trình Release & Build Desktop App tự động**:
+   * Khi hoàn thành code: Kiểm tra cú pháp (`python -m py_compile web_app.py`) ➔ Cập nhật hằng số `CURRENT_VERSION` trong `web_app.py` ➔ Commit và push Git Tag `v*` để GitHub Actions tự động build bản `.exe`.
+
+8. **Tự động hóa an toàn qua ADB (Pixel Camera)**:
+   * Khi kết nối với điện thoại Google Pixel, luôn kiểm tra độ ổn định dung lượng file (`is_file_stable`) trước khi kéo file về máy tính.
+   * Đảm bảo khóa an toàn `OPERATION_LOCK` để chống tranh chấp tiến trình khi đang chụp/quay.
+
+9. **Tư duy Tự chủ & Trình bày chuyên nghiệp với User**:
+   * Làm việc với tư duy chuyên gia hoàn thiện hệ thống, chủ động kiểm tra kỹ lưỡng (dry run) trước khi báo cáo hoàn thành.
+   * Luôn trao đổi và giải thích ngắn gọn bằng tiếng Việt, giữ nguyên các thuật ngữ kỹ thuật tiếng Anh chuẩn (*caching, relations, payload, fallback, token...*).
 
 ---
 *Tài liệu này được lưu trữ chính thức tại `D:\Project Anti\MCP Shopee\handoff.md`.*
