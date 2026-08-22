@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.50"
+CURRENT_VERSION = "v2.2.51"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -2452,6 +2452,7 @@ HTML = r"""
       const selectedLabel = document.getElementById("selectedInsightLabel");
       selectedLabel.hidden = true;
       selectedLabel.textContent = "";
+      refreshDownloadedImagesForInsightChange();
       return;
     }
 
@@ -2465,6 +2466,9 @@ HTML = r"""
     const selectedLabel = document.getElementById("selectedInsightLabel");
     selectedLabel.textContent = `Đang chọn: ${fullLabel}`;
     selectedLabel.hidden = false;
+
+    // Đổi Insight phải xóa ngay gallery cũ và chỉ tải ảnh của Insight vừa chọn.
+    refreshDownloadedImagesForInsightChange();
 
     // Tự động điền thông tin mô tả sản phẩm và từ khóa
     document.getElementById("notionContentInput").value = insight.notion_description || "";
@@ -4956,25 +4960,50 @@ HTML = r"""
     }
   }
 
-  async function loadDownloadedImages() {
-    try {
-      const exportDirInput = document.getElementById("posterExportDir").value.trim();
-      const insightSelect = document.getElementById("insightFolderSelect");
-      let exportDir = exportDirInput;
-      if (insightSelect && insightSelect.value !== "") {
-        const idx = parseInt(insightSelect.value, 10);
-        const insight = state.scannedInsights[idx];
-        if (insight && insight.folder_name) {
-          const separator = exportDirInput.endsWith("\\") ? "" : "\\";
-          exportDir = exportDirInput + separator + insight.folder_name;
-        }
-      }
+  let downloadedImagesRequestId = 0;
 
+  function getSelectedInsightExportDir() {
+    const exportDirInput = document.getElementById("posterExportDir").value.trim();
+    const insightSelect = document.getElementById("insightFolderSelect");
+    if (insightSelect && insightSelect.value !== "") {
+      const idx = parseInt(insightSelect.value, 10);
+      const insight = state.scannedInsights[idx];
+      if (insight && insight.folder_name) {
+        const separator = exportDirInput.endsWith("\\") ? "" : "\\";
+        return exportDirInput + separator + insight.folder_name;
+      }
+    }
+    return exportDirInput;
+  }
+
+  function showDownloadedImagesMessage(message) {
+    const container = document.getElementById("downloadedImagesList");
+    if (!container) return;
+    container.innerHTML = `<div style="grid-column: span 2; text-align:center; color:var(--muted); font-size:12px; margin-top:40px;">${escapeHtml(message)}</div>`;
+  }
+
+  function refreshDownloadedImagesForInsightChange() {
+    // Vô hiệu hóa mọi response đang chờ của Insight trước trước khi tạo request mới.
+    downloadedImagesRequestId += 1;
+    showDownloadedImagesMessage("Đang tải ảnh của Insight đã chọn...");
+    void loadDownloadedImages();
+  }
+
+  async function loadDownloadedImages() {
+    const requestId = ++downloadedImagesRequestId;
+    const exportDir = getSelectedInsightExportDir();
+    try {
       const response = await fetch("/api/automation/images/list?export_dir=" + encodeURIComponent(exportDir));
       const images = await response.json();
+      if (requestId !== downloadedImagesRequestId || exportDir !== getSelectedInsightExportDir()) {
+        return;
+      }
       renderDownloadedImages(images);
     } catch(e) {
       console.error("Lỗi lấy danh sách kết quả đã tải:", e);
+      if (requestId === downloadedImagesRequestId) {
+        showDownloadedImagesMessage("Không tải được ảnh của Insight đã chọn.");
+      }
     }
   }
 
