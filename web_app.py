@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.49"
+CURRENT_VERSION = "v2.2.50"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1631,6 +1631,7 @@ HTML = r"""
                     Quét Insight
                   </button>
                 </div>
+                <div id="selectedInsightLabel" hidden style="margin-top: 7px; color: var(--muted); font-size: 11.5px; line-height: 1.45; overflow-wrap: anywhere;"></div>
               </div>
 
               <!-- File sản phẩm được chọn (Dropzone cao 140px) -->
@@ -2404,6 +2405,9 @@ HTML = r"""
 
     const select = document.getElementById("insightFolderSelect");
     select.innerHTML = '<option value="">-- Đang quét Insight... --</option>';
+    const selectedLabel = document.getElementById("selectedInsightLabel");
+    selectedLabel.hidden = true;
+    selectedLabel.textContent = "";
 
     try {
       const response = await fetch("/api/automation/scan-insights", {
@@ -2427,7 +2431,9 @@ HTML = r"""
       state.scannedInsights.forEach((insight, idx) => {
         const option = document.createElement("option");
         option.value = idx;
-        option.textContent = `${insight.folder_name} - ${insight.angle || "Không có angle"}`;
+        const insightName = insight.display_name || insight.post_title || insight.angle || "Chưa có tên Insight";
+        option.textContent = `${insight.folder_name} - ${insightName}`;
+        option.title = option.textContent;
         select.appendChild(option);
       });
       
@@ -2443,12 +2449,22 @@ HTML = r"""
     const select = document.getElementById("insightFolderSelect");
     const val = select.value;
     if (val === "") {
+      const selectedLabel = document.getElementById("selectedInsightLabel");
+      selectedLabel.hidden = true;
+      selectedLabel.textContent = "";
       return;
     }
 
     const idx = parseInt(val, 10);
     const insight = state.scannedInsights[idx];
     if (!insight) return;
+
+    const insightName = insight.display_name || insight.post_title || insight.angle || insight.folder_name;
+    const fullLabel = `${insight.folder_name} - ${insightName}`;
+    select.title = fullLabel;
+    const selectedLabel = document.getElementById("selectedInsightLabel");
+    selectedLabel.textContent = `Đang chọn: ${fullLabel}`;
+    selectedLabel.hidden = false;
 
     // Tự động điền thông tin mô tả sản phẩm và từ khóa
     document.getElementById("notionContentInput").value = insight.notion_description || "";
@@ -11116,6 +11132,135 @@ def api_review_save_shopee():
         return error_response(exc, 500)
 
 
+def _notion_property_text(prop: dict) -> str:
+    """Đọc text từ property title/rich_text mà không phụ thuộc tên cột."""
+    if not isinstance(prop, dict):
+        return ""
+    prop_type = prop.get("type", "")
+    items = prop.get(prop_type, []) if prop_type in {"title", "rich_text"} else []
+    return "".join(str(item.get("plain_text", "")) for item in items).strip()
+
+
+def _notion_page_mentions(prop: dict) -> list[str]:
+    if not isinstance(prop, dict):
+        return []
+    prop_type = prop.get("type", "")
+    items = prop.get(prop_type, []) if prop_type in {"title", "rich_text"} else []
+    page_ids = []
+    for item in items:
+        mention = item.get("mention", {}) if isinstance(item, dict) else {}
+        if mention.get("type") == "page":
+            page_id = str(mention.get("page", {}).get("id", "")).strip()
+            if page_id:
+                page_ids.append(page_id)
+    return page_ids
+
+
+def _normalized_product_name(value: str) -> str:
+    import unicodedata
+
+    normalized = unicodedata.normalize("NFKD", str(value or ""))
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii").lower()
+    return " ".join(re.findall(r"[a-z0-9]+", ascii_text))
+
+
+def _product_name_match_score(folder_name: str, product_name: str) -> float:
+    folder_clean = _normalized_product_name(folder_name)
+    product_clean = _normalized_product_name(product_name)
+    if not folder_clean or not product_clean:
+        return 0.0
+    if folder_clean == product_clean:
+        return 10.0
+    if folder_clean in product_clean or product_clean in folder_clean:
+        return 8.0 + min(len(folder_clean), len(product_clean)) / max(len(folder_clean), len(product_clean))
+
+    folder_tokens = set(folder_clean.split())
+    product_tokens = set(product_clean.split())
+    overlap = len(folder_tokens & product_tokens)
+    if not overlap:
+        return 0.0
+    return overlap / max(len(folder_tokens), 1)
+
+
+def load_notion_insights_for_product(product_hint: str) -> list[dict]:
+    """Lấy 5 Insight trực tiếp từ Insight Library của trang sản phẩm khớp tên thư mục."""
+    from dotenv import load_dotenv
+
+    load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+    config = load_config()
+    notion_token = str(config.get("notion", {}).get("token", "")).strip() or os.getenv("NOTION_TOKEN", "").strip()
+    if not notion_token:
+        return []
+
+    from notion_client import Client
+    from shopee_sync.src.notion_sync import call_notion_with_retry
+
+    notion = Client(auth=notion_token)
+    product_database_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+    database = call_notion_with_retry(notion.databases.retrieve, database_id=product_database_id)
+    data_sources = database.get("data_sources", [])
+    if not data_sources:
+        return []
+
+    candidates = []
+    cursor = None
+    while True:
+        query_args = {"data_source_id": data_sources[0].get("id"), "page_size": 100}
+        if cursor:
+            query_args["start_cursor"] = cursor
+        response = call_notion_with_retry(notion.data_sources.query, **query_args)
+        for page in response.get("results", []):
+            properties = page.get("properties", {})
+            title = _notion_property_text(properties.get("Tên sản phẩm", {}))
+            score = _product_name_match_score(product_hint, title)
+            if score > 0:
+                candidates.append((score, page, title))
+        if not response.get("has_more") or not response.get("next_cursor"):
+            break
+        cursor = response.get("next_cursor")
+
+    if not candidates:
+        return []
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    score, product_page, product_title = candidates[0]
+    if score < 0.75:
+        return []
+
+    product_page = call_notion_with_retry(notion.pages.retrieve, page_id=product_page.get("id"))
+    insight_ids = _notion_page_mentions(product_page.get("properties", {}).get("Insight Library", {}))
+    if not insight_ids:
+        return []
+
+    insights = []
+    for mention_index, insight_id in enumerate(insight_ids):
+        page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_id)
+        properties = page.get("properties", {})
+        order_num = properties.get("Thứ tự", {}).get("number")
+        try:
+            order_num = int(order_num)
+        except (TypeError, ValueError):
+            order_num = mention_index + 1
+
+        post_title = _notion_property_text(properties.get("Tên post Shopee", {}))
+        angle = _notion_property_text(properties.get("Angle", {}))
+        insight_content = _notion_property_text(properties.get("Insight", {}))
+        keywords = _notion_property_text(properties.get("Từ khóa chính cho insight", {}))
+        insights.append({
+            "page_id": insight_id,
+            "order_num": order_num,
+            "display_name": post_title or angle or f"Insight {order_num}",
+            "post_title": post_title,
+            "angle": angle,
+            "notion_description": insight_content,
+            "keywords": keywords,
+            "product_title": product_title,
+        })
+
+    insights.sort(key=lambda item: item.get("order_num", 999))
+    return insights
+
+
 @app.post("/api/automation/scan-insights")
 def api_scan_insights():
     import base64
@@ -11138,7 +11283,19 @@ def api_scan_insights():
             except Exception as e:
                 print(f"[Scan Insights] Lỗi đọc insights_data.json: {e}")
                 
-        # 2. Liệt kê các thư mục Insight *
+        # 2. Ưu tiên dữ liệu live từ Notion; JSON cục bộ là fallback offline.
+        notion_insights = []
+        try:
+            notion_insights = load_notion_insights_for_product(target_dir.name)
+        except Exception as exc:
+            print(f"[Scan Insights] Không lấy được Insight từ Notion, dùng dữ liệu cục bộ: {exc}")
+        notion_by_order = {
+            item.get("order_num"): item
+            for item in notion_insights
+            if item.get("order_num") is not None
+        }
+
+        # 3. Liệt kê các thư mục Insight *
         insights_list = []
         for folder in target_dir.iterdir():
             if folder.is_dir() and folder.name.lower().startswith("insight"):
@@ -11183,8 +11340,29 @@ def api_scan_insights():
                     if idx is not None and 0 <= idx < len(insights_data["insights"]):
                         insight_info = insights_data["insights"][idx]
                 
-                notion_description = insights_data.get("productDescription", "")
-                keywords = insight_info.get("keywords", "") or insight_info.get("noiDung", "") or insight_info.get("insight_summary", "")
+                notion_info = notion_by_order.get(order_num, {})
+                post_title = (
+                    notion_info.get("post_title", "")
+                    or insight_info.get("postTitle", "")
+                    or insight_info.get("title", "")
+                    or insight_info.get("tieuDe", "")
+                )
+                angle = notion_info.get("angle", "") or insight_info.get("angle", "") or folder_name
+                notion_description = (
+                    notion_info.get("notion_description", "")
+                    or insight_info.get("insightContent", "")
+                    or insight_info.get("content", "")
+                    or insight_info.get("noiDung", "")
+                    or insights_data.get("productDescription", "")
+                )
+                keywords = (
+                    notion_info.get("keywords", "")
+                    or insight_info.get("keywords", "")
+                    or insight_info.get("keyword", "")
+                    or insight_info.get("tuKhoa", "")
+                    or insight_info.get("insight_summary", "")
+                )
+                display_name = notion_info.get("display_name", "") or post_title or angle
                 
                 insights_list.append({
                     "folder_name": folder_name,
@@ -11196,7 +11374,11 @@ def api_scan_insights():
                     "media_type": "video" if is_video else "image",
                     "notion_description": notion_description,
                     "keywords": keywords,
-                    "angle": insight_info.get("angle", "") or folder_name
+                    "angle": angle,
+                    "post_title": post_title,
+                    "display_name": display_name,
+                    "notion_page_id": notion_info.get("page_id", ""),
+                    "data_source": "notion" if notion_info else ("local" if insight_info else "folder")
                 })
         
         insights_list.sort(key=lambda x: x["order_num"])

@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.49`
+> **Phiên bản hiện tại:** `v2.2.50`
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -168,7 +168,8 @@ erDiagram
 
 ### TAB 3: AI EDIT / VIDEO (POSTER & VIDEO CREATOR)
 * Tự động quét các thư mục sản phẩm trên Google Drive.
-* Đọc trực tiếp dữ liệu từ file `insights_data.json` của sản phẩm đó để tạo poster, banner 1:1, ảnh bìa và video ngắn cho Shopee.
+* Khi quét thư mục, ưu tiên đọc live 5 trang trong **Insight Library** của sản phẩm trên Notion; dropdown hiển thị `Insight N - Tên post Shopee`, đồng thời tự điền đúng nội dung `Insight` và `Từ khóa chính cho insight`. Nếu Notion tạm thời không truy cập được, tool dùng `insights_data.json` làm fallback offline.
+* Dùng dữ liệu Insight đã chọn để tạo poster, banner 1:1, ảnh bìa và video ngắn cho Shopee.
 
 ---
 
@@ -210,7 +211,7 @@ python -m py_compile web_app.py
 ### Bước 2: Nâng Version
 Mở file `web_app.py` và cập nhật phiên bản ở dòng 43:
 ```python
-CURRENT_VERSION = "v2.2.49"  # Tăng số phiên bản tương ứng
+CURRENT_VERSION = "v2.2.50"  # Tăng số phiên bản tương ứng
 ```
 
 ### Bước 3: Commit và Tạo Git Tag
@@ -218,8 +219,8 @@ CURRENT_VERSION = "v2.2.49"  # Tăng số phiên bản tương ứng
 git add .
 git commit -m "feat(tên-tính-năng): mô tả ngắn gọn thay đổi"
 git push origin main
-git tag v2.2.49
-git push origin v2.2.49
+git tag v2.2.50
+git push origin v2.2.50
 ```
 
 ### Bước 4: Kiểm tra trạng thái Build trên GitHub Actions
