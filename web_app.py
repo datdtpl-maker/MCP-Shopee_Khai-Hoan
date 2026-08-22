@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.46"
+CURRENT_VERSION = "v2.2.48"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1329,6 +1329,22 @@ HTML = r"""
       pointer-events: auto;
     }
 
+    .post-prompt-fields {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.8fr) minmax(260px, 1.2fr);
+      gap: 12px;
+    }
+
+    #save-form[hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      .post-prompt-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -1567,8 +1583,8 @@ HTML = r"""
           <div style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; width: 100%;">
             <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; text-align: center; width: 100%;">Thư viện Prompt</h4>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%;">
-              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 6px 4px; font-size: 11px; color: var(--ok); font-weight: 700; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Nhập danh sách prompt từ file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Nhập</button>
-              <button class="ghost" onclick="exportPrompts()" style="padding: 6px 4px; font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Xuất toàn bộ thư viện prompt ra file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Xuất</button>
+              <button class="ghost" onclick="triggerImportPrompt()" style="padding: 6px 4px; font-size: 11px; color: var(--ok); font-weight: 700; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); cursor: pointer; min-height: 36px; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Nhập danh sách prompt tạo ảnh từ file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Nhập file</button>
+              <button class="ghost" onclick="exportPrompts()" style="padding: 6px 4px; font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); cursor: pointer; min-height: 36px; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;" title="Xuất toàn bộ 5 prompt tạo ảnh ra file .txt"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Xuất file</button>
               <button class="ghost" onclick="openPromptModal()" style="padding: 6px 4px; font-size: 11px;  background: rgba(238, 77, 45, 0.05); border: 1px solid rgba(238, 77, 45, 0.15); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: inline-block; width: 100%; box-shadow: none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Thêm</button>
             </div>
           </div>
@@ -1981,6 +1997,41 @@ HTML = r"""
 
             <form id="save-form" class="stack" onsubmit="saveInsightsToNotion(event)" hidden style="display: flex; flex-direction: column; gap: 16px;">
               <div id="save-product-summary" class="summary-strip"></div>
+
+              <section style="border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; background: var(--soft); display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+                  <div>
+                    <h4 style="margin: 0; font-family: var(--font-title); font-size: 15px; font-weight: 800;">Prompt viết 5 bài Shopee</h4>
+                    <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5;">Chọn mẫu hoặc tự chỉnh prompt. Tool tự gắn dữ liệu sản phẩm và từng Insight trước khi gửi AI.</p>
+                  </div>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="secondary" onclick="newPostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Thêm mẫu</button>
+                    <button type="button" class="secondary" onclick="savePostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Lưu sửa</button>
+                    <button type="button" class="secondary" onclick="deletePostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700; color: var(--danger);">Xóa</button>
+                    <button type="button" class="secondary" onclick="document.getElementById('postPromptImportInput').click()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Nhập file</button>
+                    <button type="button" class="secondary" onclick="exportPostPromptTemplates()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Xuất file</button>
+                  </div>
+                </div>
+                <input type="file" id="postPromptImportInput" accept=".txt,text/plain" onchange="importPostPromptTemplates(event)" hidden>
+                <div class="post-prompt-fields">
+                  <div>
+                    <label for="postPromptSelect" class="md3-label">Mẫu đang dùng</label>
+                    <select id="postPromptSelect" class="md3-input" onchange="selectPostPromptTemplate(this.value)" style="min-height: 44px;"></select>
+                  </div>
+                  <div>
+                    <label for="postPromptTitle" class="md3-label">Tên mẫu prompt</label>
+                    <input id="postPromptTitle" type="text" class="md3-input" placeholder="Ví dụ: Dược sĩ tư vấn ngắn gọn" style="min-height: 44px;">
+                  </div>
+                </div>
+                <div>
+                  <label for="postPromptContent" class="md3-label">Nội dung prompt gửi AI</label>
+                  <textarea id="postPromptContent" class="md3-input" rows="7" oninput="markPostPromptChanged()" placeholder="Nhập giọng văn, cách mở bài, hoạt cảnh sử dụng và cấu trúc mong muốn..." style="min-height: 150px; resize: vertical; line-height: 1.5;"></textarea>
+                  <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color: var(--muted);">Biến hỗ trợ: {{product_name}}, {{classification}}, {{product_description}}, {{post_title}}, {{angle}}, {{insight_content}}, {{keywords}}</span>
+                    <span id="postPromptStatus" role="status" aria-live="polite" style="font-size: 11px; color: var(--muted);">Đang tải thư viện prompt...</span>
+                  </div>
+                </div>
+              </section>
 
               <div class="table-wrap">
                 <table>
@@ -2844,8 +2895,147 @@ HTML = r"""
     imagePreviewUrl: "",
     pastedFile: null,
     currentRewriteRowIndex: null, // Lưu dòng đang sửa để đồng bộ từ Gemini
-    shopeeLogs: []
+    shopeeLogs: [],
+    lastPostPrompt: null
   };
+
+  let postPromptsList = [];
+  let activePostPromptId = "";
+  const postPromptStorageKey = "shopeeSelectedPostPromptId";
+
+  function setPostPromptStatus(message, type = "muted") {
+    const el = document.getElementById("postPromptStatus");
+    if (!el) return;
+    el.textContent = message;
+    el.style.color = type === "error" ? "var(--danger)" : (type === "success" ? "var(--success)" : "var(--muted)");
+  }
+
+  async function loadPostPromptsLibrary(preferredId = "") {
+    try {
+      const response = await fetch("/api/shopee/post-prompts");
+      const data = await response.json();
+      if (!response.ok) throw data;
+      postPromptsList = Array.isArray(data) ? data : [];
+
+      const select = document.getElementById("postPromptSelect");
+      if (!select) return;
+      select.innerHTML = "";
+      postPromptsList.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.is_default ? `${item.title} (mặc định)` : item.title;
+        select.appendChild(option);
+      });
+
+      const storedId = localStorage.getItem(postPromptStorageKey) || "";
+      const targetId = preferredId || storedId || (postPromptsList[0] && postPromptsList[0].id) || "";
+      selectPostPromptTemplate(postPromptsList.some(item => item.id === targetId) ? targetId : (postPromptsList[0] && postPromptsList[0].id));
+      setPostPromptStatus(`Đã tải ${postPromptsList.length} mẫu prompt.`, "success");
+    } catch (error) {
+      setPostPromptStatus("Không tải được thư viện prompt: " + (error.error || error.message || "Lỗi không xác định"), "error");
+    }
+  }
+
+  function selectPostPromptTemplate(promptId) {
+    const item = postPromptsList.find(prompt => prompt.id === promptId);
+    if (!item) return;
+    activePostPromptId = item.id;
+    document.getElementById("postPromptSelect").value = item.id;
+    document.getElementById("postPromptTitle").value = item.title || "";
+    document.getElementById("postPromptContent").value = item.content || "";
+    localStorage.setItem(postPromptStorageKey, item.id);
+    state.lastPostPrompt = null;
+    setPostPromptStatus(`Đang dùng mẫu: ${item.title}`);
+  }
+
+  function newPostPromptTemplate() {
+    activePostPromptId = "";
+    const select = document.getElementById("postPromptSelect");
+    if (select) select.selectedIndex = -1;
+    document.getElementById("postPromptTitle").value = "";
+    document.getElementById("postPromptContent").value = "";
+    document.getElementById("postPromptTitle").focus();
+    state.lastPostPrompt = null;
+    setPostPromptStatus("Đang tạo mẫu mới. Nhập tên, nội dung rồi bấm Lưu sửa.");
+  }
+
+  function markPostPromptChanged() {
+    state.lastPostPrompt = null;
+    setPostPromptStatus("Nội dung đã thay đổi, chưa lưu mẫu. Prompt hiện tại vẫn được dùng khi tạo bài.");
+  }
+
+  function getCurrentPostWritingPrompt() {
+    const field = document.getElementById("postPromptContent");
+    return field ? field.value.trim() : "";
+  }
+
+  async function savePostPromptTemplate() {
+    const title = document.getElementById("postPromptTitle").value.trim();
+    const content = getCurrentPostWritingPrompt();
+    if (!title || !content) {
+      setPostPromptStatus("Cần nhập đủ tên mẫu và nội dung prompt.", "error");
+      return;
+    }
+    setPostPromptStatus("Đang lưu prompt...");
+    try {
+      const response = await fetch("/api/shopee/post-prompts", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id: activePostPromptId, title, content})
+      });
+      const data = await response.json();
+      if (!response.ok) throw data;
+      activePostPromptId = data.prompt.id;
+      await loadPostPromptsLibrary(activePostPromptId);
+      setPostPromptStatus(`Đã lưu mẫu: ${data.prompt.title}`, "success");
+    } catch (error) {
+      setPostPromptStatus("Lỗi lưu prompt: " + (error.error || error.message || "Lỗi không xác định"), "error");
+    }
+  }
+
+  async function deletePostPromptTemplate() {
+    if (!activePostPromptId) {
+      setPostPromptStatus("Chưa chọn mẫu cần xóa.", "error");
+      return;
+    }
+    const item = postPromptsList.find(prompt => prompt.id === activePostPromptId);
+    if (!item || !confirm(`Xóa mẫu prompt “${item.title}”?`)) return;
+    try {
+      const response = await fetch(`/api/shopee/post-prompts/${encodeURIComponent(activePostPromptId)}`, {method: "DELETE"});
+      const data = await response.json();
+      if (!response.ok) throw data;
+      localStorage.removeItem(postPromptStorageKey);
+      await loadPostPromptsLibrary();
+      setPostPromptStatus("Đã xóa mẫu prompt.", "success");
+    } catch (error) {
+      setPostPromptStatus("Không thể xóa: " + (error.error || error.message || "Lỗi không xác định"), "error");
+    }
+  }
+
+  async function importPostPromptTemplates(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    setPostPromptStatus("Đang nhập prompt từ file...");
+    try {
+      const response = await fetch("/api/shopee/post-prompts/import", {method: "POST", body: formData});
+      const data = await response.json();
+      if (!response.ok) throw data;
+      await loadPostPromptsLibrary();
+      setPostPromptStatus(`Đã nhập ${data.count} mẫu prompt.`, "success");
+    } catch (error) {
+      setPostPromptStatus("Lỗi nhập file: " + (error.error || error.message || "Lỗi không xác định"), "error");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  function exportPostPromptTemplates() {
+    setPostPromptStatus("Đang xuất toàn bộ prompt...");
+    window.location.href = "/api/shopee/post-prompts/export";
+    window.setTimeout(() => setPostPromptStatus("Đã gửi file prompt tới thư mục tải xuống.", "success"), 600);
+  }
 
   function initInsightPromptEditor() {
     const promptInput = document.getElementById("insightPrompt");
@@ -3421,14 +3611,18 @@ HTML = r"""
 
     try {
       // Kiểm tra xem đã có bài viết chi tiết cho cả 5 insight chưa
-      const needGenerate = state.insights.some(item => !item.full_post);
+      const writingPrompt = getCurrentPostWritingPrompt();
+      const promptChanged = state.lastPostPrompt !== writingPrompt;
+      const needGenerate = promptChanged || state.insights.some(item => !item.full_post);
       if (needGenerate) {
         const product = collectProductInfo();
         const res = await api("/api/insight/generate-all-posts", {
           productName: product.name || state.productName,
           productDescription: product.description || "",
           classification: product.classification || "",
-          insights: state.insights
+          insights: state.insights,
+          writingPrompt,
+          forceRegenerate: promptChanged
         });
         if (res.full_posts && res.full_posts.length > 0) {
           for (let i = 0; i < state.insights.length; i++) {
@@ -3436,6 +3630,7 @@ HTML = r"""
               state.insights[i].full_post = res.full_posts[i];
             }
           }
+          state.lastPostPrompt = writingPrompt;
         }
       }
 
@@ -3553,7 +3748,8 @@ HTML = r"""
         angle: document.getElementById("modalEditAngle").value.trim() || item.angle,
         postTitle: document.getElementById("modalEditPostTitle").value.trim() || item.postTitle,
         insightContent: item.insightContent || "",
-        keywords: item.keywords || ""
+        keywords: item.keywords || "",
+        writingPrompt: getCurrentPostWritingPrompt()
       });
 
       if (res.full_post) {
@@ -3583,6 +3779,7 @@ HTML = r"""
     setStatus("save-status", "Đang ghi nhận sản phẩm và 5 insight lên Notion...", "muted");
 
     try {
+      const writingPrompt = getCurrentPostWritingPrompt();
       const response = await fetch("/api/review-save", {
         method: "POST",
         headers: {
@@ -3591,7 +3788,9 @@ HTML = r"""
         body: JSON.stringify({
           product,
           productName: product.name,
-          insights: state.insights
+          insights: state.insights,
+          writingPrompt,
+          forceRegenerate: state.lastPostPrompt !== writingPrompt
         })
       });
 
@@ -4942,6 +5141,7 @@ HTML = r"""
   loadCategories().then(() => {
     loadPromptsLibrary();
   });
+  loadPostPromptsLibrary();
   loadDownloadedImages();
   checkChromeStatus();
   chromeStatusInterval = setInterval(checkChromeStatus, 4000);
@@ -6289,6 +6489,8 @@ def api_poster_save():
 # ==========================================
 
 PROMPTS_FILE = ROOT / "content_prompts.json"
+POST_PROMPTS_FILE = ROOT / "post_prompts.json"
+POST_PROMPTS_LOCK = threading.RLock()
 
 _cached_prompts = None
 _cached_prompts_mtime = 0.0
@@ -6525,6 +6727,160 @@ def api_export_prompts():
             export_text,
             mimetype="text/plain",
             headers={"Content-Disposition": "attachment;filename=prompts_export.txt"}
+        )
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+def default_post_prompt_record():
+    return {
+        "id": DEFAULT_POST_PROMPT_ID,
+        "title": "Prompt mặc định",
+        "content": DEFAULT_POST_PROMPT_CONTENT,
+        "is_default": True,
+    }
+
+
+def load_post_prompts():
+    with POST_PROMPTS_LOCK:
+        prompts = []
+        if POST_PROMPTS_FILE.exists():
+            try:
+                loaded = json.loads(POST_PROMPTS_FILE.read_text(encoding="utf-8"))
+                if isinstance(loaded, list):
+                    prompts = [item for item in loaded if isinstance(item, dict)]
+            except Exception:
+                prompts = []
+
+        if not any(item.get("id") == DEFAULT_POST_PROMPT_ID for item in prompts):
+            prompts.insert(0, default_post_prompt_record())
+        return [dict(item) for item in prompts]
+
+
+def save_post_prompts(prompts):
+    cleaned = []
+    for item in prompts:
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title", "")).strip()
+        content = str(item.get("content", "")).strip()
+        if not title or not content:
+            continue
+        cleaned.append({
+            "id": str(item.get("id", "")).strip(),
+            "title": title,
+            "content": content,
+            "is_default": str(item.get("id", "")).strip() == DEFAULT_POST_PROMPT_ID,
+        })
+
+    if not any(item["id"] == DEFAULT_POST_PROMPT_ID for item in cleaned):
+        cleaned.insert(0, default_post_prompt_record())
+
+    with POST_PROMPTS_LOCK:
+        POST_PROMPTS_FILE.write_text(
+            json.dumps(cleaned, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    return cleaned
+
+
+@app.get("/api/shopee/post-prompts")
+def api_get_post_prompts():
+    return jsonify(load_post_prompts())
+
+
+@app.post("/api/shopee/post-prompts")
+def api_save_post_prompt():
+    try:
+        import uuid
+
+        data = request.json or {}
+        prompt_id = str(data.get("id", "")).strip() or str(uuid.uuid4())
+        title = str(data.get("title", "")).strip()
+        content = str(data.get("content", "")).strip()
+        if not title or not content:
+            raise ValueError("Tên mẫu và nội dung prompt không được để trống.")
+
+        prompts = load_post_prompts()
+        record = {
+            "id": prompt_id,
+            "title": title,
+            "content": content,
+            "is_default": prompt_id == DEFAULT_POST_PROMPT_ID,
+        }
+        for index, item in enumerate(prompts):
+            if item.get("id") == prompt_id:
+                prompts[index] = record
+                break
+        else:
+            prompts.append(record)
+
+        save_post_prompts(prompts)
+        return jsonify({"success": True, "prompt": record})
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+@app.delete("/api/shopee/post-prompts/<prompt_id>")
+def api_delete_post_prompt(prompt_id):
+    try:
+        if prompt_id == DEFAULT_POST_PROMPT_ID:
+            raise ValueError("Prompt mặc định được giữ lại để tool luôn có mẫu dự phòng.")
+        prompts = load_post_prompts()
+        updated = [item for item in prompts if item.get("id") != prompt_id]
+        if len(updated) == len(prompts):
+            raise ValueError("Không tìm thấy prompt cần xóa.")
+        save_post_prompts(updated)
+        return jsonify({"success": True})
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+@app.post("/api/shopee/post-prompts/import")
+def api_import_post_prompts():
+    try:
+        import uuid
+
+        uploaded = request.files.get("file")
+        if not uploaded or not uploaded.filename:
+            raise ValueError("Vui lòng chọn file prompt .txt.")
+        parsed = parse_prompts_txt(uploaded.read().decode("utf-8", errors="ignore"))
+        prompts = load_post_prompts()
+        count = 0
+        for item in parsed:
+            title = str(item.get("title", "Prompt nhập từ file")).strip()
+            content = str(item.get("content", "")).strip()
+            if not content:
+                continue
+            prompts.append({
+                "id": str(uuid.uuid4()),
+                "title": title,
+                "content": content,
+                "is_default": False,
+            })
+            count += 1
+        if not count:
+            raise ValueError("File không có prompt hợp lệ.")
+        save_post_prompts(prompts)
+        return jsonify({"success": True, "count": count})
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+@app.get("/api/shopee/post-prompts/export")
+def api_export_post_prompts():
+    try:
+        from flask import Response
+
+        sections = []
+        for item in load_post_prompts():
+            sections.append(
+                f"Tiêu đề: {item.get('title', '')}\nNội dung: {item.get('content', '')}"
+            )
+        return Response(
+            "\n---\n".join(sections),
+            mimetype="text/plain; charset=utf-8",
+            headers={"Content-Disposition": "attachment;filename=shopee_post_prompts.txt"},
         )
     except Exception as exc:
         return error_response(exc, 400)
@@ -9969,7 +10325,57 @@ def api_get_product_details():
     except Exception as exc:
         return error_response(exc, 500)
 
-def generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords, product_desc="", classification=""):
+def compact_product_description(description, max_sentences=3, max_words=70):
+    """Giữ mô tả Shopee ngắn gọn, không lặp lại các mục chi tiết phía dưới."""
+    if isinstance(description, list):
+        description = " ".join(str(item) for item in description if item)
+
+    text = re.sub(r"\s+", " ", str(description or "")).strip()
+    if not text:
+        return ""
+
+    sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
+    selected = []
+    word_count = 0
+    for sentence in sentences[:max_sentences]:
+        sentence_words = sentence.split()
+        if selected and word_count + len(sentence_words) > max_words:
+            break
+        selected.append(sentence)
+        word_count += len(sentence_words)
+
+    compact = " ".join(selected) if selected else text
+    words = compact.split()
+    if len(words) > max_words:
+        compact = " ".join(words[:max_words]).rstrip(",;:-") + "."
+    return compact
+
+
+DEFAULT_POST_PROMPT_ID = "default-shopee-post-prompt"
+DEFAULT_POST_PROMPT_CONTENT = """Bạn là Dược sĩ / Chuyên viên tư vấn da liễu và copywriter bán hàng cho Khai Hoàn Skincare / Khai Hoàn Derma.
+
+Hãy viết bài giới thiệu sản phẩm Shopee tự nhiên, chân thật, thuyết phục, giàu tính cá nhân hóa theo từng Angle và Insight. Mỗi bài cần có cách mở đầu, ngôn từ và hoạt cảnh sử dụng khác nhau; tránh thay tên sản phẩm vào cùng một khuôn câu.
+
+YÊU CẦU GIỌNG VĂN:
+- Đi thẳng vào sản phẩm, lợi ích nổi bật và trải nghiệm sử dụng thực tế.
+- Viết như đang tư vấn tận tâm cho đúng nhóm khách hàng của sản phẩm.
+- Không dùng văn phong máy móc hoặc các cụm từ: "đáp ứng nỗi đau của khách hàng", "chuẩn SEO Shopee", "vượt trội hàng đầu", "lựa chọn hoàn hảo".
+- Phần description viết một đoạn ngắn 2 - 3 câu, khoảng 45 - 65 từ; không lặp lại thành phần, công dụng, đối tượng, cách dùng hoặc lưu ý ở các mục bên dưới.
+- Xác định đúng đối tượng theo bản chất sản phẩm; không mặc định độ tuổi hoặc tình trạng da khi dữ liệu không cung cấp.
+- Tạo 8 - 12 hashtag người mua thực tế có thể tìm kiếm, gồm tên sản phẩm, loại sản phẩm/công dụng và thương hiệu Khai Hoàn; không dùng #ShopeeSEO hoặc hashtag vô nghĩa.
+
+Có thể dùng các biến sau trong prompt tùy chỉnh:
+{{product_name}}, {{classification}}, {{product_description}}, {{post_title}}, {{angle}}, {{insight_content}}, {{keywords}}."""
+
+
+def render_post_prompt_template(template, **values):
+    rendered = str(template or DEFAULT_POST_PROMPT_CONTENT)
+    for key, value in values.items():
+        rendered = rendered.replace("{{" + key + "}}", str(value or ""))
+    return rendered.strip()
+
+
+def generate_single_post_body(api_key, product_name, angle, post_title, insight_content, keywords, product_desc="", classification="", custom_prompt=""):
     import requests
     import json
     import re
@@ -9979,9 +10385,18 @@ def generate_single_post_body(api_key, product_name, angle, post_title, insight_
     clean_tag = unicodedata.normalize('NFKD', product_name).encode('ascii', 'ignore').decode('utf-8')
     clean_tag = re.sub(r'[^a-zA-Z0-9]', '', clean_tag).lower()
 
-    prompt = f"""
-Bạn là chuyên gia tư vấn da liễu & copywriter bán hàng hàng đầu tại Việt Nam cho shop Dược Mỹ Phẩm (Khai Hoan Skincare / Khai Hoan Derma).
-Hãy viết một bài giới thiệu sản phẩm bán hàng chuẩn Shopee (dài khoảng 350 - 500 từ) tự nhiên, chân thật, thuyết phục và giàu cảm xúc mua sắm cho sản phẩm dưới đây:
+    prompt_instructions = render_post_prompt_template(
+        custom_prompt or DEFAULT_POST_PROMPT_CONTENT,
+        product_name=product_name,
+        classification=classification,
+        product_description=product_desc,
+        post_title=post_title,
+        angle=angle,
+        insight_content=insight_content,
+        keywords=keywords,
+    )
+
+    prompt = f"""{prompt_instructions}
 
 THÔNG TIN SẢN PHẨM:
 - Tên sản phẩm: "{product_name}"
@@ -9992,28 +10407,15 @@ THÔNG TIN SẢN PHẨM:
 - Tóm tắt điểm nhấn cốt lõi (Insight): "{insight_content}"
 - Từ khóa quan trọng: "{keywords}"
 
-QUY TẮC BẮT BUỘC VỀ GIỌNG VĂN & CHÍNH SÁCH SHOPEE:
-1. GIỌNG VĂN TỰ NHIÊN, BÁN HÀNG THỰC TẾ:
-   - Viết như một Dược sĩ / Chuyên viên tư vấn da liễu đang giới thiệu sản phẩm tận tâm cho khách hàng trên Shopee.
-   - TUYỆT ĐỐI KHÔNG dùng văn phong máy móc rập khuôn hoặc các cụm từ lý thuyết như: "là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội", "đáp ứng nỗi đau của khách hàng ở góc bán hàng...", "chuẩn SEO Shopee", "vượt trội hàng đầu".
-   - Bắt đầu phần mô tả trực diện: Giới thiệu thẳng sản phẩm {product_name}, công dụng nổi bật và cảm giác êm ái/hiệu quả khi sử dụng.
-2. ĐỐI TƯỢNG SỬ DỤNG CHÍNH XÁC THEO BẢN CHẤT SẢN PHẨM:
-   - TUYỆT ĐỐI KHÔNG mặc định câu "Người lớn và trẻ em từ 6 tuổi trở lên cần chăm sóc chuyên sâu".
-   - Phải xác định đúng đối tượng người dùng dựa theo bản chất sản phẩm (Ví dụ: Sản phẩm trị mụn -> Người gặp tình trạng mụn viêm, mụn sưng đỏ, dầu nhờn bít tắc; Sản phẩm dầu gội -> Người có da đầu gàu, ngứa; Kem dưỡng ẩm -> Người có da khô ráp, nứt nẻ...).
-3. TUÂN THỦ CHÍNH SÁCH BÁN HÀNG SHOPEE (AN TOÀN Y KHOA):
-   - KHÔNG dùng từ khẳng định y khoa chữa bệnh: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "trị dứt điểm", "chữa khỏi", "thuốc".
-   - THAY BẰNG từ an toàn thương mại điện tử: "hỗ trợ giảm mụn", "giúp làm dịu sưng đỏ", "hỗ trợ gom cồi", "chăm sóc da mụn", "cải thiện", "giúp thông thoáng", "bảo vệ da".
-   - KHÔNG dùng từ nói quá: "100%", "tốt nhất", "số 1", "cam kết hoàn tiền", "vĩnh viễn".
-4. HASHTAGS BÁN HÀNG THỰC TẾ:
-   - Tạo 8 - 12 hashtag thực tế mà người mua hay tìm kiếm trên Shopee:
-     + Hashtag tên sản phẩm viết liền không dấu (VD: #{clean_tag})
-     + Hashtag công dụng / loại sản phẩm (VD: #gelchammun #giammunviem #gomcoimun #chamsocdamun #kemchammun)
-     + Hashtag thương hiệu & shop: #khaihoanskincare #khaihoanderma #myphamchinhhang #duocmypham
-     + TUYỆT ĐỐI KHÔNG ĐƯA #ShopeeSEO hay các hashtag vô nghĩa vào bài.
+GUARDRAIL BẮT BUỘC CỦA HỆ THỐNG:
+- Không dùng từ khẳng định chữa bệnh: "đặc trị", "trị mụn", "điều trị", "dứt điểm", "chữa khỏi", "thuốc". Ưu tiên "hỗ trợ", "giúp", "chăm sóc", "cải thiện".
+- Không dùng claim nói quá như "100%", "tốt nhất", "số 1", "cam kết", "vĩnh viễn" và không tự bịa thành phần, công dụng, độ tuổi hoặc phản hồi khách hàng.
+- Bài hoàn chỉnh có thể dài khoảng 350 - 500 từ, nhưng từng mục phải rõ ràng, dễ đọc và bám sát dữ liệu được cung cấp.
+- Dù prompt mẫu yêu cầu cách thể hiện nào, kết quả cuối cùng vẫn phải trả đúng JSON bên dưới để tool ghi Notion an toàn.
 
 BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
 {{
-  "description": "2 - 3 đoạn văn giới thiệu tự nhiên cuốn hút, phân tích lý do vì sao sản phẩm phù hợp với nhu cầu/vấn đề của khách hàng, cơ chế tác động dịu nhẹ...",
+  "description": "Một đoạn duy nhất gồm 2 - 3 câu, 45 - 65 từ: giới thiệu sản phẩm, lợi ích chính đúng Angle/Insight và chỉ thêm quy cách/độ tiện dụng nếu cần; không lặp nội dung các mục bên dưới.",
   "ingredients": [
     "Tên thành phần 1: giải thích công dụng cụ thể...",
     "Tên thành phần 2: giải thích công dụng cụ thể..."
@@ -10088,6 +10490,8 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
 
         if isinstance(parsed_json, dict):
             desc = parsed_json.get("description", "")
+            if not custom_prompt or custom_prompt.strip() == DEFAULT_POST_PROMPT_CONTENT.strip():
+                desc = compact_product_description(desc)
             ing = parsed_json.get("ingredients", [])
             ben = parsed_json.get("benefits", [])
             tar = parsed_json.get("target_users", [])
@@ -10112,7 +10516,7 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
     is_acne = any(k in (product_name + ' ' + keywords + ' ' + insight_content + ' ' + angle).lower() for k in ['mụn', 'mun', 'clinoper', 'clascon', 'aldocont', 'adapalene', 'benzoyl', 'clindamycin', 'zicum'])
     
     if is_acne:
-        desc = f"{product_name} là dòng sản phẩm chăm sóc chuyên sâu dành riêng cho làn da đang gặp tình trạng mụn sưng viêm, mụn đỏ và bít tắc lỗ chân lông.\n\nSản phẩm sở hữu công thức dịu nhẹ, thẩm thấu nhanh vào bề mặt da, hỗ trợ làm dịu nhanh cảm giác sưng tấy khó chịu và thúc đẩy gom cồi mụn tự nhiên mà không gây khô ráp hay bong tróc quá mức."
+        desc = f"{product_name} là sản phẩm hỗ trợ chăm sóc vùng da có mụn sưng đỏ và bít tắc. Công thức chấm trực tiếp giúp làm dịu vùng da mụn, hỗ trợ gom cồi và chăm sóc tập trung tại vị trí cần thiết."
         ing = [
             f"Hoạt chất chăm sóc cốt lõi trong {product_name}: Hỗ trợ kháng khuẩn, làm dịu vùng da mụn và gom cồi nhanh chóng.",
             "Các dưỡng chất bổ trợ lành tính: Giúp duy trì độ ẩm tự nhiên, củng cố hàng rào bảo vệ da khỏe mạnh."
@@ -10133,7 +10537,7 @@ BẮT BUỘC TRẢ VỀ JSON DUY NHẤT VỚI CẤU TRÚC:
         ]
         hashtags = f"#{clean_tag} #gelchammun #giammunviem #gomcoimun #chamsocdamun #khaihoanskincare #khaihoanderma #myphamchinhhang"
     else:
-        desc = f"{product_name} là sản phẩm chăm sóc chuyên sâu chính hãng từ Khai Hoàn, được nghiên cứu để mang lại hiệu quả tối ưu và cảm giác êm dịu cho người sử dụng.\n\nSản phẩm hỗ trợ cải thiện và phục hồi theo đúng nhu cầu chăm sóc mỗi ngày, an toàn và lành tính cho làn da."
+        desc = f"{product_name} là sản phẩm hỗ trợ chăm sóc hằng ngày theo thông tin được cung cấp. Công thức và quy cách sản phẩm hướng đến trải nghiệm sử dụng gọn nhẹ, thuận tiện theo đúng hướng dẫn trên bao bì."
         ing = [f"Thành phần chính của {product_name}: Cung cấp dưỡng chất thiết yếu giúp chăm sóc và bảo vệ hiệu quả."]
         ben = [
             f"Hỗ trợ cải thiện rõ rệt theo nhu cầu {angle}.",
@@ -10170,10 +10574,12 @@ def api_generate_all_posts():
         product_desc = data.get("productDescription", "").strip()
         classification = data.get("classification", "").strip()
         insights = data.get("insights", [])
+        writing_prompt = str(data.get("writingPrompt", "")).strip()
+        force_regenerate = bool(data.get("forceRegenerate", False))
         
         full_posts = []
         for idx, item in enumerate(insights):
-            if item.get("full_post") and isinstance(item.get("full_post"), dict):
+            if not force_regenerate and item.get("full_post") and isinstance(item.get("full_post"), dict):
                 full_posts.append(item.get("full_post"))
                 continue
                 
@@ -10190,7 +10596,8 @@ def api_generate_all_posts():
                 insight_content,
                 keywords,
                 product_desc=product_desc,
-                classification=classification
+                classification=classification,
+                custom_prompt=writing_prompt,
             )
             full_posts.append(post_body)
             
@@ -10214,6 +10621,7 @@ def api_generate_single_post():
         post_title = data.get("postTitle", "").strip()
         insight_content = data.get("insightContent", "").strip()
         keywords = data.get("keywords", "").strip()
+        writing_prompt = str(data.get("writingPrompt", "")).strip()
         
         post_body = generate_single_post_body(
             api_key,
@@ -10223,7 +10631,8 @@ def api_generate_single_post():
             insight_content,
             keywords,
             product_desc=product_desc,
-            classification=classification
+            classification=classification,
+            custom_prompt=writing_prompt,
         )
         return jsonify({"success": True, "full_post": post_body})
     except Exception as exc:
@@ -10239,6 +10648,8 @@ def api_review_save_shopee():
         product_data = payload.get("product", {})
         product_name = payload.get("productName", "") or product_data.get("name", "")
         insights = payload.get("insights", [])
+        writing_prompt = str(payload.get("writingPrompt", "")).strip()
+        force_regenerate = bool(payload.get("forceRegenerate", False))
         product_page_id = product_data.get("productPageId", "").strip()
 
         # Tự động xuất file insights_data.json vào đúng thư mục sản phẩm để tab AI Edit/Video có thể quét được
@@ -10472,7 +10883,7 @@ def api_review_save_shopee():
                 insight_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
 
             # 1. Lấy bài viết chi tiết đã được xem/sửa (hoặc tự động sinh nếu chưa có)
-            if item.get("full_post") and isinstance(item.get("full_post"), dict):
+            if not force_regenerate and item.get("full_post") and isinstance(item.get("full_post"), dict):
                 body = item.get("full_post")
             else:
                 product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
@@ -10485,7 +10896,8 @@ def api_review_save_shopee():
                     insight_content, 
                     keywords,
                     product_desc=product_desc,
-                    classification=classification
+                    classification=classification,
+                    custom_prompt=writing_prompt,
                 )
 
             # 2. Tạo trang con Notion
