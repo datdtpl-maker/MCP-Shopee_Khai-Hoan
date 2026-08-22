@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.51"
+CURRENT_VERSION = "v2.2.52"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -3097,7 +3097,10 @@ HTML = r"""
     }
   }
 
+  let pendingProductDetailsRequestId = 0;
+
   async function onSelectPendingProduct(pageId) {
+    const requestId = ++pendingProductDetailsRequestId;
     clearImageState();
     if (!pageId) {
       document.getElementById("productPageId").value = "";
@@ -3105,17 +3108,32 @@ HTML = r"""
       document.getElementById("productPrice").value = "";
       document.getElementById("productClassification").value = "";
       document.getElementById("productVariants").value = "";
+      const driveInput = document.getElementById("shopeeSyncDriveUrl");
+      if (driveInput) driveInput.value = "";
+      localStorage.removeItem("shopee_sync_drive_url");
       return;
     }
+
+    // Ghi nhận lựa chọn ngay khi click để nút Đồng bộ không dùng page_id cũ.
+    document.getElementById("productPageId").value = pageId;
 
     setStatus("analyze-status", "Đang tải thông tin sản phẩm từ Notion...", "muted");
     try {
       const details = await api(`/api/shopee/product/details?page_id=${pageId}`);
+      const selectedPageId = document.getElementById("shopeePendingProducts")?.value || "";
+      if (requestId !== pendingProductDetailsRequestId || selectedPageId !== pageId) {
+        return;
+      }
       document.getElementById("productPageId").value = details.id || "";
       document.getElementById("productNameInput").value = details.title || "";
       document.getElementById("productPrice").value = details.price || "";
       document.getElementById("productClassification").value = details.classification || "";
       document.getElementById("productVariants").value = details.variants || "";
+      const driveInput = document.getElementById("shopeeSyncDriveUrl");
+      if (driveInput) {
+        driveInput.value = details.selected_folder_path || "";
+        localStorage.setItem("shopee_sync_drive_url", driveInput.value);
+      }
 
       // Cập nhật state.product và nhãn màu đỏ ở bảng review
       state.product = {
@@ -3130,6 +3148,7 @@ HTML = r"""
 
       setStatus("analyze-status", "Đã tải xong thông tin từ Notion.", "is-success");
     } catch(e) {
+      if (requestId !== pendingProductDetailsRequestId) return;
       console.error("Lỗi tải chi tiết sản phẩm:", e);
       setStatus("analyze-status", "Lỗi tải thông tin sản phẩm: " + (e.error || e.message || JSON.stringify(e)), "is-error");
     }
@@ -3925,9 +3944,16 @@ HTML = r"""
     startPoll();
 
     const driveUrl = document.getElementById("shopeeSyncDriveUrl") ? document.getElementById("shopeeSyncDriveUrl").value.trim() : "";
+    const selectedPageId = document.getElementById("productPageId")?.value.trim()
+      || document.getElementById("shopeePendingProducts")?.value.trim()
+      || "";
+    if (!selectedPageId) {
+      alert("Vui lòng chọn đúng sản phẩm cần xuất Excel trước khi đồng bộ.");
+      return;
+    }
 
     try {
-      const d = await api("/api/shopee/sync/run", { drive_url: driveUrl });
+      const d = await api("/api/shopee/sync/run", { drive_url: driveUrl, page_id: selectedPageId });
       log({step: "shopee_sync", message: d.message});
     } catch(e) {
       log({step: "shopee_sync", message: "Lỗi đồng bộ: " + (e.error || e.message || JSON.stringify(e))});
@@ -3941,9 +3967,14 @@ HTML = r"""
     startPoll();
 
     const driveUrl = document.getElementById("shopeeSyncDriveUrl") ? document.getElementById("shopeeSyncDriveUrl").value.trim() : "";
+    const selectedPageId = document.getElementById("productPageId")?.value.trim() || "";
+    if (!selectedPageId) {
+      alert("Vui lòng chọn đúng sản phẩm cần sửa link hình trước khi đồng bộ.");
+      return;
+    }
 
     try {
-      const d = await api("/api/shopee/sync/links", { drive_url: driveUrl });
+      const d = await api("/api/shopee/sync/links", { drive_url: driveUrl, page_id: selectedPageId });
       log({step: "shopee_sync", message: d.message});
     } catch(e) {
       log({step: "shopee_sync", message: "Lỗi đồng bộ link hình: " + (e.error || e.message || JSON.stringify(e))});
@@ -9373,14 +9404,21 @@ def api_sync_shopee_links():
 
         payload = request.json or {}
         drive_url = payload.get("drive_url", "").strip()
+        page_id = payload.get("page_id", "").strip()
+        if not page_id:
+            return jsonify({"success": False, "error": "Thiếu sản phẩm cần đồng bộ link hình."}), 400
 
         shopee_sync_active = True
         add_event({"step": "shopee_sync", "message": "Khởi chạy tiến trình đồng bộ link hình lên Notion..."})
 
-        def run_links_wrapper(override_url):
+        def run_links_wrapper(override_url, selected_page_id):
             global shopee_sync_active
             try:
-                updated = notion_sync.sync_only_image_links_to_notion(override_drive_url=override_url)
+                updated = notion_sync.sync_only_image_links_to_notion(
+                    override_drive_url=override_url,
+                    target_page_id=selected_page_id,
+                    replace_existing=True,
+                )
                 if not updated:
                     add_event({
                         "step": "shopee_sync",
@@ -9396,7 +9434,7 @@ def api_sync_shopee_links():
             finally:
                 shopee_sync_active = False
 
-        shopee_sync_thread = threading.Thread(target=run_links_wrapper, args=(drive_url,), daemon=True)
+        shopee_sync_thread = threading.Thread(target=run_links_wrapper, args=(drive_url, page_id), daemon=True)
         shopee_sync_thread.start()
 
         return jsonify({"success": True, "message": "Tiến trình đồng bộ link hình Notion đã bắt đầu chạy ngầm."})
@@ -9417,6 +9455,9 @@ def api_run_shopee_sync():
 
         payload = request.json or {}
         drive_url = payload.get("drive_url", "").strip()
+        page_id = payload.get("page_id", "").strip()
+        if not page_id:
+            return jsonify({"success": False, "error": "Thiếu sản phẩm cần đồng bộ. Vui lòng chọn lại sản phẩm."}), 400
 
         # Thiết lập thư mục export Downloads
         config = load_config()
@@ -9429,10 +9470,13 @@ def api_run_shopee_sync():
         shopee_sync_active = True
         add_event({"step": "shopee_sync", "message": "Bắt đầu tiến trình đồng bộ Notion -> BigSeller thủ công..."})
 
-        def run_sync_wrapper(override_url):
+        def run_sync_wrapper(override_url, selected_page_id):
             global shopee_sync_active
             try:
-                excel_path, titles = notion_sync.sync_notion_to_bigseller_excel(override_drive_url=override_url)
+                excel_path, titles = notion_sync.sync_notion_to_bigseller_excel(
+                    override_drive_url=override_url,
+                    target_page_id=selected_page_id,
+                )
                 if not titles:
                     add_event({
                         "step": "shopee_sync",
@@ -9448,7 +9492,7 @@ def api_run_shopee_sync():
             finally:
                 shopee_sync_active = False
 
-        shopee_sync_thread = threading.Thread(target=run_sync_wrapper, args=(drive_url,), daemon=True)
+        shopee_sync_thread = threading.Thread(target=run_sync_wrapper, args=(drive_url, page_id), daemon=True)
         shopee_sync_thread.start()
 
         return jsonify({"success": True, "message": "Tiến trình đồng bộ Notion đã bắt đầu chạy ngầm."})
@@ -10333,24 +10377,24 @@ def api_get_product_details():
 
         # Tự động đồng bộ selected_drive_folder trong config.json sang thư mục của sản phẩm này
         matched_folder_name = ""
+        matched_folder_path = ""
         try:
             root = validate_drive_root(drive_root())
             if root and root.exists():
                 try:
-                    from shopee_sync.src import convert_zicum
+                    from shopee_sync.src.notion_sync import find_local_product_folder
                 except ImportError:
-                    from src import convert_zicum
-                target_clean = convert_zicum.clean_name(title)
-                for item in root.iterdir():
-                    if item.is_dir() and convert_zicum.clean_name(item.name) == target_clean:
-                        matched_folder_name = item.name
-                        break
+                    from src.notion_sync import find_local_product_folder
+                matched_folder = find_local_product_folder(root, title)
+                if matched_folder:
+                    matched_folder_name = matched_folder.name
                 if not matched_folder_name and title:
                     new_f = root / title
                     new_f.mkdir(parents=True, exist_ok=True)
                     matched_folder_name = new_f.name
                     
                 if matched_folder_name:
+                    matched_folder_path = str(root / matched_folder_name)
                     cfg = load_config()
                     if "paths" not in cfg:
                         cfg["paths"] = {}
@@ -10365,7 +10409,8 @@ def api_get_product_details():
             "price": price,
             "classification": classification,
             "variants": variants,
-            "selected_folder": matched_folder_name
+            "selected_folder": matched_folder_name,
+            "selected_folder_path": matched_folder_path
         })
     except Exception as exc:
         return error_response(exc, 500)

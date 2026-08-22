@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.51`
+> **Phiên bản hiện tại:** `v2.2.52`
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -211,7 +211,7 @@ python -m py_compile web_app.py
 ### Bước 2: Nâng Version
 Mở file `web_app.py` và cập nhật phiên bản ở dòng 43:
 ```python
-CURRENT_VERSION = "v2.2.51"  # Tăng số phiên bản tương ứng
+CURRENT_VERSION = "v2.2.52"  # Tăng số phiên bản tương ứng
 ```
 
 ### Bước 3: Commit và Tạo Git Tag
@@ -219,8 +219,8 @@ CURRENT_VERSION = "v2.2.51"  # Tăng số phiên bản tương ứng
 git add .
 git commit -m "feat(tên-tính-năng): mô tả ngắn gọn thay đổi"
 git push origin main
-git tag v2.2.51
-git push origin v2.2.51
+git tag v2.2.52
+git push origin v2.2.52
 ```
 
 ### Bước 4: Kiểm tra trạng thái Build trên GitHub Actions
