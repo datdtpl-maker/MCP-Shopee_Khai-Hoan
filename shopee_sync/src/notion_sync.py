@@ -992,8 +992,11 @@ def sync_notion_to_bigseller_excel(
                     matched_folder.mkdir(parents=True, exist_ok=True)
                     
                 prod_excel_path = matched_folder / f"bigseller_sync_{timestamp}.xlsx"
-                shutil.copy2(excel_output_path, prod_excel_path)
-                logger.info(f"📁 Đã lưu bản sao file Excel vào thư mục chính của sản phẩm: {prod_excel_path}")
+                if excel_output_path.resolve() == prod_excel_path.resolve():
+                    logger.info(f"📁 File Excel đã được xuất đúng thư mục chính của sản phẩm: {prod_excel_path}")
+                else:
+                    shutil.copy2(excel_output_path, prod_excel_path)
+                    logger.info(f"📁 Đã lưu bản sao file Excel vào thư mục chính của sản phẩm: {prod_excel_path}")
     except Exception as drive_cp_err:
         logger.warning(f"Không thể sao chép file Excel vào thư mục Drive cục bộ: {drive_cp_err}")
     

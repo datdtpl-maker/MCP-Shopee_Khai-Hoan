@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -34,6 +35,42 @@ def make_page(page_id, title, insight_count=5, media_url=""):
 
 
 class ShopeeSyncProductTargetTest(unittest.TestCase):
+    def test_sync_endpoint_uses_selected_local_product_folder_not_stale_export_dir(self):
+        selected_folder = r"G:\My Drive\Hình ảnh Shopee\Clinoper – Clindamycin + Benzoyl Peroxide"
+        stale_folder = r"G:\My Drive\Hình ảnh Shopee\Aldocont B Gel 15g"
+        captured = {}
+
+        class ImmediateThread:
+            def __init__(self, target, args=(), **_kwargs):
+                self.target = target
+                self.args = args
+
+            def start(self):
+                self.target(*self.args)
+
+        def fake_sync(**_kwargs):
+            captured["export_dir"] = os.environ.get("BIGSELLER_EXPORT_DIR")
+            return str(Path(selected_folder) / "bigseller_sync_test.xlsx"), ["Clinoper"]
+
+        config = {
+            "paths": {"drive_root_dir": r"G:\My Drive\Hình ảnh Shopee"},
+            "openai": {"export_dir": stale_folder},
+        }
+        with (
+            patch.object(web_app, "shopee_sync_active", False),
+            patch.object(web_app, "load_config", return_value=config),
+            patch.object(web_app.threading, "Thread", ImmediateThread),
+            patch.object(notion_sync, "sync_notion_to_bigseller_excel", side_effect=fake_sync),
+            patch.dict(os.environ, {}, clear=False),
+        ):
+            response = web_app.app.test_client().post(
+                "/api/shopee/sync/run",
+                json={"drive_url": selected_folder, "page_id": "clinoper-page"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(captured["export_dir"], selected_folder)
+
     def test_insight_folders_are_mapped_by_their_number(self):
         insights = [
             {"insight_name": f"Góc nội dung {index}", "page_id": f"page-{index}"}

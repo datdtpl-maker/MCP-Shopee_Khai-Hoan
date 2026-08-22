@@ -9061,6 +9061,36 @@ shopee_bot_thread = None
 shopee_sync_thread = None
 shopee_sync_active = False
 
+
+def resolve_shopee_sync_export_dir(config: dict, selected_drive_path: str) -> str:
+    """Chọn nơi xuất theo sản phẩm hiện tại, không tái dùng thư mục sản phẩm cũ."""
+    drive_root_value = str(config.get("paths", {}).get("drive_root_dir", "")).strip()
+    selected_value = str(selected_drive_path or "").strip()
+
+    if drive_root_value and selected_value and "drive.google.com" not in selected_value.lower():
+        try:
+            drive_root_path = Path(drive_root_value).resolve()
+            selected_path = Path(selected_value).resolve()
+            if selected_path != drive_root_path and selected_path.is_relative_to(drive_root_path):
+                return str(selected_path)
+        except (OSError, ValueError):
+            pass
+
+    saved_export_dir = str(config.get("openai", {}).get("export_dir", "")).strip()
+    if saved_export_dir:
+        try:
+            saved_path = Path(saved_export_dir).resolve()
+            if drive_root_value:
+                drive_root_path = Path(drive_root_value).resolve()
+                # Một thư mục con của Drive là lựa chọn sản phẩm cũ, không phải fallback chung.
+                if saved_path != drive_root_path and saved_path.is_relative_to(drive_root_path):
+                    return str(Path.home() / "Downloads")
+            return str(saved_path)
+        except (OSError, ValueError):
+            pass
+
+    return str(Path.home() / "Downloads")
+
 @app.get("/api/shopee/config")
 def api_get_shopee_config():
     try:
@@ -9459,11 +9489,9 @@ def api_run_shopee_sync():
         if not page_id:
             return jsonify({"success": False, "error": "Thiếu sản phẩm cần đồng bộ. Vui lòng chọn lại sản phẩm."}), 400
 
-        # Thiết lập thư mục export Downloads
+        # Thư mục sản phẩm đang chọn phải thắng export_dir đã lưu từ lần chạy trước.
         config = load_config()
-        export_dir = config.get("openai", {}).get("export_dir", "").strip()
-        if not export_dir:
-            export_dir = str(Path.home() / "Downloads")
+        export_dir = resolve_shopee_sync_export_dir(config, drive_url)
 
         os.environ["BIGSELLER_EXPORT_DIR"] = export_dir
 
