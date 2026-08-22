@@ -3,7 +3,8 @@
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
 > **Phiên bản hiện tại:** `v2.2.46`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
-> **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`
+> **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
+> **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
 
 ---
 
@@ -12,20 +13,29 @@
 **MCP Shopee Khải Hoàn** là một ứng dụng Desktop & Web App toàn diện được thiết kế chuyên biệt cho hệ thống Dược Mỹ Phẩm **Khai Hoàn Skincare & Khai Hoàn Derma**. Hệ thống kết nối chuỗi quy trình bán hàng tự động khép kín:
 
 ```mermaid
-graph LR
-    A[Pixel 4/6 Chụp & Quay] -->|Tự động đồng bộ| B[Google Drive]
-    B --> C[Phân tích Vision & Gemini 3.7 Flash]
-    C -->|Sinh 5 Insight & Tiêu đề| D[Review & Sửa 5 Bài Viết]
-    D -->|Ghi nhận| E[Notion Database]
-    E -->|Telegram Bot duyệt bài| E
-    E -->|Đồng bộ & Xuất Excel| F[BigSeller Shopee]
-```
+graph TD
+    subgraph "1. SẢN XUẤT MEDIA"
+        A[Điện thoại Google Pixel 4/6] -->|ADB tự động kéo file| B[Google Drive Cục Bộ G:\My Drive\Hình ảnh Shopee\]
+    end
 
-### Các trục tính năng cốt lõi:
-1. **Chụp & Quay Pixel Drive Capture**: Tự động hóa kết nối điện thoại Google Pixel qua ADB, chụp ảnh/quay video và tự động kéo về lưu trữ phân loại trên Google Drive.
-2. **AI Vision & Gemini 3.7 Flash Copywriting**: Đọc nhãn mác sản phẩm, trích xuất thông tin, tạo 5 góc bán hàng (Insight), viết trọn vẹn 5 bài viết chuẩn Shopee và cho phép người dùng xem/chỉnh sửa trực tiếp trước khi lưu.
-3. **Notion & Telegram Workflow**: Lưu trữ phân cấp Sản phẩm (Parent) ➔ 5 Insight (Children), quản lý trạng thái duyệt bài qua Telegram Bot.
-4. **Đồng bộ BigSeller Shopee**: Trích xuất dữ liệu bài viết đã duyệt trên Notion, đóng gói thành file Excel template chuẩn BigSeller theo đúng từng sản phẩm và lưu trữ trực tiếp vào thư mục Google Drive của sản phẩm đó.
+    subgraph "2. AI CONTENT & VISION"
+        B -->|Quét ảnh sản phẩm| C[Gemini 3.7 Flash Vision]
+        C -->|Sinh 5 Insight & Tiêu đề| D[Bảng Review Insight]
+        D -->|Xem trước & Chỉnh sửa| E[Modal 5 Tabs Chi Tiết]
+    end
+
+    subgraph "3. NOTION & TELEGRAM BOT"
+        E -->|Ghi nhận| F[(Notion Parent DB: Sản phẩm)]
+        E -->|Tạo 5 trang con| G[(Notion Child DB: 5 Shopee Posts)]
+        G <-->|Duyệt bài từ xa| H[Telegram Bot Quản Lý]
+    end
+
+    subgraph "4. ĐỒNG BỘ BIGSELLER"
+        G -->|Đồng bộ & Đóng gói| I[File Excel Chuẩn BigSeller]
+        I -->|Lưu tự động| B
+        I -->|Upload thủ công / API| J[Sàn TMĐT Shopee]
+    end
+```
 
 ---
 
@@ -34,7 +44,7 @@ graph LR
 ```text
 D:\Project Anti\MCP Shopee\
 ├── web_app.py                     # [CORE] Backend Flask + Giao diện Web MD3 + Toàn bộ API Endpoints
-├── pipeline.py                    # Module điều khiển ADB cho Google Pixel (Chụp/Quay/Sync)
+├── pipeline.py                    # Module điều khiển ADB cho Google Pixel (Chụp/Quay/Sync ngầm)
 ├── config.json                    # Cấu hình cài đặt cục bộ của ứng dụng desktop
 ├── .env                           # File biến môi trường (Notion, Telegram, Gemini API Key)
 ├── handoff.md                     # Tài liệu bàn giao chi tiết cho Codex
@@ -54,119 +64,155 @@ D:\Project Anti\MCP Shopee\
 
 ---
 
-## 🧠 3. LOGIC HOẠT ĐỘNG & CÁC LUỒNG XỬ LÝ CHÍNH
+## 🗄️ 3. CẤU TRÚC DATABASE NOTION & QUAN HỆ DỮ LIỆU
 
-### A. Luồng Quản Lý Cấu Hình (Notion, Telegram, Gemini API Key)
-* **File lưu trữ**: `D:\Project Anti\MCP Shopee\shopee_sync\.env` và `D:\Project Anti\MCP Shopee\.env`.
-* **Bộ parser cấu hình (`parseConfigFileText` trong `web_app.py`)**:
-  * Hỗ trợ đọc cả file `.env` chuẩn (`KEY=VALUE`) và file Notepad++ tiếng Việt (`đồng bộ shopee.txt`).
-  * Tự động nhận diện các khóa: `NOTION_TOKEN`, `NOTION_DATABASE_ID`, `TELEGRAM_BOT_TOKEN`, `MANAGER_CHAT_ID`, `GEMINI_API_KEY`, `DRIVE_ROOT_FOLDER_ID`.
-* **Cơ chế xác thực Gemini API Key (`/api/shopee/config/test-gemini`)**:
-  * Gọi Google API `ListModels` (`https://generativelanguage.googleapis.com/v1beta/models?key=...`) để xác thực tính hợp lệ của key.
-  * Tự động lọc và kiểm tra các dòng **Gemini Flash thế hệ mới**: `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-2.0-flash`.
-  * Tuyệt đối không gọi các model Pro cũ hoặc model bị ngưng hỗ trợ như `gemini-2.5-flash` để tránh lỗi 400.
+Hệ thống hoạt động dựa trên mô hình **Parent - Child Relation** giữa 2 cơ sở dữ liệu Notion:
 
----
+```mermaid
+erDiagram
+    SAN_PHAM_CHA ||--|{ SHOPEE_POST_CON : "chứa 5 bài viết"
+    
+    SAN_PHAM_CHA {
+        string Ten_san_pham "Title (Tên sản phẩm)"
+        rich_text Bien_the_va_gia "Biến thể & giá"
+        multi_select Bien_the "Biến thể phân loại"
+        select Trang_thai "Content đang làm / Chờ đăng / Đã đăng"
+        url Media_san_pham "Link Google Drive thư mục sản phẩm"
+    }
 
-### B. Luồng Phân Tích Hình Ảnh & Sinh 5 Insight (`/api/analyze-product`)
-1. Người dùng chọn ảnh hoặc dán link Google Drive của sản phẩm.
-2. Hệ thống gọi **Gemini 3.7 Flash Vision** để quét:
-   * Tên sản phẩm, giá bán, phân loại dung tích/màu sắc, biến thể, thành phần và công dụng thực tế.
-3. Sinh ra danh sách **5 góc tiếp cận (Insight)** khác nhau:
-   * *Góc 1: Giải quyết nhanh triệu chứng cốt lõi (Vd: Giảm sưng đỏ cấp tốc).*
-   * *Góc 2: Phân tích hoạt chất / cơ chế tác động kép.*
-   * *Góc 3: Cơ chế gom cồi / phục hồi không để lại thâm sẹo.*
-   * *Góc 4: Thiết kế tiện lợi / trải nghiệm sử dụng hàng ngày.*
-   * *Góc 5: Hướng dẫn kết hợp chu trình skincare an toàn.*
-4. Hiển thị 5 dòng lên **Bảng Review Insight** để người dùng xem và chỉnh sửa từ khóa/tiêu đề.
+    SHOPEE_POST_CON {
+        string Ten_post_Shopee "Title (Tiêu đề SEO của từng bài)"
+        rich_text Angle "Góc tiếp cận bán hàng"
+        rich_text Insight "Điểm nhấn nội dung cốt lõi"
+        rich_text Tu_khoa "Từ khóa chính cho insight"
+        number Thu_tu "Thứ tự (1 - 5)"
+        relation San_pham_Shopee "Liên kết về trang Sản phẩm cha"
+        select Trang_thai_duyet "Chờ duyệt / Đã duyệt / Cần sửa"
+        select Trang_thai_tao_hinh "Chờ tạo hình / Đã tạo hình"
+        select Format "Shopee Post"
+        url Link_hinh "Link Google Drive thư mục con của Insight"
+    }
+```
 
----
-
-### C. Luồng Xem & Chỉnh Sửa Chi Tiết 5 Bài Viết AI (Modal 5 Tabs)
-* **Nút kích hoạt**: `📝 Xem & Chỉnh sửa bài viết AI` (nằm cạnh nút *Ghi nhận vào Notion*).
-* **API hỗ trợ**:
-  * `/api/insight/generate-all-posts`: Tự động gọi Gemini 3.7 Flash sinh đầy đủ 5 bài viết chi tiết nếu chưa sinh.
-  * `/api/insight/generate-single-post`: Cho phép bấm nút `✨ Viết lại bài này bằng Gemini AI` để sinh lại riêng bài đang chọn.
-* **Giao diện Modal 5 Tabs (`fullPostsModal`)**:
-  * Cho phép người dùng chuyển qua lại giữa 5 tab (`[Bài #1]` đến `[Bài #5]`).
-  * Người dùng có thể đọc và sửa trực tiếp từng trường:
-    * `postTitle`: Tiêu đề chuẩn SEO Shopee.
-    * `angle`: Góc bán hàng nổi bật.
-    * `description`: Đoạn văn mô tả chân thật, giàu cảm xúc bán hàng.
-    * `ingredients`: Danh sách thành phần (1 dòng / hoạt chất).
-    * `benefits`: Danh sách công dụng hỗ trợ (1 dòng / công dụng).
-    * `target_users`: Đối tượng sử dụng bám sát tình trạng da thực tế.
-    * `usage` & `notes`: Hướng dẫn sử dụng & lưu ý an toàn y khoa.
-    * `hashtags`: Bộ hashtag bán hàng thực tế.
-  * Bấm `💾 Lưu thay đổi bài viết` để ghi đè vào state client (`state.insights[i].full_post`).
+### Thông số Database ID:
+* **Database Sản phẩm Cha (`NOTION_DATABASE_ID`)**: `ca055a7742824b9598abde7a7686d144`
+* **Database Shopee Posts Con (`insight_database_id`)**: `88159c90-46fb-426d-b3c9-a0d79358e76c`
 
 ---
 
-### D. Bộ Quy Tắc Prompt Copywriter Shopee (`generate_single_post_body`)
-* **Vai trò AI**: Dược sĩ / Chuyên viên tư vấn da liễu Khai Hoàn Skincare & Derma.
-* **Quy tắc giọng văn**:
-  * ❌ Cấm câu văn máy móc: *"là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội"*, *"đáp ứng nỗi đau của khách hàng ở góc bán hàng"*, *"chuẩn SEO Shopee"*.
-  * ❌ Cấm mặc định câu: *"Người lớn và trẻ em từ 6 tuổi trở lên cần chăm sóc chuyên sâu"* cho mọi sản phẩm.
-  * ❌ Cấm từ khẳng định y khoa chữa bệnh trên Shopee: *"đặc trị", "trị mụn", "điều trị", "dứt điểm", "chữa khỏi", "thuốc"*.
-  * ✅ Dùng từ an toàn E-commerce: *"hỗ trợ giảm", "giúp làm dịu sưng đỏ", "hỗ trợ gom cồi", "chăm sóc da mụn", "giúp da thông thoáng"*.
-  * ✅ Hashtags thực tế: `#{ten_san_pham_khong_dau}`, `#gelchammun`, `#gomcoimun`, `#khaihoanskincare`, `#khaihoanderma`, `#myphamchinhhang` (loại bỏ hoàn toàn `#ShopeeSEO`, `#DuocMyPham`).
+## 📁 4. CẤU TRÚC THƯ MỤC GOOGLE DRIVE CỦA SẢN PHẨM
+
+* **Đường dẫn thư mục gốc Drive local**: `G:\My Drive\Hình ảnh Shopee\`
+* **ID thư mục gốc trên Drive (`DRIVE_ROOT_FOLDER_ID`)**: `1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ`
+* **Quy tắc tổ chức thư mục cho mỗi sản phẩm**:
+  ```text
+  G:\My Drive\Hình ảnh Shopee\<Tên Sản Phẩm>\
+  ├── Insight 1 - <Tên Angle 1>\        # Chứa ảnh/video chụp cho Insight 1
+  ├── Insight 2 - <Tên Angle 2>\        # Chứa ảnh/video chụp cho Insight 2
+  ├── Insight 3 - <Tên Angle 3>\        # Chứa ảnh/video chụp cho Insight 3
+  ├── Insight 4 - <Tên Angle 4>\        # Chứa ảnh/video chụp cho Insight 4
+  ├── Insight 5 - <Tên Angle 5>\        # Chứa ảnh/video chụp cho Insight 5
+  ├── insights_data.json                # Lưu toàn bộ thông tin 5 Insight để Tab AI Edit đọc
+  └── bigseller_sync_<timestamp>.xlsx   # File Excel xuất riêng cho sản phẩm này
+  ```
 
 ---
 
-### E. Luồng Ghi Nhận Lên Notion (`/api/review-save`)
-1. Kiểm tra hoặc tạo trang **Sản phẩm cha (Parent Page)** trong Database Sản phẩm (`NOTION_DATABASE_ID`).
-2. Tự động tìm kiếm hoặc liên kết với thư mục sản phẩm trên Google Drive:
-   * Thư mục gốc Drive: `1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ` (hoặc cấu hình `DRIVE_ROOT_FOLDER_ID`).
-3. Lặp qua 5 Insight con:
-   * Sử dụng trực tiếp `full_post` đã được người dùng chỉnh sửa trong Modal (nếu chưa mở modal thì tự động sinh).
-   * Tạo trang con trong Database Insight (`88159c90-46fb-426d-b3c9-a0d79358e76c`) liên kết Relation về trang cha.
-   * Tạo các block nội dung: Callout giới thiệu, Heading 2 phân mục, Bulleted list items cho thành phần, công dụng, đối tượng, lưu ý và đoạn Hashtags.
-4. Tự động xuất file `insights_data.json` trực tiếp vào thư mục sản phẩm trên máy (`G:\My Drive\Hình ảnh Shopee\<Tên sản phẩm>\insights_data.json`).
+## 🧠 5. LOGIC HOẠT ĐỘNG CỦA CÁC TAB CHỨC NĂNG
+
+### TAB 1: CHỤP & QUAY (PIXEL DRIVE CAPTURE)
+* **Kết nối ADB**: Tự động nhận diện thiết bị Google Pixel qua cáp USB hoặc Wi-Fi.
+* **Điều khiển từ xa**: Gửi lệnh chụp ảnh, quay video từ giao diện Web App.
+* **Auto-Watcher ngầm (`media_watcher_loop`)**:
+  * Tự động quét thư mục máy ảnh trên Pixel `/sdcard/DCIM/Camera`.
+  * Đợi file ổn định kích thước ➔ Tự động `adb pull` về máy ➔ Copy vào thư mục Drive của sản phẩm đang chọn ➔ Xóa file trên Pixel để tránh đầy bộ nhớ.
+* **Quản lý Prompt mẫu**: Cho phép thêm/sửa/xóa danh mục và prompt cho studio chụp ảnh.
 
 ---
 
-### F. Luồng Đồng Bộ Sang BigSeller & Xuất File Excel
-1. **Lọc dữ liệu chính xác**: Chỉ đồng bộ đúng 5 Insight thuộc về sản phẩm được chọn, không dính sản phẩm khác, không ghi đè dữ liệu cũ.
-2. **Tự động lưu file Excel**:
-   * Khi bấm **"Đồng bộ ngay"**, hệ thống sinh file `bigseller_sync_<YYYYMMDD_HHMMSS>.xlsx`.
-   * Tự động copy file Excel này vào đúng thư mục của sản phẩm:  
-     `G:\My Drive\Hình ảnh Shopee\<Tên sản phẩm>\bigseller_sync_<timestamp>.xlsx`.
-3. **Trạng thái**:
-   * Sản phẩm đang làm chuyển trạng thái: `Chờ đăng`.
-   * Khi người dùng tự lấy file Excel đăng lên Shopee xong sẽ tự chuyển thành `Đã đăng`.
+### TAB 2: ĐỒNG BỘ SHOPEE (SHOPEE NOTION - BIGSELLER & AI CONTENT)
+
+#### 1. Bộ nạp & kiểm tra cấu hình:
+* Hỗ trợ **📂 Nhập file `.txt`**, **📋 Dán nội dung** (file `đồng bộ shopee.txt` hoặc `.env`), **📥 Xuất file `.txt`**.
+* Nút **`Kiểm tra Key`**: Gọi trực tiếp Google `ListModels` API và gửi prompt test đến **Gemini 3.7 Flash**.
+
+#### 2. Phân tích ảnh & Sinh 5 Insight (`Gemini 3.7 Flash Vision`):
+* Quét ảnh chụp hoặc link Drive của sản phẩm ➔ Tự động điền Tên sản phẩm, Giá, Biến thể, Phân loại ➔ Tự động tạo 5 góc bán hàng (Angle) và tiêu đề bài viết.
+
+#### 3. Modal Xem & Chỉnh sửa chi tiết 5 Bài viết AI (`fullPostsModal`):
+* Cung cấp **5 Tab** tương ứng với 5 bài viết con.
+* Người dùng có thể đọc và sửa trực tiếp:
+  * **Tiêu đề Shopee (`postTitle`)**
+  * **Góc tiếp cận / Angle (`angle`)**
+  * **Mô tả sản phẩm chi tiết (`description`)**
+  * **Thành phần nổi bật (`ingredients` - mỗi hoạt chất 1 dòng)**
+  * **Công dụng hỗ trợ (`benefits` - mỗi công dụng 1 dòng)**
+  * **Đối tượng sử dụng (`target_users` - bám sát tình trạng da)**
+  * **Cách dùng (`usage`) & Lưu ý an toàn (`notes`)**
+  * **Hashtags Shopee thực tế (`hashtags`)**
+* Nút **`✨ Viết lại bài này bằng Gemini AI`** để tạo lại riêng bài đang xem.
+* Bấm **`💾 Lưu thay đổi bài viết`** để lưu vào bộ nhớ client.
+
+#### 4. Ghi nhận vào Notion (`/api/review-save`):
+* Tạo hoặc cập nhật trang Cha trên Database Sản phẩm.
+* Tạo 5 trang Con trên Database Insight với 100% nội dung đã xem/sửa từ Modal.
+* Tự động tạo file `insights_data.json` trong thư mục Drive của sản phẩm.
+
+#### 5. Đồng bộ sang BigSeller & Xuất Excel (`notion_sync.py`):
+* Chỉ xuất đúng 5 Insight của sản phẩm được chọn (không dính sản phẩm khác, không ghi đè sản phẩm cũ).
+* Tự động chuyển trạng thái sản phẩm sang **"Chờ đăng"**.
+* Tự động lưu bản sao file Excel vào thư mục Drive của sản phẩm.
 
 ---
 
-## ⚙️ 4. BẢNG BIẾN MÔI TRƯỜNG & THÔNG SỐ KỸ THUẬT
+### TAB 3: AI EDIT / VIDEO (POSTER & VIDEO CREATOR)
+* Tự động quét các thư mục sản phẩm trên Google Drive.
+* Đọc trực tiếp dữ liệu từ file `insights_data.json` của sản phẩm đó để tạo poster, banner 1:1, ảnh bìa và video ngắn cho Shopee.
 
-| Tên biến | Mô tả | Định dạng ví dụ |
+---
+
+## 🛡️ 6. BỘ QUY TẮC PROMPT COPYWRITER SHOPEE KHẢI HOÀN
+
+Hàm `generate_single_post_body` (trong `web_app.py`) tuân thủ nghiêm ngặt các quy tắc:
+1. **Giọng văn Dược sĩ / Chuyên viên tư vấn da liễu Khai Hoàn**: Đi thẳng vào công dụng, cảm giác êm dịu, tư vấn tận tâm.
+2. **Cấm câu văn máy móc rập khuôn**: Tuyệt đối không dùng cụm từ *"là giải pháp chăm sóc sức khỏe và làm đẹp vượt trội"*, *"đáp ứng nỗi đau của khách hàng ở góc bán hàng"*, *"chuẩn SEO Shopee"*.
+3. **Đối tượng sử dụng chính xác**: Tuyệt đối không mặc định *"Người lớn và trẻ em 6 tuổi"*. Phân loại chính xác theo bản chất: da mụn sưng viêm, da dầu nhờn, da khô nứt nẻ, phục hồi sau treatment...
+4. **Tuân thủ an toàn từ ngữ y khoa Shopee**:
+   * ❌ Cấm từ khẳng định chữa bệnh: *"đặc trị", "trị mụn", "điều trị", "dứt điểm", "chữa khỏi", "thuốc"*.
+   * ✅ Thay bằng từ E-commerce an toàn: *"hỗ trợ giảm mụn", "giúp làm dịu sưng đỏ", "hỗ trợ gom cồi", "chăm sóc da mụn", "giúp thông thoáng da"*.
+5. **Hashtags thực tế**: Tên sản phẩm viết liền không dấu `#{ten_san_pham}`, công dụng tìm kiếm `#gelchammun #giammunviem #gomcoimun #chamsocdamun`, thương hiệu `#khaihoanskincare #khaihoanderma #myphamchinhhang` (không dùng `#ShopeeSEO`, `#DuocMyPham`).
+
+---
+
+## ⚙️ 7. BẢNG BIẾN MÔI TRƯỜNG CẤU HÌNH
+
+| Tên biến | Ý nghĩa | Ví dụ giá trị |
 | :--- | :--- | :--- |
-| `NOTION_TOKEN` | Mã bí mật Notion Integration | `ntn_...` hoặc `secret_...` |
-| `NOTION_DATABASE_ID` | Database ID quản lý Sản phẩm | `ca055a7742824b9598abde7a7686d144` |
-| `TELEGRAM_BOT_TOKEN` | Token điều khiển Telegram Bot | `123456789:ABCdef...` |
-| `MANAGER_CHAT_ID` | Chat ID của quản lý nhận thông báo duyệt | `6295080195` |
-| `GEMINI_API_KEY` | API Key của Google Gemini AI Studio | `AIzaSy...` (hoặc `sk-...` nếu dùng OpenAI) |
-| `DRIVE_ROOT_FOLDER_ID` | ID thư mục gốc `Hình ảnh Shopee` trên Google Drive | `1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ` |
+| `NOTION_TOKEN` | Token bí mật kết nối Notion API | `ntn_...` hoặc `secret_...` |
+| `NOTION_DATABASE_ID` | Database ID Sản phẩm Cha | `ca055a7742824b9598abde7a7686d144` |
+| `TELEGRAM_BOT_TOKEN` | Token điều khiển Bot Telegram | `123456789:ABCdef...` |
+| `MANAGER_CHAT_ID` | Chat ID của Quản lý nhận thông báo duyệt | `6295080195` |
+| `GEMINI_API_KEY` | API Key Google Gemini (Mặc định Gemini 3.7 Flash) | `AIzaSy...` |
+| `DRIVE_ROOT_FOLDER_ID` | ID thư mục gốc Drive `Hình ảnh Shopee` | `1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ` |
 
 ---
 
-## 🚀 5. QUY TRÌNH NÂNG CẤP, COMMIT & BUILD APP TRÊN GITHUB
+## 🚀 8. QUY TRÌNH DEPLOY & TỰ ĐỘNG BUILD APP TRÊN GITHUB
 
-Khi Codex thực hiện xong bất kỳ tính năng hoặc sửa lỗi nào trên mã nguồn `D:\Project Anti\MCP Shopee`:
+Khi hoàn thành bất kỳ chỉnh sửa nào trên mã nguồn `D:\Project Anti\MCP Shopee`:
 
-### Bước 1: Kiểm thử cú pháp Python
+### Bước 1: Kiểm thử cú pháp
 ```powershell
 python -m py_compile web_app.py
 ```
 
-### Bước 2: Nâng Version trong mã nguồn
-Mở file `web_app.py` và cập nhật hằng số phiên bản ở khoảng dòng 43:
+### Bước 2: Nâng Version
+Mở file `web_app.py` và cập nhật phiên bản ở dòng 43:
 ```python
 CURRENT_VERSION = "v2.2.47"  # Tăng số phiên bản tương ứng
 ```
 
-### Bước 3: Commit và Tạo Git Tag để Kích Hoạt GitHub Actions
-Chạy tuần tự các lệnh sau trong PowerShell tại thư mục `D:\Project Anti\MCP Shopee`:
+### Bước 3: Commit và Tạo Git Tag
 ```powershell
 git add .
 git commit -m "feat(tên-tính-năng): mô tả ngắn gọn thay đổi"
@@ -175,31 +221,21 @@ git tag v2.2.47
 git push origin v2.2.47
 ```
 
-### Bước 4: Giám sát tiến trình Build trên GitHub Actions
-* Khi tag `v*` được đẩy lên, GitHub Actions sẽ tự động kích hoạt workflow `.github/workflows/build.yml`.
-* PyInstaller sẽ đóng gói `web_app.py` và các tài nguyên thành file `MCP_Shopee_Khai_Hoan.exe`.
-* Bản phát hành (Release) mới sẽ được tạo trên GitHub, ứng dụng của người dùng sẽ tự động phát hiện và cập nhật khi khởi động.
-* Có thể kiểm tra trạng thái build bằng lệnh:
+### Bước 4: Kiểm tra trạng thái Build trên GitHub Actions
+* Workflow `.github/workflows/build.yml` sẽ tự động đóng gói ứng dụng qua PyInstaller thành file `MCP_Shopee_Khai_Hoan.exe` và tạo bản GitHub Release.
+* Kiểm tra nhanh trạng thái build:
 ```powershell
 gh run list --limit 3
 ```
 
 ---
 
-## 🎯 6. CÁC LƯU Ý QUAN TRỌNG CHO CODEX KHI LÀM VIỆC TIẾP
+## ⚠️ 9. NGUYÊN TẮC BẤT DI BẤT DỊCH CHO CODEX
 
-1. **Quy tắc làm việc trên thư mục ổ D:**
-   * Mọi thao tác phải thực hiện trực tiếp tại `D:\Project Anti\MCP Shopee`. Không tạo hoặc lưu file rác ở ổ C.
-2. **Quy tắc Chỉnh sửa khoanh vùng (Targeted Edits):**
-   * File `web_app.py` hiện tại có hơn 10.000 dòng bao gồm toàn bộ UI HTML/CSS/JS và backend Flask. Hãy dùng công cụ thay thế khoanh vùng (`replace_file_content`), **tuyệt đối không ghi đè toàn bộ file lớn** để tránh làm mất các hàm logic khác.
-3. **Quy tắc mô hình Gemini:**
-   * Luôn đặt **`Gemini 3.7 Flash`** làm mô hình mặc định hàng đầu.
-   * Danh sách ưu tiên tiếp ứng: `gemini-3.7-flash` ➔ `gemini-3.6-flash` ➔ `gemini-3.5-flash` ➔ `gemini-2.0-flash`.
-4. **Quy tắc bảo vệ dữ liệu sản phẩm:**
-   * Khi xuất Excel hoặc ghi Notion, luôn kiểm tra chặt chẽ `product_name` và `order_num` để đảm bảo đúng 5 Insight của sản phẩm đang làm, không để xảy ra hiện tượng ghi đè hoặc trộn lẫn insight của các sản phẩm khác nhau.
-5. **Quy tắc tương tác với Người Dùng:**
-   * Luôn trình bày kế hoạch và kết quả rõ ràng bằng tiếng Việt.
-   * Giữ nguyên các thuật ngữ kỹ thuật tiếng Anh chuẩn (*caching, token, relations, payload, fallback...*).
+1. **Làm việc tại thư mục chỉ định**: Mọi thao tác mã nguồn bắt buộc diễn ra tại `D:\Project Anti\MCP Shopee`.
+2. **Chỉnh sửa khoanh vùng (Targeted Edits)**: `web_app.py` có dung lượng rất lớn. Luôn sử dụng lệnh thay thế khoanh vùng (`replace_file_content`), **tuyệt đối không ghi đè toàn bộ file** để bảo toàn các logic khác.
+3. **Mô hình AI**: Luôn đặt **`Gemini 3.7 Flash`** làm mặc định ưu tiên số 1 (kế tiếp là `Gemini 3.6 Flash`, `Gemini 3.5 Flash`, `Gemini 2.0 Flash`).
+4. **Tính nhất quán dữ liệu**: Khi xuất Excel hoặc ghi Notion, chỉ thao tác trên đúng 5 Insight của sản phẩm đang chọn, không làm ảnh hưởng đến các sản phẩm khác.
 
 ---
-*Tài liệu được lập và lưu trữ chính thức tại `D:\Project Anti\MCP Shopee\handoff.md`.*
+*Tài liệu này được lưu trữ chính thức tại `D:\Project Anti\MCP Shopee\handoff.md`.*
