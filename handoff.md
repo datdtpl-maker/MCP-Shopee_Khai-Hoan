@@ -268,4 +268,32 @@ gh run list --limit 3
    * Luôn trao đổi và giải thích ngắn gọn bằng tiếng Việt, giữ nguyên các thuật ngữ kỹ thuật tiếng Anh chuẩn (*caching, relations, payload, fallback, token...*).
 
 ---
+
+## 🌐 10. PHỤ LỤC TOÀN BỘ REST API ENDPOINTS (API CHEAT SHEET)
+
+Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong `web_app.py`:
+
+| HTTP Method | API Path | Chức năng chính |
+| :--- | :--- | :--- |
+| `GET` | `/api/shopee/config` | Lấy các thông số cấu hình kết nối từ file `.env` |
+| `POST` | `/api/shopee/config/save` | Lưu và ghi đè các giá trị cấu hình mới vào file `.env` |
+| `POST` | `/api/shopee/config/test-gemini` | Kiểm tra kết nối và xác thực model **Gemini 3.7 Flash** |
+| `GET` | `/api/shopee/products/pending` | Quét danh sách sản phẩm ở trạng thái *"Content đang làm"* từ Notion |
+| `GET` | `/api/shopee/product/details` | Lấy chi tiết thông tin và link Media Drive của một sản phẩm từ Notion |
+| `POST` | `/api/analyze-product` | Quét ảnh sản phẩm và sinh 5 Insight bằng **Gemini 3.7 Flash Vision** |
+| `POST` | `/api/rewrite-insight` | Yêu cầu AI viết lại một Insight cụ thể dựa trên comment góp ý |
+| `POST` | `/api/insight/generate-all-posts` | Sinh đầy đủ nội dung hoàn chỉnh cho cả 5 bài viết chi tiết |
+| `POST` | `/api/insight/generate-single-post` | Sinh lại riêng 1 bài viết chi tiết trong Modal 5 Tabs |
+| `POST` | `/api/review-save` | Ghi nhận sản phẩm và 5 Insight lên Notion & tạo `insights_data.json` |
+| `POST` | `/api/shopee/sync/start` | Khởi chạy tiến trình đồng bộ Notion sang BigSeller và xuất file Excel |
+| `GET` | `/api/shopee/sync/log` | Truyền luồng nhật ký log tiến trình đồng bộ thời gian thực |
+| `GET` | `/api/shopee/bot/status` | Kiểm tra trạng thái hoạt động của Telegram Bot |
+| `POST` | `/api/shopee/bot/toggle` | Bật hoặc Tắt tiến trình chạy ngầm của Telegram Bot |
+| `GET` / `POST` / `DELETE` | `/api/categories` | Quản lý danh mục prompt mẫu cho studio chụp ảnh |
+| `GET` / `POST` / `DELETE` | `/api/prompts` | Quản lý nội dung prompt mẫu cho studio chụp ảnh |
+| `POST` | `/api/camera/capture` | Gửi lệnh chụp ảnh đến điện thoại Google Pixel qua ADB |
+| `POST` | `/api/camera/record` | Gửi lệnh bắt đầu/dừng quay video đến Pixel qua ADB |
+| `GET` | `/api/drive/folders` | Quét danh sách các thư mục con trong `Hình ảnh Shopee` trên Drive |
+
+---
 *Tài liệu này được lưu trữ chính thức tại `D:\Project Anti\MCP Shopee\handoff.md`.*
