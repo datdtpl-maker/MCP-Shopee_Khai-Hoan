@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.48`
+> **Phiên bản hiện tại:** `v2.2.49`
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -140,7 +140,7 @@ erDiagram
 * Quét ảnh chụp hoặc link Drive của sản phẩm ➔ Tự động điền Tên sản phẩm, Giá, Biến thể, Phân loại ➔ Tự động tạo 5 góc bán hàng (Angle) và tiêu đề bài viết.
 
 #### 3. Modal Xem & Chỉnh sửa chi tiết 5 Bài viết AI (`fullPostsModal`):
-* Có thư viện **Prompt viết 5 bài Shopee** độc lập: chọn mẫu, nhập prompt riêng, thêm/sửa/xóa và nhập/xuất file `.txt`. Prompt mặc định giữ nguyên quy chuẩn viết bài tích hợp trong tool; dữ liệu sản phẩm và từng Insight được tự động gắn khi gọi AI.
+* Có thư viện **Prompt viết 5 bài Shopee** luôn hiển thị ngay khi mở tab: chọn mẫu, nhập prompt riêng, thêm/sửa/xóa và nhập/xuất file `.txt`. Prompt mặc định giữ nguyên quy chuẩn viết bài tích hợp trong tool; dữ liệu sản phẩm và từng Insight được tự động gắn khi gọi AI.
 * Cung cấp **5 Tab** tương ứng với 5 bài viết con.
 * Người dùng có thể đọc và sửa trực tiếp:
   * **Tiêu đề Shopee (`postTitle`)**
@@ -210,7 +210,7 @@ python -m py_compile web_app.py
 ### Bước 2: Nâng Version
 Mở file `web_app.py` và cập nhật phiên bản ở dòng 43:
 ```python
-CURRENT_VERSION = "v2.2.48"  # Tăng số phiên bản tương ứng
+CURRENT_VERSION = "v2.2.49"  # Tăng số phiên bản tương ứng
 ```
 
 ### Bước 3: Commit và Tạo Git Tag
@@ -218,8 +218,8 @@ CURRENT_VERSION = "v2.2.48"  # Tăng số phiên bản tương ứng
 git add .
 git commit -m "feat(tên-tính-năng): mô tả ngắn gọn thay đổi"
 git push origin main
-git tag v2.2.48
-git push origin v2.2.48
+git tag v2.2.49
+git push origin v2.2.49
 ```
 
 ### Bước 4: Kiểm tra trạng thái Build trên GitHub Actions

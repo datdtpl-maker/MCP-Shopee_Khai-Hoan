@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.48"
+CURRENT_VERSION = "v2.2.49"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1991,18 +1991,11 @@ HTML = r"""
               <span id="save-status" class="status muted" style="margin-top: 0; font-size: 12px; font-weight: 600;">Chưa ghi Notion</span>
             </div>
 
-            <div id="empty-state" class="empty-state" style="padding: 30px; text-align: center; color: var(--muted); font-size: 13.5px; font-weight: 500;">
-              Phân tích ảnh để sinh 5 insight, chỉnh lại nếu cần rồi ghi nhận vào Notion.
-            </div>
-
-            <form id="save-form" class="stack" onsubmit="saveInsightsToNotion(event)" hidden style="display: flex; flex-direction: column; gap: 16px;">
-              <div id="save-product-summary" class="summary-strip"></div>
-
-              <section style="border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; background: var(--soft); display: flex; flex-direction: column; gap: 12px;">
+            <section id="post-prompt-library" style="border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; background: var(--soft); display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
                   <div>
                     <h4 style="margin: 0; font-family: var(--font-title); font-size: 15px; font-weight: 800;">Prompt viết 5 bài Shopee</h4>
-                    <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5;">Chọn mẫu hoặc tự chỉnh prompt. Tool tự gắn dữ liệu sản phẩm và từng Insight trước khi gửi AI.</p>
+                    <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5;">Chuẩn bị prompt trước hoặc sau khi tạo Insight. Tool tự gắn dữ liệu sản phẩm và từng Insight trước khi gửi AI.</p>
                   </div>
                   <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="secondary" onclick="newPostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Thêm mẫu</button>
@@ -2031,7 +2024,14 @@ HTML = r"""
                     <span id="postPromptStatus" role="status" aria-live="polite" style="font-size: 11px; color: var(--muted);">Đang tải thư viện prompt...</span>
                   </div>
                 </div>
-              </section>
+            </section>
+
+            <div id="empty-state" class="empty-state" style="padding: 30px; text-align: center; color: var(--muted); font-size: 13.5px; font-weight: 500;">
+              Phân tích ảnh để sinh 5 insight, chỉnh lại nếu cần rồi ghi nhận vào Notion.
+            </div>
+
+            <form id="save-form" class="stack" onsubmit="saveInsightsToNotion(event)" hidden style="display: flex; flex-direction: column; gap: 16px;">
+              <div id="save-product-summary" class="summary-strip"></div>
 
               <div class="table-wrap">
                 <table>
