@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.52`
+> **Phiên bản hiện tại:** `v2.2.53`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -32,7 +32,7 @@ graph TD
 
     subgraph "4. ĐỒNG BỘ BIGSELLER"
         G -->|Đồng bộ & Đóng gói| I[File Excel Chuẩn BigSeller]
-        I -->|Lưu tự động| B
+        I -->|Lưu tự động vào folder sản phẩm| B
         I -->|Upload thủ công / API| J[Sàn TMĐT Shopee]
     end
 ```
@@ -47,7 +47,8 @@ D:\Project Anti\MCP Shopee\
 ├── pipeline.py                    # Module điều khiển ADB cho Google Pixel (Chụp/Quay/Sync ngầm)
 ├── config.json                    # Cấu hình cài đặt cục bộ của ứng dụng desktop
 ├── .env                           # File biến môi trường (Notion, Telegram, Gemini API Key)
-├── handoff.md                     # Tài liệu bàn giao chi tiết cho Codex
+├── handoff.md                     # Tài liệu bàn giao chi tiết cho Codex (Phiên bản v2.2.53)
+├── tests/                         # Bộ kiểm thử tự động (Product Target, Gallery Switch, Scan Insights)
 ├── .github/
 │   └── workflows/
 │       └── build.yml              # GitHub Actions tự động build PyInstaller khi push Tag
@@ -126,7 +127,7 @@ erDiagram
 * **Auto-Watcher ngầm (`media_watcher_loop`)**:
   * Tự động quét thư mục máy ảnh trên Pixel `/sdcard/DCIM/Camera`.
   * Đợi file ổn định kích thước ➔ Tự động `adb pull` về máy ➔ Copy vào thư mục Drive của sản phẩm đang chọn ➔ Xóa file trên Pixel để tránh đầy bộ nhớ.
-* **Quản lý Prompt mẫu**: Cho phép thêm/sửa/xóa danh mục và prompt cho studio chụp ảnh.
+* **Quản lý Prompt mẫu Studio**: Cho phép thêm/sửa/xóa danh mục và prompt cho studio chụp ảnh.
 
 ---
 
@@ -136,11 +137,14 @@ erDiagram
 * Hỗ trợ **📂 Nhập file `.txt`**, **📋 Dán nội dung** (file `đồng bộ shopee.txt` hoặc `.env`), **📥 Xuất file `.txt`**.
 * Nút **`Kiểm tra Key`**: Gọi trực tiếp Google `ListModels` API và gửi prompt test đến **Gemini 3.7 Flash**.
 
-#### 2. Phân tích ảnh & Sinh 5 Insight (`Gemini 3.7 Flash Vision`):
+#### 2. Thư viện Prompt Viết Bài Shopee Tùy Biến (Customizable Prompt Library):
+* Thư viện **Prompt viết 5 bài Shopee** luôn hiển thị trực quan ngay khi mở tab: cho phép chọn mẫu, nhập prompt riêng, thêm/sửa/xóa và nhập/xuất file `.txt`.
+* Prompt mặc định giữ nguyên quy chuẩn Dược sĩ Khai Hoàn; dữ liệu sản phẩm và từng Insight được tự động gắn khi gọi AI.
+
+#### 3. Phân tích ảnh & Sinh 5 Insight (`Gemini 3.7 Flash Vision`):
 * Quét ảnh chụp hoặc link Drive của sản phẩm ➔ Tự động điền Tên sản phẩm, Giá, Biến thể, Phân loại ➔ Tự động tạo 5 góc bán hàng (Angle) và tiêu đề bài viết.
 
-#### 3. Modal Xem & Chỉnh sửa chi tiết 5 Bài viết AI (`fullPostsModal`):
-* Có thư viện **Prompt viết 5 bài Shopee** luôn hiển thị ngay khi mở tab: chọn mẫu, nhập prompt riêng, thêm/sửa/xóa và nhập/xuất file `.txt`. Prompt mặc định giữ nguyên quy chuẩn viết bài tích hợp trong tool; dữ liệu sản phẩm và từng Insight được tự động gắn khi gọi AI.
+#### 4. Modal Xem & Chỉnh sửa chi tiết 5 Bài viết AI (`fullPostsModal`):
 * Cung cấp **5 Tab** tương ứng với 5 bài viết con.
 * Người dùng có thể đọc và sửa trực tiếp:
   * **Tiêu đề Shopee (`postTitle`)**
@@ -154,21 +158,22 @@ erDiagram
 * Nút **`✨ Viết lại bài này bằng Gemini AI`** để tạo lại riêng bài đang xem.
 * Bấm **`💾 Lưu thay đổi bài viết`** để lưu vào bộ nhớ client.
 
-#### 4. Ghi nhận vào Notion (`/api/review-save`):
+#### 5. Ghi nhận vào Notion (`/api/review-save`):
 * Tạo hoặc cập nhật trang Cha trên Database Sản phẩm.
 * Tạo 5 trang Con trên Database Insight với 100% nội dung đã xem/sửa từ Modal.
 * Tự động tạo file `insights_data.json` trong thư mục Drive của sản phẩm.
 
-#### 5. Đồng bộ sang BigSeller & Xuất Excel (`notion_sync.py`):
-* Chỉ xuất đúng 5 Insight của sản phẩm được chọn (không dính sản phẩm khác, không ghi đè sản phẩm cũ).
+#### 6. Đồng bộ sang BigSeller & Xuất Excel (`notion_sync.py` - Bản v2.2.53):
+* **Khoanh vùng chính xác (Scoped by Product)**: Chỉ xuất đúng 5 Insight của sản phẩm được chọn (không dính sản phẩm khác, không ghi đè sản phẩm cũ).
 * Tự động chuyển trạng thái sản phẩm sang **"Chờ đăng"**.
-* Tự động lưu bản sao file Excel vào thư mục Drive của sản phẩm.
+* Tự động lưu bản sao file Excel `bigseller_sync_<timestamp>.xlsx` trực tiếp vào thư mục Drive của sản phẩm (`G:\My Drive\Hình ảnh Shopee\<Tên sản phẩm>\`).
 
 ---
 
 ### TAB 3: AI EDIT / VIDEO (POSTER & VIDEO CREATOR)
 * Tự động quét các thư mục sản phẩm trên Google Drive.
-* Khi quét thư mục, ưu tiên đọc live 5 trang trong **Insight Library** của sản phẩm trên Notion; dropdown hiển thị `Insight N - Tên post Shopee`, đồng thời tự điền đúng nội dung `Insight` và `Từ khóa chính cho insight`. Nếu Notion tạm thời không truy cập được, tool dùng `insights_data.json` làm fallback offline.
+* **Tự động khôi phục Live Metadata từ Notion (Bản v2.2.51+)**: Khi quét thư mục, ưu tiên đọc live 5 trang trong **Insight Library** của sản phẩm trên Notion; dropdown hiển thị `Insight N - Tên post Shopee`, đồng thời tự điền đúng nội dung `Insight` và `Từ khóa chính cho insight`. Nếu Notion tạm thời không truy cập được, tool dùng `insights_data.json` làm fallback offline.
+* **Làm mới Gallery ảnh theo Insight (Bản v2.2.50+)**: Tự động tải lại và hiển thị đúng thư viện ảnh tương ứng khi người dùng click đổi qua lại giữa các Insight 1 -> 5.
 * Dùng dữ liệu Insight đã chọn để tạo poster, banner 1:1, ảnh bìa và video ngắn cho Shopee.
 
 ---
@@ -211,7 +216,7 @@ python -m py_compile web_app.py
 ### Bước 2: Nâng Version
 Mở file `web_app.py` và cập nhật phiên bản ở dòng 43:
 ```python
-CURRENT_VERSION = "v2.2.52"  # Tăng số phiên bản tương ứng
+CURRENT_VERSION = "v2.2.53"  # Tăng số phiên bản tương ứng
 ```
 
 ### Bước 3: Commit và Tạo Git Tag
@@ -219,8 +224,8 @@ CURRENT_VERSION = "v2.2.52"  # Tăng số phiên bản tương ứng
 git add .
 git commit -m "feat(tên-tính-năng): mô tả ngắn gọn thay đổi"
 git push origin main
-git tag v2.2.52
-git push origin v2.2.52
+git tag v2.2.53
+git push origin v2.2.53
 ```
 
 ### Bước 4: Kiểm tra trạng thái Build trên GitHub Actions
@@ -286,8 +291,6 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 | `POST` | `/api/rewrite-insight` | Yêu cầu AI viết lại một Insight cụ thể dựa trên comment góp ý |
 | `POST` | `/api/insight/generate-all-posts` | Sinh đầy đủ nội dung hoàn chỉnh cho cả 5 bài viết chi tiết |
 | `POST` | `/api/insight/generate-single-post` | Sinh lại riêng 1 bài viết chi tiết trong Modal 5 Tabs |
-| `GET` / `POST` / `DELETE` | `/api/shopee/post-prompts` | Quản lý thư viện prompt viết 5 bài Shopee |
-| `POST` / `GET` | `/api/shopee/post-prompts/import`, `/api/shopee/post-prompts/export` | Nhập/xuất thư viện prompt viết bài bằng file `.txt` |
 | `POST` | `/api/review-save` | Ghi nhận sản phẩm và 5 Insight lên Notion & tạo `insights_data.json` |
 | `POST` | `/api/shopee/sync/start` | Khởi chạy tiến trình đồng bộ Notion sang BigSeller và xuất file Excel |
 | `GET` | `/api/shopee/sync/log` | Truyền luồng nhật ký log tiến trình đồng bộ thời gian thực |
@@ -298,6 +301,18 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 | `POST` | `/api/camera/capture` | Gửi lệnh chụp ảnh đến điện thoại Google Pixel qua ADB |
 | `POST` | `/api/camera/record` | Gửi lệnh bắt đầu/dừng quay video đến Pixel qua ADB |
 | `GET` | `/api/drive/folders` | Quét danh sách các thư mục con trong `Hình ảnh Shopee` trên Drive |
+
+---
+
+## 📜 11. LỊCH SỬ PHIÊN BẢN & CÁC MỐC NÂNG CẤP CHÍNH (CHANGELOG)
+
+* **`v2.2.53`**: Giới hạn phạm vi xuất Excel và link hình ảnh chính xác 100% theo đúng thư mục của từng sản phẩm trên Drive.
+* **`v2.2.51` - `v2.2.52`**: Tự động khôi phục live Notion metadata cho các thư mục Drive legacy; làm mới gallery ảnh khi chuyển đổi qua lại giữa các Insight.
+* **`v2.2.47` - `v2.2.49`**: Thư viện Prompt Shopee tùy biến (Customizable Shopee Prompt Library) cho phép lưu, sửa và tải prompt viết bài trực tiếp trên UI.
+* **`v2.2.45` - `v2.2.46`**: Mặc định chuẩn xác **Gemini 3.7 Flash** (ưu tiên tiếp ứng `Gemini 3.6 Flash / 3.5 Flash`), loại bỏ hoàn toàn các mã model cũ.
+* **`v2.2.44`**: Tích hợp Modal 5 Tabs cho phép xem trước và chỉnh sửa chi tiết toàn bộ 5 bài viết AI trước khi ghi Notion.
+* **`v2.2.42`**: Nâng cấp toàn diện Prompt Dược sĩ Khai Hoàn, loại bỏ văn mẫu rập khuôn, đối tượng sử dụng theo ngữ cảnh thực tế và hashtag Shopee chuẩn.
+* **`v2.2.40` - `v2.2.41`**: Thêm bộ công cụ Nạp/Dán/Xuất file cấu hình `.txt` / `.env` và tự động điều hướng file Excel xuất ra vào đúng thư mục sản phẩm.
 
 ---
 *Tài liệu này được lưu trữ chính thức tại `D:\Project Anti\MCP Shopee\handoff.md`.*
