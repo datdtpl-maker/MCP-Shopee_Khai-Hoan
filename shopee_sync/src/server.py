@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Optional, List, Dict, Any
 from mcp.server.fastmcp import FastMCP
+from .discovery_cache import CachedFastMCPMixin
 
 # Import modules nội bộ
 from . import config
@@ -15,10 +16,17 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("shopee_mcp_server")
 
 # Khởi tạo FastMCP Server
-mcp = FastMCP(
+class ShopeeFastMCP(CachedFastMCPMixin, FastMCP):
+    def __init__(self, *args, **kwargs):
+        # Keep metadata caching bounded and invalidate on registry changes.
+        ttl_seconds = kwargs.pop("discovery_ttl_seconds", 60.0)
+        super().__init__(*args, **kwargs)
+        self._init_discovery_cache(ttl_seconds)
+
+
+mcp = ShopeeFastMCP(
     name="Shopee-MCP-Server",
-    version="1.0.0",
-    description="MCP Server cung cấp bộ công cụ kết nối Shopee API V2 để đăng và quản lý sản phẩm."
+    instructions="MCP Server cung cấp bộ công cụ kết nối Shopee API V2 để đăng và quản lý sản phẩm."
 )
 
 @mcp.tool()
