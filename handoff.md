@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.53`  
+> **Phiên bản hiện tại:** `v2.2.54`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -306,6 +306,7 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 
 ## 📜 11. LỊCH SỬ PHIÊN BẢN & CÁC MỐC NÂNG CẤP CHÍNH (CHANGELOG)
 
+* **`v2.2.54`**: Tối ưu hiệu năng MCP server (`discovery_cache.py`), cache tool discovery metadata giúp giảm thời gian phản hồi API.
 * **`v2.2.53`**: Giới hạn phạm vi xuất Excel và link hình ảnh chính xác 100% theo đúng thư mục của từng sản phẩm trên Drive.
 * **`v2.2.51` - `v2.2.52`**: Tự động khôi phục live Notion metadata cho các thư mục Drive legacy; làm mới gallery ảnh khi chuyển đổi qua lại giữa các Insight.
 * **`v2.2.47` - `v2.2.49`**: Thư viện Prompt Shopee tùy biến (Customizable Shopee Prompt Library) cho phép lưu, sửa và tải prompt viết bài trực tiếp trên UI.
