@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.54`  
+> **Phiên bản hiện tại:** `v2.2.55`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -306,6 +306,12 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 
 ## 📜 11. LỊCH SỬ PHIÊN BẢN & CÁC MỐC NÂNG CẤP CHÍNH (CHANGELOG)
 
+* **`v2.2.55`**:
+  * Trích xuất nguyên vẹn 100% nội dung bài viết và toàn bộ hashtag từ Notion blocks (`fetch_insight_page_content`).
+  * Khắc phục lỗi xuất Excel BigSeller: xuất đúng số lượng insight thực tế, đúng giá bán (250,000đ), mô tả chi tiết kèm hashtag và 5 link direct ảnh Drive.
+  * Tái cấu trúc Modal xem chi tiết Insight: bố cục danh sách dọc từ trên xuống dưới (Bài #1 ở trên, Bài #2 ở dưới...), hiển thị trọn vẹn tiêu đề/góc tiếp cận không bị che khuất.
+  * Thêm Modal loading xoay vòng khi chọn sản phẩm từ danh sách; chuẩn hóa duy nhất 1 icon vector SVG trên nút xem chi tiết.
+  * Xử lý ngoại lệ file Excel đang mở (`WinError 32`) khi thao tác xóa file.
 * **`v2.2.54`**: Tối ưu hiệu năng MCP server (`discovery_cache.py`), cache tool discovery metadata giúp giảm thời gian phản hồi API.
 * **`v2.2.53`**: Giới hạn phạm vi xuất Excel và link hình ảnh chính xác 100% theo đúng thư mục của từng sản phẩm trên Drive.
 * **`v2.2.51` - `v2.2.52`**: Tự động khôi phục live Notion metadata cho các thư mục Drive legacy; làm mới gallery ảnh khi chuyển đổi qua lại giữa các Insight.

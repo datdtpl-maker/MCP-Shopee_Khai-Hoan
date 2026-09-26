@@ -160,41 +160,75 @@ def get_images_and_videos_in_folder(folder_id: str) -> List[dict]:
         logger.error(f"Lỗi khi cào file trong thư mục {folder_id}: {e}")
         return []
 
-def find_product_folder(root_folder_id: str, product_title: str) -> Optional[str]:
+def find_product_folder(root_folder_id: str, product_title: str, shop_hint: Optional[str] = None) -> Optional[str]:
     subfolders = get_subfolders_of_drive_folder(root_folder_id)
     clean_title = clean_name(product_title)
     if not clean_title:
         return None
-        
-    # Pass 1: Ưu tiên khớp CHÍNH XÁC 100% tên thư mục
+
+    stripped_title = re.sub(r'^(insight|anh|hinh|sp|sanpham)', '', clean_title)
+
+    # Pass 1: Tìm trực tiếp trong thư mục gốc
     for sf_clean_name, sf_id in subfolders.items():
-        if sf_clean_name == clean_title:
-            logger.info(f"Tìm thấy thư mục sản phẩm KHỚP CHÍNH XÁC 100%: '{sf_clean_name}' -> ID: {sf_id}")
+        sf_stripped = re.sub(r'^(insight|anh|hinh|sp|sanpham)', '', sf_clean_name)
+        if sf_clean_name == clean_title or sf_clean_name == stripped_title or (sf_stripped and sf_stripped == stripped_title):
+            logger.info(f"Tìm thấy thư mục sản phẩm KHỚP CHÍNH XÁC: '{sf_clean_name}' -> ID: {sf_id}")
             return sf_id
-            
-    # Pass 2: Nếu không khớp 100%, chọn thư mục có tỉ lệ khớp cao nhất và độ phủ tên lớn nhất
+
+    # Pass 2: Nếu root_folder_id chứa các thư mục Shop (nhathuockhpharma, khaihoanpharmacy...), duyệt vào trong các thư mục Shop
+    shop_dirs = []
+    clean_shop_hint = clean_name(shop_hint) if shop_hint else ""
+    if clean_shop_hint:
+        for sf_clean_name, sf_id in subfolders.items():
+            if clean_shop_hint in sf_clean_name or sf_clean_name in clean_shop_hint:
+                shop_dirs.append(sf_id)
+
+    if not shop_dirs:
+        shop_dirs = list(subfolders.values())
+
     from difflib import SequenceMatcher
+
     best_match_id = None
     best_ratio = 0.0
     best_name = ""
-    for sf_clean_name, sf_id in subfolders.items():
-        ratio = SequenceMatcher(None, sf_clean_name, clean_title).ratio()
-        if sf_clean_name in clean_title:
-            match_coverage = len(sf_clean_name) / float(len(clean_title))
-            ratio = max(ratio, 0.6 + (0.39 * match_coverage))
-        elif clean_title in sf_clean_name:
-            match_coverage = len(clean_title) / float(len(sf_clean_name))
-            ratio = max(ratio, 0.6 + (0.39 * match_coverage))
 
-        if ratio > best_ratio:
-            best_ratio = ratio
-            best_match_id = sf_id
-            best_name = sf_clean_name
-            
+    for shop_id in shop_dirs:
+        try:
+            shop_subfolders = get_subfolders_of_drive_folder(shop_id)
+            for sf_clean_name, sf_id in shop_subfolders.items():
+                sf_stripped = re.sub(r'^(insight|anh|hinh|sp|sanpham)', '', sf_clean_name)
+                # Khớp chính xác
+                if sf_clean_name == clean_title or sf_clean_name == stripped_title or (sf_stripped and (sf_stripped == stripped_title or sf_stripped == clean_title)):
+                    logger.info(f"Tìm thấy thư mục sản phẩm KHỚP CHÍNH XÁC trong shop Drive: '{sf_clean_name}' -> ID: {sf_id}")
+                    return sf_id
+
+                # Khớp tiền tố (prefix)
+                if len(sf_stripped) >= 4 and (stripped_title.startswith(sf_stripped) or sf_stripped.startswith(stripped_title)):
+                    logger.info(f"Tìm thấy thư mục sản phẩm khớp tiền tố trong shop Drive: '{sf_clean_name}' -> ID: {sf_id}")
+                    return sf_id
+
+                # Tính độ tương đồng
+                ratio = SequenceMatcher(None, sf_clean_name, clean_title).ratio()
+                if sf_stripped and stripped_title:
+                    ratio = max(ratio, SequenceMatcher(None, sf_stripped, stripped_title).ratio())
+                    if sf_stripped in stripped_title:
+                        match_coverage = len(sf_stripped) / float(len(stripped_title))
+                        ratio = max(ratio, 0.6 + (0.39 * match_coverage))
+                    elif stripped_title in sf_stripped:
+                        match_coverage = len(stripped_title) / float(len(sf_stripped))
+                        ratio = max(ratio, 0.6 + (0.39 * match_coverage))
+
+                if ratio > best_ratio:
+                    best_ratio = ratio
+                    best_match_id = sf_id
+                    best_name = sf_clean_name
+        except Exception as e:
+            logger.warning(f"Lỗi khi tìm thư mục trong shop {shop_id}: {e}")
+
     if best_ratio >= 0.65 and best_match_id:
         logger.info(f"Tìm thấy thư mục sản phẩm khớp cao nhất '{best_name}' (tương đồng {best_ratio*100:.1f}%): ID {best_match_id}")
         return best_match_id
-        
+
     return None
 
 def find_insight_folder(product_folder_id: str, insight_name: str) -> Optional[str]:

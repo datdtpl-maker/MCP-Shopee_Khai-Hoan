@@ -155,57 +155,132 @@ def _normalize_page_id(page_id: Optional[str]) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", str(page_id or "")).lower()
 
 
-def _count_product_insights(properties: Dict[str, Any]) -> int:
+def _count_product_insights(properties: Dict[str, Any], notion_client=None) -> int:
+    so_insight_prop = properties.get("Số Insight", {})
+    if so_insight_prop.get("type") == "rollup":
+        num = so_insight_prop.get("rollup", {}).get("number")
+        if num is not None:
+            return int(num)
+    ds_prop = properties.get("Danh sách Insight", {})
+    if ds_prop.get("type") == "relation":
+        return len(ds_prop.get("relation", []))
     insight_prop = properties.get("Insight Library", {})
     prop_type = insight_prop.get("type")
     if prop_type == "relation":
-        return len(insight_prop.get("relation", []))
+        rel_list = insight_prop.get("relation", [])
+        if not rel_list:
+            return 0
+        if notion_client:
+            try:
+                lib_id = rel_list[0].get("id")
+                lib_page = call_notion_with_retry(notion_client.pages.retrieve, page_id=lib_id)
+                sub_rels = lib_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
+                if sub_rels:
+                    return len(sub_rels)
+            except Exception:
+                pass
+        return len(rel_list)
     if prop_type == "rich_text":
         return len(parse_insight_mentions(insight_prop.get("rich_text", [])))
     return 0
 
 
 def find_local_product_folder(drive_root_path: Path, product_title: str) -> Optional[Path]:
-    """Tìm thư mục local theo tên đầy đủ hoặc tên rút gọn duy nhất của sản phẩm."""
+    """Tìm thư mục local theo tên đầy đủ hoặc tên rút gọn duy nhất của sản phẩm, hỗ trợ cả thư mục gốc và thư mục shop con."""
+    if not drive_root_path or not drive_root_path.is_dir() or not product_title:
+        return None
+
     target_clean = convert_zicum.clean_name(product_title)
+    if not target_clean:
+        return None
+
     prefix_matches = []
-    for item in drive_root_path.iterdir():
-        if not item.is_dir():
+    
+    # Quét cả thư mục gốc và các thư mục shop con (nhathuockh.pharma, khaihoanpharmacy, v.v.)
+    search_dirs = [drive_root_path]
+    try:
+        for sub in drive_root_path.iterdir():
+            if sub.is_dir() and not sub.name.startswith("."):
+                search_dirs.append(sub)
+    except Exception:
+        pass
+
+    for base in search_dirs:
+        try:
+            for item in base.iterdir():
+                if not item.is_dir() or item.name.startswith("."):
+                    continue
+                item_clean = convert_zicum.clean_name(item.name)
+                if not item_clean:
+                    continue
+
+                # 1. Trùng khớp tuyệt đối
+                if item_clean == target_clean:
+                    return item
+
+                # 2. Bóc tách tiền tố thông dụng như 'insight', 'anh', 'hinh', 'sp', 'sanpham'
+                stripped_clean = re.sub(r'^(insight|anh|hinh|sp|sanpham)', '', item_clean)
+                if stripped_clean and stripped_clean == target_clean:
+                    return item
+
+                # 3. So khớp tiền tố trực tiếp
+                if len(item_clean) >= 4 and (target_clean.startswith(item_clean) or item_clean.startswith(target_clean)):
+                    prefix_matches.append((800 + len(item_clean), item))
+
+                # 4. So khớp tiền tố hoặc từ khóa chính sau khi tách 'insight'
+                if stripped_clean and len(stripped_clean) >= 4:
+                    if target_clean.startswith(stripped_clean) or stripped_clean.startswith(target_clean):
+                        prefix_matches.append((700 + len(stripped_clean), item))
+                    elif len(stripped_clean) >= 5 and (stripped_clean in target_clean or target_clean in stripped_clean):
+                        prefix_matches.append((500 + len(stripped_clean), item))
+        except Exception:
             continue
-        item_clean = convert_zicum.clean_name(item.name)
-        if item_clean == target_clean:
-            return item
-        if len(item_clean) >= 8 and (target_clean.startswith(item_clean) or item_clean.startswith(target_clean)):
-            prefix_matches.append((len(item_clean), item))
+
     if not prefix_matches:
         return None
     prefix_matches.sort(key=lambda match: match[0], reverse=True)
     return prefix_matches[0][1]
 
 
+
 def map_insights_to_drive_folders(
     insight_items: List[Dict[str, str]],
     subfolders: Dict[str, str],
 ) -> List[Dict[str, Any]]:
-    """Ánh xạ chắc chắn Insight N sang đúng thư mục Drive Insight N."""
-    if len(insight_items) != 5:
-        raise ValueError(f"Cần đúng 5 Insight để đồng bộ link hình; hiện tìm thấy {len(insight_items)}.")
+    """Ánh xạ Insight N sang đúng thư mục Drive theo tên insight con hoặc Insight N."""
+    if len(insight_items) < 1:
+        raise ValueError(f"Cần ít nhất 1 Insight để đồng bộ link hình; hiện tìm thấy {len(insight_items)}.")
 
     normalized_subfolders = {
-        convert_zicum.clean_name(folder_name): folder_id
+        convert_zicum.clean_name(folder_name): (folder_id, folder_name)
         for folder_name, folder_id in subfolders.items()
     }
     mapping = []
     used_folder_ids = set()
     for index, insight_item in enumerate(insight_items, 1):
-        numbered_folder_name = convert_zicum.clean_name(f"Insight {index}")
-        folder_id = normalized_subfolders.get(numbered_folder_name)
-        if not folder_id:
-            clean_insight_name = convert_zicum.clean_name(insight_item.get("insight_name", ""))
-            folder_id = normalized_subfolders.get(clean_insight_name)
-        if not folder_id:
-            raise ValueError(f"Không tìm thấy thư mục Drive 'Insight {index}'.")
-        if folder_id in used_folder_ids:
+        clean_insight_name = convert_zicum.clean_name(insight_item.get("insight_name", ""))
+        folder_match = normalized_subfolders.get(clean_insight_name) if clean_insight_name else None
+
+        if not folder_match:
+            numbered_folder_name = convert_zicum.clean_name(f"Insight {index}")
+            folder_match = normalized_subfolders.get(numbered_folder_name)
+
+        if not folder_match and clean_insight_name:
+            for k, (f_id, orig_name) in normalized_subfolders.items():
+                if f_id not in used_folder_ids and (k.startswith(clean_insight_name) or clean_insight_name.startswith(k)):
+                    folder_match = (f_id, orig_name)
+                    break
+
+        if not folder_match:
+            available = [(f_id, orig_name) for k, (f_id, orig_name) in normalized_subfolders.items() if f_id not in used_folder_ids]
+            if available:
+                folder_match = available[0]
+
+        if not folder_match:
+            raise ValueError(f"Không tìm thấy thư mục Drive tương ứng cho Insight {index} ('{insight_item.get('insight_name', '')}').")
+
+        folder_id = folder_match[0]
+        if folder_id in used_folder_ids and len(subfolders) >= len(insight_items):
             raise ValueError(f"Thư mục Drive của Insight {index} đang bị trùng với Insight khác.")
         used_folder_ids.add(folder_id)
         mapping.append({
@@ -220,6 +295,7 @@ def select_products_for_export(
     records: List[Dict[str, Any]],
     target_page_id: Optional[str] = None,
     override_drive_url: Optional[str] = None,
+    notion_client=None,
 ) -> List[Dict[str, Any]]:
     """Lọc sản phẩm xuất Excel; khi có page_id thì chỉ chấp nhận đúng bản ghi đó."""
     normalized_target_id = _normalize_page_id(target_page_id)
@@ -243,15 +319,15 @@ def select_products_for_export(
         if not title:
             continue
 
-        insight_count = _count_product_insights(properties)
+        insight_count = _count_product_insights(properties, notion_client=notion_client)
         if normalized_target_id:
             if properties.get("Bài viết", {}).get("checkbox", False):
                 raise ValueError(f"Sản phẩm '{title}' vẫn đang tick Bài viết. Hãy bỏ tick trước khi tạo lại Excel.")
             if not properties.get("Content xong", {}).get("checkbox", False):
                 raise ValueError(f"Sản phẩm '{title}' chưa được đánh dấu Content xong.")
-            if insight_count != 5:
+            if insight_count < 1:
                 raise ValueError(
-                    f"Sản phẩm '{title}' phải có đúng 5 Insight trước khi xuất Excel; hiện tìm thấy {insight_count}."
+                    f"Sản phẩm '{title}' chưa có Insight nào trước khi xuất Excel."
                 )
             selected.append(page)
             continue
@@ -385,22 +461,43 @@ def fetch_insight_page_content(notion_client, page_id: str) -> Tuple[str, str, s
                 title = title_list[0].get("plain_text", "").strip()
             break
             
-    # Lấy thuộc tính Link hình
+    # Lấy thuộc tính Link hình / Link Drive bộ ảnh
     link_hinh = ""
-    if "Link hình" in properties:
-        prop_lh = properties["Link hình"]
-        prop_type = prop_lh.get("type")
-        if prop_type == "url":
-            link_hinh = prop_lh.get("url", "") or ""
-        elif prop_type == "rich_text":
-            link_hinh = "".join([t.get("plain_text", "") for t in prop_lh.get("rich_text", [])]).strip()
-            
-    # Lấy đệ quy toàn bộ block con
-    blocks = fetch_all_blocks_recursive(notion_client, page_id)
-    
-    # Format các block thành text
-    description = format_notion_blocks_to_text(blocks)
-    
+    for k, v in properties.items():
+        if "link drive" in k.lower() or "link hình" in k.lower() or "link hinh" in k.lower() or k.lower() == "url":
+            if v.get("type") == "url":
+                link_hinh = v.get("url", "") or ""
+            elif v.get("type") == "rich_text":
+                link_hinh = "".join([t.get("plain_text", "") for t in v.get("rich_text", [])]).strip()
+            if link_hinh:
+                break
+
+    # 1. Đọc toàn văn bài viết từ các blocks con của trang Notion (nơi lưu trữ đầy đủ nội dung và hashtag)
+    block_description = ""
+    try:
+        blocks = fetch_all_blocks_recursive(notion_client, page_id)
+        if blocks:
+            block_description = format_notion_blocks_to_text(blocks).strip()
+    except Exception as e:
+        logger.warning(f"Lỗi khi đọc blocks của page {page_id}: {e}")
+
+    # 2. Đọc thuộc tính "Nội dung đăng Shopee" hoặc "Mô tả sản phẩm"
+    prop_description = ""
+    for k, v in properties.items():
+        if k.lower() in ["nội dung đăng shopee", "mô tả sản phẩm", "nội dung bài viết", "mô tả", "content"]:
+            if v.get("type") == "rich_text":
+                prop_description = "".join([t.get("plain_text", "") for t in v.get("rich_text", [])]).strip()
+                if prop_description:
+                    break
+
+    # 3. Ưu tiên bản có nội dung đầy đủ nhất (chứa Hashtag hoặc có độ dài lớn hơn)
+    if block_description and ("#" in block_description or len(block_description) >= len(prop_description)):
+        description = block_description
+    elif prop_description:
+        description = prop_description
+    else:
+        description = block_description
+
     return title, description, link_hinh
 
 def generate_seo_description(product_title: str) -> str:
@@ -489,6 +586,108 @@ def parse_media_links(text: str) -> Dict[int, str]:
                 
     return results
 
+
+def adapt_insight_library_product(
+    notion_client,
+    target_page_id: str,
+    master_records: List[Dict[str, Any]],
+    override_drive_url: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Chuyển đổi một bản ghi từ Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
+    kết hợp với dữ liệu giá/biến thể từ Master DB (ca055a7742824b9598abde7a7686d144)
+    thành dạng sản phẩm để xuất BigSeller Excel.
+    """
+    try:
+        page = call_notion_with_retry(notion_client.pages.retrieve, page_id=target_page_id)
+        parent_db = page.get("parent", {}).get("database_id", "").replace("-", "")
+        props = page.get("properties", {})
+        has_insights = bool(props.get("Danh sách Insight", {}).get("relation", []))
+        is_insight_db = "88159c9046fb426db3c9a0d79358e76c".replace("-", "") in parent_db or has_insights
+        if not is_insight_db:
+            return None
+
+        # 1. Lấy tên sản phẩm từ Shopee Insight Library
+        title_list = props.get("Tên post Shopee", {}).get("title", [])
+        insight_title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        if not insight_title:
+            for pv in props.values():
+                if pv.get("type") == "title":
+                    tl = pv.get("title", [])
+                    if tl:
+                        insight_title = tl[0].get("plain_text", "").strip()
+                    break
+
+        drive_url = override_drive_url if override_drive_url else (props.get("URL", {}).get("url", "") or "")
+
+        # 2. Tìm bản ghi tương ứng trong Master DB ca055a7742824b9598abde7a7686d144 để lấy giá và biến thể
+        norm_target_id = target_page_id.replace("-", "")
+        master_page = None
+        for mp in master_records:
+            mp_props = mp.get("properties", {})
+            rel_list = mp_props.get("Insight Library", {}).get("relation", [])
+            for r in rel_list:
+                if r.get("id", "").replace("-", "") == norm_target_id:
+                    master_page = mp
+                    break
+            if master_page:
+                break
+
+        if not master_page:
+            clean_ins_title = convert_zicum.clean_name(insight_title)
+            for mp in master_records:
+                mp_props = mp.get("properties", {})
+                m_title = "".join([t.get("plain_text", "") for t in mp_props.get("Tên sản phẩm", {}).get("title", [])])
+                clean_m_title = convert_zicum.clean_name(m_title)
+                if clean_ins_title and (clean_ins_title in clean_m_title or clean_m_title in clean_ins_title):
+                    master_page = mp
+                    break
+
+        master_title = ""
+        price_lines = []
+        variant_prop = {}
+        if master_page:
+            mp_props = master_page.get("properties", {})
+            master_title = "".join([t.get("plain_text", "") for t in mp_props.get("Tên sản phẩm", {}).get("title", [])]).strip()
+            v1 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+            p1 = mp_props.get("Giá biến thể 1", {}).get("number")
+            v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+            p2 = mp_props.get("Giá biến thể 2", {}).get("number")
+            if v1 and p1:
+                price_lines.append(f"{v1}: {int(p1)}")
+            elif p1:
+                price_lines.append(f"Mặc định: {int(p1)}")
+            if v2 and p2:
+                price_lines.append(f"{v2}: {int(p2)}")
+            variant_prop = mp_props.get("Biến thể", {})
+
+        if not price_lines:
+            price_lines.append("Mặc định: 150000")
+
+        final_title = master_title if master_title else insight_title
+        price_variant_text = "\n".join(price_lines)
+
+        adapted_page = {
+            "id": target_page_id,
+            "original_insight_title": insight_title,
+            "properties": {
+                "Tên sản phẩm": {"type": "title", "title": [{"plain_text": final_title}]},
+                "Biến thể & giá": {"type": "rich_text", "rich_text": [{"plain_text": price_variant_text}]},
+                "Media sản phẩm": {"type": "url", "url": drive_url},
+                "Danh sách Insight": props.get("Danh sách Insight", {}),
+                "Insight Library": props.get("Danh sách Insight", {}),
+                "Content xong": {"type": "checkbox", "checkbox": True},
+                "Bài viết": {"type": "checkbox", "checkbox": False},
+                "Biến thể": variant_prop
+            },
+            "master_page": master_page
+        }
+        return adapted_page
+    except Exception as e:
+        logger.error(f"Lỗi chuyển đổi sản phẩm Insight Library: {e}")
+        return None
+
+
 def sync_notion_to_bigseller_excel(
     override_drive_url: Optional[str] = None,
     target_page_id: Optional[str] = None,
@@ -540,11 +739,19 @@ def sync_notion_to_bigseller_excel(
     records = res.get("results", [])
     
     # 3. Khóa theo page_id khi người dùng chọn sản phẩm; không suy đoán bằng tên hay link Drive.
-    pending_products = select_products_for_export(
-        records,
-        target_page_id=target_page_id,
-        override_drive_url=override_drive_url,
-    )
+    adapted_product = None
+    if target_page_id:
+        adapted_product = adapt_insight_library_product(notion, target_page_id, records, override_drive_url)
+
+    if adapted_product:
+        pending_products = [adapted_product]
+    else:
+        pending_products = select_products_for_export(
+            records,
+            target_page_id=target_page_id,
+            override_drive_url=override_drive_url,
+            notion_client=notion,
+        )
             
     logger.info(f"Tìm thấy {len(pending_products)} sản phẩm có đầy đủ Insight để xuất Excel.")
     
@@ -580,26 +787,39 @@ def sync_notion_to_bigseller_excel(
             if prop_ms.get("type") == "rich_text":
                 drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
         
-        # Lấy văn bản biến thể và giá
+        # Lấy giá và biến thể từ properties của Notion DB1
+        p1 = properties.get("Giá biến thể 1", {}).get("number")
+        v1 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+        p2 = properties.get("Giá biến thể 2", {}).get("number")
+        v2 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+
+        # Lấy văn bản biến thể và giá (cột legacy nếu có)
         price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))
-        
-        # Không còn sử dụng cột Link media sản phẩm ở bảng cha nữa
-        pass
+        variants = parse_price_and_variants(price_variant_text)
+        if not variants:
+            if p1 and p2:
+                variants = [
+                    {"name": v1 or "Phân loại 1", "price": int(p1)},
+                    {"name": v2 or "Phân loại 2", "price": int(p2)}
+                ]
+            elif p1:
+                variants = [{"name": v1 or "Mặc định", "price": int(p1)}]
             
-        logger.info(f"Đang xử lý sản phẩm: {title} (Giá: {price_variant_text})")
+        logger.info(f"Đang xử lý sản phẩm: {title} (Giá biến thể: {variants})")
         
         # Tìm thư mục sản phẩm từ thư mục gốc lớn cấu hình trong .env hoặc mặc định
         root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
         product_folder_id = None
         
-        # Thử lấy trực tiếp từ thuộc tính "Media sản phẩm" trên Notion trước (nếu không có override)
-        if not drive_url:
-            drive_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
-            if not drive_url:
-                prop_ms = properties.get("Media sản phẩm", {})
-                if prop_ms.get("type") == "rich_text":
-                    drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
-                
+        # Trích xuất shop_hint từ drive_url (nhathuockh.pharma hoặc khaihoanpharmacy)
+        shop_hint = None
+        if drive_url:
+            low_url = drive_url.lower()
+            if "nhathuockh" in low_url or "pharma" in low_url:
+                shop_hint = "nhathuockhpharma"
+            elif "khaihoan" in low_url or "derma" in low_url:
+                shop_hint = "khaihoanpharmacy"
+
         if drive_url:
             if "drive.google.com" in drive_url:
                 folder_match = re.search(r'/folders/([a-zA-Z0-9_-]+)', drive_url)
@@ -607,12 +827,12 @@ def sync_notion_to_bigseller_excel(
                     product_folder_id = folder_match.group(1)
                     logger.info(f"Sử dụng thư mục của sản phẩm từ thuộc tính 'Media sản phẩm': ID {product_folder_id}")
             else:
-                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\Imiquad Cream)
+                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\nhathuockh.pharma\Insight Oximin)
                 try:
                     local_path = Path(drive_url)
                     folder_name = local_path.name.strip()
                     if folder_name and folder_name.lower() != "my drive":
-                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name)
+                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name, shop_hint=shop_hint)
                         if product_folder_id:
                             logger.info(f"Tìm thấy thư mục của sản phẩm từ đường dẫn local '{drive_url}': ID {product_folder_id}")
                 except Exception as e:
@@ -621,7 +841,7 @@ def sync_notion_to_bigseller_excel(
         # Nếu không tìm thấy từ Notion, tự động tìm kiếm thư mục sản phẩm theo tên trong thư mục gốc Drive
         if not product_folder_id:
             try:
-                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title)
+                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title, shop_hint=shop_hint)
                 if product_folder_id:
                     logger.info(f"Tìm thấy thư mục của sản phẩm '{title}' trên Drive gốc: ID {product_folder_id}")
             except Exception as e:
@@ -647,15 +867,85 @@ def sync_notion_to_bigseller_excel(
             except Exception as e:
                 logger.error(f"Lỗi khi lấy ảnh qua get_images_from_drive_folder: {e}")
         
-        # Phân tích biến thể
-        variants = parse_price_and_variants(price_variant_text)
         sku_code = f"PROD-{sku_base_rand}-{idx+1:02d}"
         
-        # Đọc danh sách Insight từ ô Insight Library (dạng text mentions)
+        # Đọc danh sách Insight từ ô Insight Library (dạng text mentions) hoặc relation (Danh sách Insight / Insight Library)
         insight_prop = properties.get("Insight Library", {})
         insight_items = []
         if insight_prop.get("type") == "rich_text":
             insight_items = parse_insight_mentions(insight_prop.get("rich_text", []))
+        elif insight_prop.get("type") == "relation":
+            for rel in insight_prop.get("relation", []):
+                rel_id = rel.get("id")
+                try:
+                    rel_page = call_notion_with_retry(notion.pages.retrieve, page_id=rel_id)
+                    rel_props = rel_page.get("properties", {})
+                    rel_title = ""
+                    for p_val in rel_props.values():
+                        if p_val.get("type") == "title":
+                            t_list = p_val.get("title", [])
+                            if t_list:
+                                rel_title = t_list[0].get("plain_text", "").strip()
+                            break
+
+                    # Kiểm tra xem rel_page này có relation "Danh sách Insight" trỏ tới các insight con không
+                    sub_relations = rel_props.get("Danh sách Insight", {}).get("relation", [])
+                    if sub_relations:
+                        logger.info(f"Phát hiện thư viện '{rel_title}' có {len(sub_relations)} Insight con.")
+                        for sub_r in sub_relations:
+                            sub_id = sub_r.get("id")
+                            try:
+                                sub_page = call_notion_with_retry(notion.pages.retrieve, page_id=sub_id)
+                                sub_props = sub_page.get("properties", {})
+                                sub_title = ""
+                                for sp_val in sub_props.values():
+                                    if sp_val.get("type") == "title":
+                                        st_list = sp_val.get("title", [])
+                                        if st_list:
+                                            sub_title = st_list[0].get("plain_text", "").strip()
+                                        break
+                                clean_sub_title = sub_title.replace("|", "-").strip()
+                                insight_items.append({
+                                    "insight_name": clean_sub_title or sub_title,
+                                    "page_id": sub_id,
+                                    "plain_text": sub_title
+                                })
+                            except Exception as sub_e:
+                                logger.error(f"Lỗi khi đọc Insight con {sub_id}: {sub_e}")
+                    else:
+                        clean_title = rel_title.replace("|", "-").strip()
+                        insight_items.append({
+                            "insight_name": clean_title or rel_title,
+                            "page_id": rel_id,
+                            "plain_text": rel_title
+                        })
+                except Exception as e:
+                    logger.error(f"Lỗi khi đọc relation Insight Library {rel_id}: {e}")
+
+        # Fallback sang "Danh sách Insight" nếu chưa có items
+        if not insight_items:
+            ds_prop = properties.get("Danh sách Insight", {})
+            if ds_prop.get("type") == "relation":
+                for rel in ds_prop.get("relation", []):
+                    rel_id = rel.get("id")
+                    try:
+                        rel_page = call_notion_with_retry(notion.pages.retrieve, page_id=rel_id)
+                        rel_props = rel_page.get("properties", {})
+                        rel_title = ""
+                        for p_val in rel_props.values():
+                            if p_val.get("type") == "title":
+                                t_list = p_val.get("title", [])
+                                if t_list:
+                                    rel_title = t_list[0].get("plain_text", "").strip()
+                                break
+                        clean_title = rel_title.replace("|", "-").strip()
+                        insight_items.append({
+                            "insight_name": clean_title or rel_title,
+                            "page_id": rel_id,
+                            "plain_text": rel_title
+                        })
+                    except Exception as e:
+                        logger.error(f"Lỗi khi đọc relation Danh sách Insight {rel_id}: {e}")
             
         content_versions = []
         
@@ -695,48 +985,61 @@ def sync_notion_to_bigseller_excel(
                     title_from_page, description_from_page, link_hinh_from_page = fetch_insight_page_content(notion, ins_page_id)
                     
                     # Tự động tìm thư mục Drive và cập nhật trường Link hình nếu trên Notion đang rỗng
-                    if not link_hinh_from_page and subfolders:
-                        clean_insight = convert_zicum.clean_name(ins_name)
-                        clean_folder_name = convert_zicum.clean_name(f"Insight {idx+1}")
-                        
-                        target_folder_id = None
-                        if clean_insight in subfolders:
-                            target_folder_id = subfolders[clean_insight]
-                        else:
-                            for sf_name, sf_id in subfolders.items():
-                                if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_insight in sf_name or sf_name in clean_insight:
-                                    target_folder_id = sf_id
-                                    break
-                                    
+                    if not link_hinh_from_page and product_folder_id:
+                        target_folder_id = convert_zicum.find_insight_folder(product_folder_id, ins_name)
+                        if not target_folder_id and subfolders:
+                            clean_insight = convert_zicum.clean_name(ins_name)
+                            clean_folder_name = convert_zicum.clean_name(f"Insight {idx+1}")
+                            if clean_insight in subfolders:
+                                target_folder_id = subfolders[clean_insight]
+                            else:
+                                for sf_name, sf_id in subfolders.items():
+                                    if clean_folder_name in sf_name or sf_name in clean_folder_name or clean_insight in sf_name or sf_name in clean_insight:
+                                        target_folder_id = sf_id
+                                        break
+                                        
                         if target_folder_id:
                             new_link = f"https://drive.google.com/drive/folders/{target_folder_id}"
                             try:
-                                # Kiểm tra kiểu của thuộc tính Link hình để cập nhật chuẩn xác
+                                # Kiểm tra kiểu của thuộc tính Link hình / Link Drive bộ ảnh để cập nhật chuẩn xác
                                 ins_page = call_notion_with_retry(notion.pages.retrieve, page_id=ins_page_id)
-                                prop_lh = ins_page.get("properties", {}).get("Link hình", {})
+                                ins_props = ins_page.get("properties", {})
+                                prop_name_found = None
+                                for k in ins_props.keys():
+                                    if "link drive" in k.lower() or "link hình" in k.lower() or "link hinh" in k.lower() or k.lower() == "url":
+                                        prop_name_found = k
+                                        break
+                                if not prop_name_found:
+                                    prop_name_found = "Link hình"
+
+                                prop_lh = ins_props.get(prop_name_found, {})
                                 prop_type = prop_lh.get("type", "url")
                                 
                                 if prop_type == "url":
-                                    update_props = {"Link hình": {"url": new_link}}
+                                    update_props = {prop_name_found: {"url": new_link}}
                                 else:
-                                    update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
+                                    update_props = {prop_name_found: {"rich_text": [{"text": {"content": new_link}}]}}
                                     
                                 update_notion_page_safe(
                                     notion,
                                     page_id=ins_page_id,
                                     properties=update_props
                                 )
-                                logger.info(f"Đã cập nhật thuộc tính 'Link hình' cho trang Insight {ins_name}: {new_link}")
+                                logger.info(f"Đã cập nhật thuộc tính '{prop_name_found}' cho trang Insight {ins_name}: {new_link}")
                                 link_hinh_from_page = new_link
                             except Exception as e:
-                                logger.error(f"Không thể cập nhật thuộc tính 'Link hình' cho trang Insight {ins_name}: {e}")
+                                logger.error(f"Không thể cập nhật thuộc tính '{prop_name_found}' cho trang Insight {ins_name}: {e}")
 
-                    # Kiểm duyệt mô tả qua AI để đảm bảo phù hợp chính sách Shopee
-                    logger.info(f"Đang tiến hành kiểm duyệt AI cho mô tả Insight '{ins_name}'...")
-                    description_from_page = ai_generator.moderate_and_fix_shopee_description(description_from_page, api_key)
+                    # Sử dụng nội dung bài viết đã chuẩn bị sẵn từ Notion, lọc từ cấm cơ bản nếu cần
+                    logger.info(f"Sử dụng nội dung bài viết đã chuẩn bị cho Insight '{ins_name}'...")
+                    if description_from_page:
+                        description_from_page = ai_generator.clean_banned_words(description_from_page)
+                    else:
+                        description_from_page = generate_seo_description(title)
+
                     return {
                         "insight": ins_name,
-                        "title": title_from_page,
+                        "title": title_from_page or ins_name,
                         "description": description_from_page,
                         "link_hinh": link_hinh_from_page,
                         "suffix": f"-IN{idx+1}"
@@ -849,8 +1152,8 @@ def sync_notion_to_bigseller_excel(
                     cover_image = image_files[0]["url"]
                     album_images = [img["url"] for img in image_files[1:]]
                     
-            if not cover_image:
-                cover_image = "https://gsvvietnam.com/wp-content/uploads/2021/04/Zicum-GSV.jpg"
+            if not cover_image and image_files:
+                cover_image = image_files[0]["url"]
                 
             sub_images = [album_images[i] if i < len(album_images) else "" for i in range(8)]
             
@@ -913,7 +1216,7 @@ def sync_notion_to_bigseller_excel(
                     rows_to_export.append(row)
             else:
                 # Sản phẩm đơn lẻ (Không có biến thể)
-                single_price = variants[0]["price"] if len(variants) == 1 else 90000
+                single_price = variants[0]["price"] if variants else (int(p1) if p1 else 90000)
                 
                 row = {}
                 for col in columns:
@@ -983,12 +1286,20 @@ def sync_notion_to_bigseller_excel(
                 if candidate.is_dir() and candidate.is_relative_to(root_resolved):
                     selected_local_folder = candidate
 
-            for p_title in processed_titles:
+            for p_page_dict in pending_products:
+                p_title = ""
+                t_list = p_page_dict.get("properties", {}).get("Tên sản phẩm", {}).get("title", [])
+                if t_list:
+                    p_title = t_list[0].get("plain_text", "").strip()
+                p_orig_title = p_page_dict.get("original_insight_title", "")
+
                 matched_folder = selected_local_folder
-                if not matched_folder:
+                if not matched_folder and p_orig_title:
+                    matched_folder = find_local_product_folder(drive_root_path, p_orig_title)
+                if not matched_folder and p_title:
                     matched_folder = find_local_product_folder(drive_root_path, p_title)
                 if not matched_folder:
-                    matched_folder = drive_root_path / p_title
+                    matched_folder = drive_root_path / (p_orig_title or p_title or "Sản phẩm")
                     matched_folder.mkdir(parents=True, exist_ok=True)
                     
                 prod_excel_path = matched_folder / f"bigseller_sync_{timestamp}.xlsx"
@@ -1000,22 +1311,27 @@ def sync_notion_to_bigseller_excel(
     except Exception as drive_cp_err:
         logger.warning(f"Không thể sao chép file Excel vào thư mục Drive cục bộ: {drive_cp_err}")
     
-    # 7. Cập nhật trạng thái hoàn thành trên Notion: 'Trạng thái xử lý' = 'Chờ đăng', 'Content xong' = True
-    for p_id in processed_page_ids:
-        logger.info(f"Đang cập nhật 'Trạng thái xử lý' = 'Chờ đăng' và 'Content xong' = True cho page_id: {p_id}")
+    # 7. Cập nhật trạng thái hoàn thành trên Notion an toàn theo kiểu dữ liệu
+    for p_page_dict in pending_products:
+        p_id = p_page_dict.get("id")
+        if not p_id:
+            continue
+        logger.info(f"Đang cập nhật trạng thái hoàn thành trên Notion cho page_id: {p_id}")
         try:
             p_data = call_notion_with_retry(notion.pages.retrieve, page_id=p_id)
             p_props = p_data.get("properties", {})
             update_payload = {}
-            if "Trạng thái xử lý" in p_props:
+            if "Trạng thái" in p_props and p_props["Trạng thái"].get("type") == "select":
+                update_payload["Trạng thái"] = {"select": {"name": "Hoàn thành"}}
+            if "Trạng thái xử lý" in p_props and p_props["Trạng thái xử lý"].get("type") == "select":
                 update_payload["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
-            if "Content xong" in p_props:
+            if "Content xong" in p_props and p_props["Content xong"].get("type") == "checkbox":
                 update_payload["Content xong"] = {"checkbox": True}
-            if "Bài viết" in p_props:
+            if "Bài viết" in p_props and p_props["Bài viết"].get("type") == "checkbox":
                 update_payload["Bài viết"] = {"checkbox": True}
-            if "Trạng thái đăng bài Shopee" in p_props:
+            if "Trạng thái đăng bài Shopee" in p_props and p_props["Trạng thái đăng bài Shopee"].get("type") == "checkbox":
                 update_payload["Trạng thái đăng bài Shopee"] = {"checkbox": True}
-            if "Trạng thái đăng bài shopee" in p_props:
+            if "Trạng thái đăng bài shopee" in p_props and p_props["Trạng thái đăng bài shopee"].get("type") == "checkbox":
                 update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
 
             if update_payload:
@@ -1024,6 +1340,25 @@ def sync_notion_to_bigseller_excel(
                     page_id=p_id,
                     properties=update_payload
                 )
+
+            # Đồng thời cập nhật trạng thái cho trang Master tương ứng nếu có
+            master_page = p_page_dict.get("master_page") if isinstance(p_page_dict, dict) else None
+            if master_page:
+                m_id = master_page.get("id")
+                try:
+                    m_data = call_notion_with_retry(notion.pages.retrieve, page_id=m_id)
+                    m_props = m_data.get("properties", {})
+                    m_update = {}
+                    if "Trạng thái xử lý" in m_props and m_props["Trạng thái xử lý"].get("type") == "select":
+                        m_update["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
+                    if "Content xong" in m_props and m_props["Content xong"].get("type") == "checkbox":
+                        m_update["Content xong"] = {"checkbox": True}
+                    if "Bài viết" in m_props and m_props["Bài viết"].get("type") == "checkbox":
+                        m_update["Bài viết"] = {"checkbox": True}
+                    if m_update:
+                        update_notion_page_safe(notion, page_id=m_id, properties=m_update)
+                except Exception as m_err:
+                    logger.warning(f"Lỗi cập nhật master page {m_id}: {m_err}")
         except Exception as update_err:
             logger.warning(f"Không thể cập nhật thuộc tính hoàn thành trên Notion cho {p_id}: {update_err}")
         

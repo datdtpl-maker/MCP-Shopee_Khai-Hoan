@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.54"
+CURRENT_VERSION = "v2.2.55"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -146,7 +146,7 @@ exit
     except Exception as e:
         print(f"Loi khi khoi tao run_debug_chrome_gemini.bat: {e}")
 
-DEFAULT_DRIVE_ROOT = r"G:\My Drive\Test hình ảnh shopee"
+DEFAULT_DRIVE_ROOT = r"G:\My Drive\Hình ảnh Shopee"
 EVENT_LOCK = threading.Lock()
 EVENTS: list[dict[str, Any]] = []
 EVENT_COUNTER = 0
@@ -1368,9 +1368,9 @@ HTML = r"""
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
+          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; align-items: center; gap: 10px;">
           <!-- Dropdown 1: Thiết bị & Hệ thống -->
@@ -1438,11 +1438,26 @@ HTML = r"""
             <div class="panel-head"><h3>Thư mục Google Drive</h3><p>App ghi file trực tiếp vào thư mục Google Drive for desktop đang đồng bộ trên máy tính.</p></div>
             <div class="panel-body">
               <div class="field-action">
-                <div><label for="driveRoot">Đường dẫn thư mục chính</label><input id="driveRoot" value="G:\My Drive\Test hình ảnh shopee"></div>
+                <div><label for="driveRoot">Đường dẫn thư mục chính</label><input id="driveRoot" value="G:\My Drive\Hình ảnh Shopee"></div>
                 <button onclick="saveDriveRoot()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                   Lưu & quét lại
                 </button>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: flex-end; margin-bottom: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                <div style="flex: 1;">
+                  <label for="shopSelect" style="font-weight: 700; font-size: 12.5px; margin-bottom: 4px; display: block;">Shop Shopee</label>
+                  <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 38px; font-weight: 600;">
+                    <option value="nhathuockh.pharma">nhathuockh.pharma</option>
+                    <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+                  </select>
+                </div>
+                <div>
+                  <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="min-height: 38px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Quét Notion &amp; Tạo Thư Mục
+                  </button>
+                </div>
               </div>
               <div class="two">
                 <div>
@@ -1551,9 +1566,9 @@ HTML = r"""
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
+          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <!-- ChatGPT Chrome Debug Status -->
@@ -1624,7 +1639,7 @@ HTML = r"""
                 </div>
                 <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 10px;">
                   <select id="insightFolderSelect" onchange="selectInsightFolder()" style="font-size: 12px; min-height: 36px; border-radius: 8px; background: rgba(13, 17, 28, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text); padding: 0 10px;">
-                    <option value="">-- Quét để chọn Insight 1-5 --</option>
+                    <option value="">-- Quét để chọn Insight --</option>
                   </select>
                   <button type="button" class="secondary" onclick="scanInsightFolders()" style="min-height: 36px; padding: 0 12px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-radius: 8px; cursor: pointer;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1759,9 +1774,9 @@ HTML = r"""
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp & Quay</span>
-          <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
+          <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center;">
           <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
@@ -1778,11 +1793,32 @@ HTML = r"""
 
       <div class="workspace" style="display: flex; gap: 20px; width: 100%; max-width: 1840px; margin: 0 auto; align-items: start;">
 
-        <!-- Cột 1: Danh sách sản phẩm chờ từ Notion (Thư viện sản phẩm) -->
-        <aside class="panel" style="display: flex; flex-direction: column; gap: 16px; padding: 20px; min-width: 320px; max-width: 320px; height: 950px; box-sizing: border-box;">
-          <div style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; width: 100%;">
-            <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 15px; text-align: center; width: 100%;">Sản phẩm Notion</h4>
-            <button class="ghost" onclick="loadPendingProducts()" style="padding: 6px 12px; font-size: 11px;  background: var(--soft); border: 1px solid var(--panel-border); cursor: pointer; min-height: auto; border-radius: 6px; text-align: center; display: block; width: 100%; box-shadow: none;">🔄 Quét lại Notion</button>
+        <!-- Cột 1: Danh sách sản phẩm từ Shopee Insight Library -->
+        <aside class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; min-width: 320px; max-width: 320px; min-height: 650px; max-height: calc(100vh - 100px); position: sticky; top: 16px; box-sizing: border-box;">
+          <div style="display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 15px;">Sản phẩm Notion</h4>
+              <button class="ghost" onclick="loadPendingProducts()" style="padding: 4px 10px; font-size: 11px; background: var(--soft); border: 1px solid var(--panel-border); cursor: pointer; border-radius: 6px;" title="Tải lại danh sách từ Notion">🔄 Quét lại</button>
+            </div>
+            <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 34px; padding: 0 12px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              Quét Notion &amp; Tạo Thư Mục
+            </button>
+            <div style="display: flex; gap: 6px; align-items: center; flex-direction: column;">
+              <select id="shopeeShopFilter" onchange="filterShopeeProductsByShop(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text);">
+                <option value="">-- Tất cả Shop --</option>
+                <option value="nhathuockh.pharma">nhathuockh.pharma</option>
+                <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+              </select>
+              <select id="shopeeStatusFilter" onchange="filterShopeeProductsByStatus(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="Chờ đăng">⏳ Chờ đăng (Ưu tiên duyệt)</option>
+                <option value="Đã đăng">✅ Đã đăng</option>
+                <option value="Lên đơn">📝 Lên đơn</option>
+                <option value="Chưa đặt">⚪ Chưa đặt</option>
+              </select>
+            </div>
+            <input type="text" id="shopeeProductSearchInput" oninput="filterShopeeProductsBySearch(this.value)" placeholder="🔍 Tìm kiếm sản phẩm..." style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); box-sizing: border-box;">
           </div>
 
           <!-- Select ẩn phục vụ logic JS hiện tại -->
@@ -1791,7 +1827,7 @@ HTML = r"""
           </select>
 
           <!-- Danh sách items trực quan -->
-          <div id="shopeePendingProductsList" style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; padding-right: 4px; max-height: 850px;">
+          <div id="shopeePendingProductsList" style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; padding-right: 4px;">
             <div style="padding: 12px; color: var(--muted); font-size:12.5px; text-align:center;">Đang tải danh sách...</div>
           </div>
         </aside>
@@ -1862,200 +1898,90 @@ HTML = r"""
             </section>
           </div>
 
-          <!-- Lưới 2 cột chính: Thông tin sản phẩm & Ảnh/Gemini -->
-          <div class="work-grid">
-
-            <!-- Cột trái: Thông tin sản phẩm -->
-            <section class="panel" style="padding: 20px; height: 950px; box-sizing: border-box; display: flex; flex-direction: column;">
-              <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Thông tin sản phẩm</h4>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Ghi vào database xử lý sản phẩm Shopee</p>
-              </div>
-
-              <div class="form-grid" style="flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px;">
-                <input type="hidden" id="productPageId" value="">
-
-                <div>
-                  <label class="md3-label">Tên sản phẩm</label>
-                  <input id="productNameInput" class="md3-input" name="productName" type="text" placeholder="Tên sản phẩm..." required oninput="if (state.product && state.product.name && this.value.trim().toLowerCase() !== state.product.name.toLowerCase()) { document.getElementById('productPageId').value = ''; }" />
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                  <div>
-                    <label class="md3-label">Giá bán</label>
-                    <input id="productPrice" class="md3-input" name="productPrice" type="text" placeholder="Giá tiền..." />
-                  </div>
-                  <div>
-                    <label class="md3-label">Phân loại</label>
-                    <input id="productClassification" class="md3-input" name="productClassification" type="text" placeholder="Dung tích, size..." />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="md3-label">Biến thể / Giá</label>
-                  <textarea id="productVariants" class="md3-input" name="productVariants" rows="3" placeholder="Ví dụ:&#10;100ml - 129.000đ&#10;200ml - 219.000đ" style="height: 76px; min-height: 76px; resize: none;"></textarea>
-                </div>
-
-                <div>
-                  <label class="md3-label">Từ khóa chính (Insight)</label>
-                  <input id="keywords" class="md3-input" name="keywords" type="text" placeholder="Ví dụ: trị mụn, mờ thâm..." />
-                </div>
-
-                <div>
-                  <label class="md3-label">Ghi chú bán hàng</label>
-                  <textarea id="useCases" class="md3-input" name="useCases" rows="3" placeholder="Đối tượng dùng, công dụng, lưu ý..." style="height: 76px; min-height: 76px; resize: none;"></textarea>
-                </div>
-
-                <details class="prompt-editor" style="margin-top: 4px; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; background: var(--soft);">
-                  <summary style="font-family: var(--font-title); font-weight: 700; font-size: 12px; cursor: pointer; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; user-select: none;">
-                    <span>PROMPT TẠO INSIGHT</span>
-                    <strong>Ẩn/hiện</strong>
-                  </summary>
-                  <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-                    <textarea id="insightPrompt" class="md3-input" name="insightPrompt" rows="6" style="height: 120px; min-height: 120px; font-size: 12px;"></textarea>
-                    <div class="prompt-actions" style="display: flex; gap: 8px;">
-                      <button id="save-insight-prompt-button" class="md3-btn-secondary" style="padding: 4px 12px; font-size: 11px; min-height: 32px;" type="button" onclick="saveInsightPrompt()">Lưu prompt</button>
-                      <button id="reset-insight-prompt-button" class="md3-btn-secondary" style="padding: 4px 12px; font-size: 11px; min-height: 32px;" type="button" onclick="resetInsightPrompt()">Khôi phục</button>
-                      <span id="prompt-status" class="status muted" style="font-size: 11px; margin-top: 0; align-self: center; margin-left: auto;">Schema 5 insight khóa ở server</span>
-                    </div>
-                  </div>
-                </details>
-              </div>
-            </section>
-
-            <!-- Cột phải: Ảnh & Gemini -->
-            <section class="panel" style="padding: 20px; height: 950px; box-sizing: border-box; display: flex; flex-direction: column;">
-              <div class="panel-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
-                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Ảnh & Gemini</h4>
-                <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Phân tích ảnh cùng thông tin để sinh 5 insight</p>
-              </div>
-
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 4px;">
-                <!-- Image Upload Zone -->
-                <div class="source-block">
-                  <input id="image" name="image" type="file" accept="image/*" onchange="onImageFileChange()" style="display:none;" />
-                  <div id="image-upload-zone" class="image-upload-zone" tabindex="0" role="button" aria-label="Vùng tải ảnh sản phẩm" onpaste="onPasteZonePaste(event)" ondragover="event.preventDefault(); this.classList.add('is-active')" ondragleave="this.classList.remove('is-active')" ondrop="onDropZone(event)" onclick="if(document.getElementById('upload-placeholder').style.display !== 'none'){ document.getElementById('image').click(); }" style="border: 2px dashed var(--panel-border); border-radius: 12px; height: 260px; display: flex; align-items: center; justify-content: center; background: var(--soft); cursor: pointer; transition: all 0.3s; width: 100%;">
-                    <!-- Placeholder khi chưa có ảnh -->
-                    <div id="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px;">
-                      <div class="upload-icon" style="color: var(--brand);">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                      </div>
-                      <div class="upload-text" style="text-align: center;">
-                        <strong style="display: block; font-size: 13px; color: var(--text);">Bấm để chọn ảnh hoặc kéo &amp; thả</strong>
-                        <span style="font-size: 11px; color: var(--muted); display: block; margin-top: 4px;">Ctrl+V để dán · hỗ trợ JPG, PNG, WEBP</span>
-                      </div>
-                      <div class="upload-actions-row" onclick="event.stopPropagation()" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
-                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image').click()" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>Chọn file</span>
-                        <span class="upload-chip" onclick="event.stopPropagation(); document.getElementById('image-upload-zone').focus();" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel); color: var(--text); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Dán (Ctrl+V)</span>
-                        <span class="upload-chip" onclick="event.stopPropagation(); useLatestPixelPhotoForShopee();" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--primary); border-radius: 20px; background: var(--panel); color: var(--primary); cursor: pointer; font-weight: 600;" title="Lấy ảnh mới nhất vừa chụp từ Pixel">📸 Ảnh Pixel</span>
-                      </div>
-                    </div>
-
-                    <!-- Preview overlay khi đã có ảnh -->
-                    <div id="image-preview-overlay" class="image-preview-overlay" style="display: none; width: 100%; height: 100%; position: relative;" onclick="event.stopPropagation()">
-                      <img id="image-preview" alt="Preview ảnh sản phẩm" style="width: 100%; height: 100%; object-fit: contain;" />
-                      <div class="image-preview-meta" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.7); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
-                        <span id="paste-copy" style="font-size: 12px; color: #34d399; font-weight: 700;">✓ Sẵn sàng</span>
-                        <button id="clear-image-button" class="ghost-button" type="button" onclick="event.stopPropagation(); clearImageState();" style="padding: 3px 8px; font-size: 11px; background: rgba(255,255,255,0.15); border: none; border-radius: 4px; color: #fff; cursor: pointer;">✕ Xóa ảnh</button>
-                      </div>
-                    </div>
-                    <div id="paste-zone" style="display:none;" tabindex="-1"><div id="inline-preview" hidden></div></div>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="md3-label">Hoặc dán link ảnh</label>
-                  <input id="imageUrl" class="md3-input" name="imageUrl" type="url" placeholder="https://drive.google.com/... hoặc link ảnh public" oninput="onImageUrlInput()" />
-                </div>
-
-                <div class="actions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-                  <button id="open-chrome-button" class="md3-btn-secondary" style="width: 100%; min-height: 40px;" type="button" onclick="openChromeDebugGemini()">Mở & kiểm tra Gemini</button>
-                  <button id="analyze-button" class="md3-btn-primary" style="width: 100%; min-height: 42px;" type="button" onclick="analyzeProduct()">Phân tích ảnh</button>
-                  <button id="sync-gemini-button" class="md3-btn-success" style="width: 100%; min-height: 40px;" type="button" onclick="syncGeminiResultManual()">Đồng bộ từ Gemini</button>
-                </div>
-                <div style="margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
-                  <span id="analyze-status" class="status muted" style="margin-top: 0; font-size: 12px; font-weight: 600;">Chưa chạy</span>
-                </div>
-              </div>
-            </section>
+          <!-- Hidden elements for complete JS backward compatibility -->
+          <div style="display: none;">
+            <select id="unifiedInsightTargetSelect"></select>
+            <span id="unifiedProductShopBadge"></span>
+            <span id="unifiedProductTitle"></span>
+            <span id="unifiedInsightCountBadge"></span>
+            <span id="unifiedProductMeta"></span>
+            <span id="unifiedAdbBadge"></span>
+            <span id="analyze-status"></span>
+            <span id="prompt-status"></span>
+            <input type="file" id="image">
+            <input type="text" id="imageUrl">
+            <input type="text" id="keywords">
+            <textarea id="useCases"></textarea>
+            <textarea id="insightPrompt"></textarea>
           </div>
 
-          <!-- Bảng review insight (Full-width) -->
+          <!-- Bảng review insight (Full-width, trọng tâm chỉ để view bài và duyệt bài) -->
           <section class="panel result-panel" style="padding: 20px; margin-bottom: 0;">
-            <div class="panel-head result-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="panel-head result-head" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div>
-                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 15px;">Bảng review insight</h4>
-                <p id="product-name" style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Chưa có sản phẩm</p>
+                <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px;">Bảng xem bài viết &amp; Insight</h4>
+                <p id="product-name" style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">👈 Chọn sản phẩm từ danh sách bên trái</p>
               </div>
-              <span id="save-status" class="status muted" style="margin-top: 0; font-size: 12px; font-weight: 600;">Chưa ghi Notion</span>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="btnPreviewPosts" class="secondary" onclick="openFullPostsEditorModal()" style="min-height: 36px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span>Xem chi tiết bài viết</span>
+                </button>
+                <button type="button" class="secondary" onclick="openCurrentProductFolder()" style="min-height: 36px; padding: 0 12px; font-size: 12px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;" title="Mở thư mục ảnh sản phẩm trên máy tính">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                  Mở Folder máy
+                </button>
+                <button type="button" class="ghost" onclick="refreshCurrentProductImages()" style="min-height: 36px; padding: 0 10px; font-size: 12px; border-radius: 6px; font-weight: 600; border: 1px solid var(--panel-border);" title="Quét lại ảnh trong các thư mục Insight">
+                  🔄 Quét lại ảnh
+                </button>
+              </div>
             </div>
 
-            <section id="post-prompt-library" style="border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; background: var(--soft); display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
-                  <div>
-                    <h4 style="margin: 0; font-family: var(--font-title); font-size: 15px; font-weight: 800;">Prompt viết 5 bài Shopee</h4>
-                    <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5;">Chuẩn bị prompt trước hoặc sau khi tạo Insight. Tool tự gắn dữ liệu sản phẩm và từng Insight trước khi gửi AI.</p>
-                  </div>
-                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="secondary" onclick="newPostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Thêm mẫu</button>
-                    <button type="button" class="secondary" onclick="savePostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Lưu sửa</button>
-                    <button type="button" class="secondary" onclick="deletePostPromptTemplate()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700; color: var(--danger);">Xóa</button>
-                    <button type="button" class="secondary" onclick="document.getElementById('postPromptImportInput').click()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Nhập file</button>
-                    <button type="button" class="secondary" onclick="exportPostPromptTemplates()" style="min-height: 44px; padding: 0 14px; font-size: 12px; font-weight: 700;">Xuất file</button>
-                  </div>
-                </div>
-                <input type="file" id="postPromptImportInput" accept=".txt,text/plain" onchange="importPostPromptTemplates(event)" hidden>
-                <div class="post-prompt-fields">
-                  <div>
-                    <label for="postPromptSelect" class="md3-label">Mẫu đang dùng</label>
-                    <select id="postPromptSelect" class="md3-input" onchange="selectPostPromptTemplate(this.value)" style="min-height: 44px;"></select>
-                  </div>
-                  <div>
-                    <label for="postPromptTitle" class="md3-label">Tên mẫu prompt</label>
-                    <input id="postPromptTitle" type="text" class="md3-input" placeholder="Ví dụ: Dược sĩ tư vấn ngắn gọn" style="min-height: 44px;">
-                  </div>
-                </div>
-                <div>
-                  <label for="postPromptContent" class="md3-label">Nội dung prompt gửi AI</label>
-                  <textarea id="postPromptContent" class="md3-input" rows="7" oninput="markPostPromptChanged()" placeholder="Nhập giọng văn, cách mở bài, hoạt cảnh sử dụng và cấu trúc mong muốn..." style="min-height: 150px; resize: vertical; line-height: 1.5;"></textarea>
-                  <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; flex-wrap: wrap;">
-                    <span style="font-size: 11px; color: var(--muted);">Biến hỗ trợ: {{product_name}}, {{classification}}, {{product_description}}, {{post_title}}, {{angle}}, {{insight_content}}, {{keywords}}</span>
-                    <span id="postPromptStatus" role="status" aria-live="polite" style="font-size: 11px; color: var(--muted);">Đang tải thư viện prompt...</span>
-                  </div>
-                </div>
-            </section>
-
             <div id="empty-state" class="empty-state" style="padding: 30px; text-align: center; color: var(--muted); font-size: 13.5px; font-weight: 500;">
-              Phân tích ảnh để sinh 5 insight, chỉnh lại nếu cần rồi ghi nhận vào Notion.
+              👈 Chọn sản phẩm ở cột bên trái để xem nội dung bài viết và hình ảnh các Insight đã chuẩn bị sẵn từ Notion.
             </div>
 
             <form id="save-form" class="stack" onsubmit="saveInsightsToNotion(event)" hidden style="display: flex; flex-direction: column; gap: 16px;">
-              <div id="save-product-summary" class="summary-strip"></div>
+              <input type="hidden" id="productPageId" value="">
+              <input type="hidden" id="productNameInput" value="">
+              <input type="hidden" id="productPrice" value="">
+              <input type="hidden" id="productClassification" value="">
+              <input type="hidden" id="productVariants" value="">
+              <div id="save-product-summary" class="summary-strip" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;"></div>
 
               <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
-                      <th style="width: 48px;">#</th>
-                      <th style="width: 160px;">Góc viết</th>
+                      <th style="width: 44px; text-align: center;">#</th>
+                      <th style="width: 140px;">Góc viết</th>
                       <th style="width: 220px;">Tiêu đề post</th>
-                      <th style="width: 380px;">Insight</th>
-                      <th style="width: 220px;">Từ khóa</th>
-                      <th style="width: 280px;">Comment sửa</th>
+                      <th style="min-width: 380px;">Nội dung bài viết</th>
+                      <th style="width: 160px;">Từ khóa</th>
+                      <th style="width: 190px;">Hình ảnh &amp; Thư mục</th>
+                      <th style="width: 110px; text-align: center;">Chi tiết</th>
                     </tr>
                   </thead>
                   <tbody id="insight-table-body"></tbody>
                 </table>
               </div>
 
-              <div class="actions save-actions" style="display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
-                <button type="button" id="btnPreviewPosts" class="secondary" onclick="openFullPostsEditorModal()" style="min-height: 42px; padding: 0 20px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <span>Xem & Chỉnh sửa bài viết AI</span>
+              <div class="actions save-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 12px; font-weight: 700; color: var(--muted);">Trạng thái Notion:</span>
+                  <select id="quickNotionStatusSelect" onchange="changeCurrentProductNotionStatus(this.value)" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text);">
+                    <option value="Chờ đăng">⏳ Chờ đăng</option>
+                    <option value="Đã đăng">✅ Đã đăng</option>
+                    <option value="Lên đơn">📝 Lên đơn</option>
+                    <option value="Nội dung">✍️ Nội dung</option>
+                    <option value="Hủy">❌ Hủy</option>
+                  </select>
+                  <span id="quickStatusSaveFeedback" style="font-size: 11.5px; font-weight: 600; color: #34d399;"></span>
+                </div>
+                <button id="save-button" class="md3-btn-primary" type="submit" style="min-height: 40px; padding: 0 24px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  <span>Lưu bài viết vào Notion</span>
                 </button>
-                <button id="save-button" class="md3-btn-primary" type="submit" style="min-height: 42px; padding: 0 32px;">Ghi nhận vào Notion</button>
               </div>
             </form>
           </section>
@@ -2074,13 +2000,9 @@ HTML = r"""
                   </div>
                 </div>
                 <div style="display: flex; gap: 8px; align-self: flex-end;">
-                  <button class="md3-btn-secondary" onclick="syncNotionImageLinks()" style="padding: 8px 16px; font-size: 12px; white-space: nowrap; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 700; transition: all 0.2s;" title="Chỉ đồng bộ link hình từ Drive sang trang Notion con">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    Đồng bộ link hình Notion
-                  </button>
-                  <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 8px 18px; font-size: 12px; white-space: nowrap;" title="Chạy đồng bộ ngay">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                    Đồng bộ ngay
+                  <button class="md3-btn-success" onclick="runShopeeSync()" style="padding: 9px 20px; font-size: 12.5px; white-space: nowrap; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35); border-radius: 8px; cursor: pointer;" title="Xuất file Excel chuẩn BigSeller để đăng sàn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    Xuất file Excel BigSeller
                   </button>
                 </div>
               </div>
@@ -2123,6 +2045,96 @@ HTML = r"""
         </div><!-- end col-2 main content -->
       </div><!-- end workspace -->
     </div>
+
+  <!-- Modal Loading khi chọn sản phẩm từ Notion -->
+  <div id="productLoadingModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 28px 36px; display: flex; flex-direction: column; align-items: center; gap: 18px; box-shadow: 0 25px 60px rgba(0,0,0,0.85); max-width: 440px; width: 100%; text-align: center; animation: fadeInModal 0.25s ease;">
+      <div style="position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 52px; height: 52px; border: 3.5px solid rgba(56,189,248,0.15); border-top-color: #38bdf8; border-radius: 50%; animation: spinProductLoading 0.75s linear infinite;"></div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" style="position: absolute;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </div>
+      <div>
+        <h4 style="margin: 0; font-size: 16.5px; font-weight: 800; color: #ffffff; font-family: var(--font-title); letter-spacing: 0.2px;">Đang nạp dữ liệu từ Notion...</h4>
+        <p id="productLoadingText" style="margin: 8px 0 0; font-size: 13px; color: #94a3b8; line-height: 1.5;">Đang tải toàn bộ bài viết, hashtag, các góc Insight và ảnh sản phẩm từ Google Drive. Vui lòng chờ...</p>
+      </div>
+      <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
+        <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); animation: shimmerProgress 1.4s infinite ease-in-out;"></div>
+      </div>
+    </div>
+  </div>
+  <style>
+    @keyframes spinProductLoading {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shimmerProgress {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+
+  <!-- Modal Quét Notion Shopee Insight Library & Tạo Thư Mục -->
+  <div id="notionInsightModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; max-width: 960px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.8); overflow: hidden;">
+      <!-- Modal Header -->
+      <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: #10b981;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 800; font-family: var(--font-title); color: #ffffff;">Quét Notion - Shopee Insight Library</h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #94a3b8;">Tự động quét số lượng Insight thực tế và tạo thư mục Drive chuẩn phân cấp theo Shop.</p>
+          </div>
+        </div>
+        <button onclick="closeNotionInsightModal()" class="ghost" style="min-height: auto; padding: 6px 10px; font-size: 16px; cursor: pointer; border-radius: 6px; color: #94a3b8;">✕</button>
+      </div>
+
+      <!-- Modal Toolbar -->
+      <div style="padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label style="font-size: 12.5px; font-weight: 700; margin: 0; white-space: nowrap; color: #f3f4f6;">Shop lưu ảnh trên Drive:</label>
+          <select id="modalShopSelect" style="padding: 6px 12px; border-radius: 6px; font-size: 12.5px; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #ffffff;">
+            <option value="nhathuockh.pharma">nhathuockh.pharma</option>
+            <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="secondary" onclick="loadNotionInsightProducts()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: #f3f4f6;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Quét lại Notion
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Table) -->
+      <div style="padding: 0; overflow-y: auto; flex: 1; background: #0b1120;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: #1e293b; color: #f1f5f9; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+              <th style="padding: 12px 16px;">Tên sản phẩm & Chi tiết Insight</th>
+              <th style="padding: 12px 16px; text-align: center; width: 95px;">Số Insight</th>
+              <th style="padding: 12px 16px; text-align: center; width: 140px;">Trạng thái</th>
+              <th style="padding: 12px 16px; text-align: center; width: 120px;">Thư mục / Drive</th>
+              <th style="padding: 12px 16px; text-align: right; width: 170px;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="notionInsightTableBody">
+            <!-- Render dynamic rows here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 12px 20px; border-top: 1px solid var(--panel-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+        <span style="font-size: 12px; color: var(--muted);">* Tạo thư mục sẽ tự tạo thư mục cha & các thư mục con theo tên Insight trên Notion, đồng thời cập nhật link Drive lên Notion.</span>
+        <button class="secondary" onclick="closeNotionInsightModal()" style="padding: 6px 18px; font-size: 12.5px; border-radius: 6px; cursor: pointer;">Đóng</button>
+      </div>
+    </div>
+  </div>
 
 <script>
   const logBox=document.getElementById("log"); let eventCount=0,lastId=0,poller=null,busy=false,lastAutomationId=0,automationPoller=null;
@@ -2337,8 +2349,200 @@ HTML = r"""
   function requireFolder(){if(!selected()){log({error:"Hãy chọn hoặc tạo thư mục sản phẩm trước khi chụp/quay."});return false}return true}
   function setBusy(v){busy=v;document.querySelectorAll("button").forEach(b=>{if(b.id!=="btnStop"&&!b.classList.contains("btn-stop"))b.disabled=v});document.getElementById("themeToggleBtn").disabled=false;if(document.querySelector("#wifiIpGroup button")) document.querySelectorAll("#wifiIpGroup button").forEach(b=>b.disabled=v);}
   async function stopOperation(){try{log({status:"Đang dừng tất cả tiến trình..."});const d=await api("/api/operation/stop",{});log(d);setBusy(false);await refresh()}catch(e){log(e);setBusy(false);await refresh()}}
-  function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-  function render(d){document.getElementById("adbMetric").innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;document.getElementById("driveMetric").innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;document.getElementById("selectedMetric").textContent=d.selected_folder||"Chưa chọn";document.getElementById("folderMetric").textContent=(d.folders||[]).length;document.getElementById("busyMetric").innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;document.getElementById("navFolders").textContent=(d.folders||[]).length;document.getElementById("navDrive").textContent=d.drive_ready?"OK":"Lỗi";document.getElementById("navAdb").textContent=d.adb_device?"OK":"Offline";document.getElementById("driveRoot").value=d.drive_root;document.getElementById("connMode").value=d.connection_mode||"usb";document.getElementById("wifiIp").value=d.wifi_ip||"";document.getElementById("adbPathInput").value=d.adb_path||"";document.getElementById("scrcpyPathInput").value=d.scrcpy_path||"";changeConnMode();const s=document.getElementById("folderSelect"),current=d.selected_folder||s.value;s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+d.folders.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");s.value=current;const pb=document.getElementById("previewBtn"),pt=document.getElementById("previewBtnText");if(pb&&pt){if(d.scrcpy_running){pb.classList.add("pulse-warn");pt.textContent="Đóng xem Pixel"}else{pb.classList.remove("pulse-warn");pt.textContent="Xem Pixel"}}}
+  function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+  function render(d){
+    document.getElementById("adbMetric").innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;
+    document.getElementById("driveMetric").innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;
+    document.getElementById("selectedMetric").textContent=d.selected_folder||"Chưa chọn";
+    document.getElementById("folderMetric").textContent=(d.folders||[]).length;
+    document.getElementById("busyMetric").innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;
+    document.getElementById("navFolders").textContent=(d.folders||[]).length;
+    document.getElementById("navDrive").textContent=d.drive_ready?"OK":"Lỗi";
+    document.getElementById("navAdb").textContent=d.adb_device?"OK":"Offline";
+    const uAdb = document.getElementById("unifiedAdbBadge");
+    if (uAdb) {
+      uAdb.className = d.adb_device ? "badge ok" : "badge warn";
+      uAdb.textContent = d.adb_device ? `Pixel ADB: ${d.adb_device}` : "Pixel ADB: Chưa kết nối";
+    }
+    document.getElementById("driveRoot").value=d.drive_root;
+    document.getElementById("connMode").value=d.connection_mode||"usb";
+    document.getElementById("wifiIp").value=d.wifi_ip||"";
+    document.getElementById("adbPathInput").value=d.adb_path||"";
+    document.getElementById("scrcpyPathInput").value=d.scrcpy_path||"";
+    changeConnMode();
+
+    if (d.shops && d.shops.length > 0) {
+      const shopSel = document.getElementById("shopSelect");
+      if (shopSel) {
+        const curShop = d.selected_shop || shopSel.value;
+        shopSel.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+        shopSel.value = curShop;
+      }
+      const modalShop = document.getElementById("modalShopSelect");
+      if (modalShop) {
+        const curMShop = d.selected_shop || modalShop.value;
+        modalShop.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+        modalShop.value = curMShop;
+      }
+    }
+
+    const s=document.getElementById("folderSelect"),current=d.selected_folder||s.value;
+    s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+d.folders.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+    s.value=current;
+
+    const pb=document.getElementById("previewBtn"),pt=document.getElementById("previewBtnText");
+    if(pb&&pt){
+      if(d.scrcpy_running){pb.classList.add("pulse-warn");pt.textContent="Đóng xem Pixel"}
+      else{pb.classList.remove("pulse-warn");pt.textContent="Xem Pixel"}
+    }
+  }
+
+  async function changeShop(){
+    const shopSel = document.getElementById("shopSelect");
+    if (!shopSel) return;
+    try {
+      const res = await api("/api/select-shop", { shop: shopSel.value });
+      log(res);
+      await refresh();
+    } catch(e) { log(e); }
+  }
+
+  let notionInsightProducts = [];
+
+  async function openNotionInsightModal() {
+    const modal = document.getElementById("notionInsightModal");
+    if (modal) modal.style.display = "flex";
+    const shopVal = (document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
+    const modalShop = document.getElementById("modalShopSelect");
+    if (modalShop) modalShop.value = shopVal;
+    await loadNotionInsightProducts();
+  }
+
+  function closeNotionInsightModal() {
+    const modal = document.getElementById("notionInsightModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  async function loadNotionInsightProducts() {
+    const tableBody = document.getElementById("notionInsightTableBody");
+    if (tableBody) {
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--muted);"><div class="spinner" style="margin: 0 auto 10px;"></div>Đang quét dữ liệu từ Shopee Insight Library trên Notion...</td></tr>';
+    }
+    try {
+      const res = await fetch("/api/notion/insight-products");
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Lỗi tải dữ liệu");
+      notionInsightProducts = data.products || [];
+      renderNotionInsightTable();
+    } catch (e) {
+      if (tableBody) {
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #ef4444;">Lỗi: ${escapeHtml(e.message)}</td></tr>`;
+      }
+    }
+  }
+
+  function renderNotionInsightTable() {
+    const tableBody = document.getElementById("notionInsightTableBody");
+    if (!tableBody) return;
+    if (notionInsightProducts.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: #94a3b8; font-size: 13px;">Không tìm thấy sản phẩm nào trong Notion.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = notionInsightProducts.map((p, idx) => {
+      let statusBadge = "";
+      if (!p.insight_count || p.insight_count === 0) {
+        statusBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;">Chưa có insight</span>';
+      } else if (p.status === "Hoàn thành") {
+        statusBadge = '<span class="badge ok" style="background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.35); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;">✓ Đã tạo thư mục</span>';
+      } else {
+        statusBadge = '<span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.35); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 6px;">Chưa tạo thư mục</span>';
+      }
+
+      const insightNames = (p.insights || []).map(i => `<div style="font-size: 11.5px; color: #93c5fd; margin-top: 3px; font-weight: 500;">🔹 ${escapeHtml(i.title)}</div>`).join("");
+
+      let driveLinkHtml = '<span style="color: #64748b; font-size: 11.5px;">Chưa tạo</span>';
+      if (p.drive_url) {
+        driveLinkHtml = `<a href="${escapeHtml(p.drive_url)}" target="_blank" style="color: #38bdf8; font-size: 12px; text-decoration: underline; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">Mở Drive ↗</a>`;
+      } else if (p.existing_shop) {
+        driveLinkHtml = `<span style="color: #38bdf8; font-size: 12px; font-weight: 600;">📁 ${escapeHtml(p.existing_shop)}</span>`;
+      }
+
+      let btnHtml = "";
+      if (!p.insight_count || p.insight_count === 0) {
+        btnHtml = `<button disabled style="opacity: 0.45; cursor: not-allowed; padding: 6px 14px; font-size: 11.5px; font-weight: 600; border-radius: 6px; background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1);">Chưa có insight</button>`;
+      } else if (p.status === "Hoàn thành") {
+        btnHtml = `<button class="secondary" onclick="createFoldersForProduct('${escapeHtml(p.page_id)}', ${idx})" id="btnCreateProd_${idx}" style="padding: 6px 14px; font-size: 11.5px; font-weight: 700; border-radius: 6px; cursor: pointer; white-space: nowrap; color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); background: rgba(56,189,248,0.08);">Tạo lại / Cập nhật</button>`;
+      } else {
+        btnHtml = `<button class="md3-btn-primary" onclick="createFoldersForProduct('${escapeHtml(p.page_id)}', ${idx})" id="btnCreateProd_${idx}" style="padding: 6px 16px; font-size: 11.5px; font-weight: 700; border-radius: 6px; cursor: pointer; white-space: nowrap; background: linear-gradient(135deg, #0d9488, #2dd4bf); color: #fff; box-shadow: 0 2px 8px rgba(45,212,191,0.25);">Tạo thư mục Drive</button>`;
+      }
+
+      return `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.01);">
+          <td style="padding: 12px 14px;">
+            <div style="font-weight: 700; font-size: 13.5px; color: #ffffff; line-height: 1.4;">${escapeHtml(p.title)}</div>
+            ${insightNames}
+          </td>
+          <td style="padding: 12px 14px; text-align: center;">
+            ${p.insight_count > 0 
+              ? `<span style="font-size: 13px; font-weight: 800; color: #2dd4bf; background: rgba(45, 212, 191, 0.15); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(45, 212, 191, 0.3);">${p.insight_count}</span>` 
+              : `<span style="font-size: 12.5px; font-weight: 700; color: #94a3b8;">0</span>`}
+          </td>
+          <td style="padding: 12px 14px; text-align: center;">
+            ${statusBadge}
+          </td>
+          <td style="padding: 12px 14px; text-align: center;">
+            ${driveLinkHtml}
+          </td>
+          <td style="padding: 12px 14px; text-align: right;">
+            ${btnHtml}
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function createFoldersForProduct(pageId, btnIdx) {
+    const btn = document.getElementById(`btnCreateProd_${btnIdx}`);
+    const origText = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = "Đang tạo...";
+    }
+
+    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
+
+    try {
+      const res = await fetch("/api/notion/create-product-folders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page_id: pageId, shop })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Lỗi tạo thư mục");
+
+      alert(`Thành công! ${data.status}`);
+      await refresh();
+      await loadNotionInsightProducts();
+      if (typeof loadPendingProducts === "function") {
+        await loadPendingProducts();
+      }
+
+      const posterDirInput = document.getElementById("posterExportDir");
+      if (posterDirInput && data.product_dir) {
+        posterDirInput.value = data.product_dir;
+        if (typeof onExportDirChange === 'function') onExportDirChange();
+        if (typeof scanInsightFolders === 'function') scanInsightFolders();
+      }
+    } catch (e) {
+      alert("Lỗi: " + e.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    }
+  }
   async function refresh(){try{render(await api("/api/status"))}catch(e){log(e)}}
   async function scanFolders(){try{render(await api("/api/status"));log({status:"Đã quét lại danh sách thư mục."})}catch(e){log(e)}}
   async function togglePreview(){try{const txt=document.getElementById("previewBtnText").textContent;if(txt==="Đóng xem Pixel"){log(await api("/api/close-preview",{}))}else{log(await api("/api/open-preview",{}))}refresh()}catch(e){log(e)}}
@@ -2420,7 +2624,8 @@ HTML = r"""
         throw new Error(data.error || "Lỗi quét Insight.");
       }
 
-      select.innerHTML = '<option value="">-- Chọn Insight 1-5 --</option>';
+      const insLen = (data.insights && data.insights.length) || 0;
+      select.innerHTML = `<option value="">-- Chọn Insight (${insLen}) --</option>`;
       state.scannedInsights = data.insights || [];
 
       if (state.scannedInsights.length === 0) {
@@ -2835,65 +3040,177 @@ HTML = r"""
     URL.revokeObjectURL(url);
   }
 
+  let cachedShopeePendingProducts = [];
+  let selectedShopeeShopFilter = "";
+
   async function loadPendingProducts() {
     const select = document.getElementById("shopeePendingProducts");
     const listContainer = document.getElementById("shopeePendingProductsList");
 
-    select.innerHTML = '<option value="">Đang quét danh sách trên Notion...</option>';
+    if (select) select.innerHTML = '<option value="">Đang quét danh sách trên Notion...</option>';
     if (listContainer) {
-      listContainer.innerHTML = '<div style="padding: 12px; color: var(--muted); font-size:12.5px; text-align:center;">Đang quét danh sách Notion...</div>';
+      listContainer.innerHTML = '<div style="padding: 16px; color: var(--muted); font-size:12.5px; text-align:center;">⏳ Đang quét danh sách Notion...</div>';
     }
 
     try {
       const products = await api("/api/shopee/products/pending");
-      select.innerHTML = "";
-      if (listContainer) listContainer.innerHTML = "";
-
-      if (!products || products.length === 0) {
-        select.innerHTML = '<option value="">Không có sản phẩm nào chờ viết bài</option>';
-        if (listContainer) {
-          listContainer.innerHTML = '<div style="padding: 12px; color: var(--muted); font-size:12.5px; text-align:center;">Không có sản phẩm nào chờ viết bài</div>';
-        }
-        return;
-      }
-
-      products.forEach(p => {
-        // Dien vao select an
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = p.title;
-        select.appendChild(opt);
-
-        // Dien vao danh sach truc quan
-        if (listContainer) {
-          const item = document.createElement("div");
-          item.className = "prompt-item"; // Dung chung style va hover voi prompt library
-          item.style = "padding: 10px 12px; border: 1px solid var(--panel-border); border-radius: 8px; background: var(--soft); cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; word-break: break-word;";
-          item.textContent = p.title;
-          item.onclick = () => {
-            listContainer.querySelectorAll(".prompt-item").forEach(el => {
-              el.style.borderColor = "var(--panel-border)";
-              el.style.background = "var(--soft)";
-              el.style.color = "var(--text)";
-            });
-            item.style.borderColor = "var(--brand)";
-            item.style.background = "rgba(45, 212, 191, 0.05)";
-            item.style.color = "var(--brand)";
-
-            select.value = p.id;
-            // Kich hoat onchange hoac goi truc tiep
-            onSelectPendingProduct(p.id);
-          };
-          listContainer.appendChild(item);
-        }
-      });
+      cachedShopeePendingProducts = Array.isArray(products) ? products : [];
+      renderShopeeProductsList(selectedShopeeShopFilter);
     } catch(e) {
       console.error("Lỗi load sản phẩm pending:", e);
-      select.innerHTML = '<option value="">Lỗi quét sản phẩm từ Notion</option>';
+      if (select) select.innerHTML = '<option value="">Lỗi quét sản phẩm từ Notion</option>';
       if (listContainer) {
-        listContainer.innerHTML = '<div style="padding: 12px; color: var(--danger); font-size:12.5px; text-align:center;">Lỗi quét sản phẩm từ Notion</div>';
+        listContainer.innerHTML = '<div style="padding: 12px; color: var(--danger); font-size:12.5px; text-align:center;">❌ Lỗi quét sản phẩm từ Notion</div>';
       }
     }
+  }
+
+  let shopeeSearchKeyword = "";
+  let selectedShopeeStatusFilter = "";
+
+  function filterShopeeProductsBySearch(kw) {
+    shopeeSearchKeyword = (kw || "").trim().toLowerCase();
+    renderShopeeProductsList(selectedShopeeShopFilter);
+  }
+
+  function filterShopeeProductsByShop(shop) {
+    selectedShopeeShopFilter = (shop || "").trim();
+    renderShopeeProductsList(selectedShopeeShopFilter);
+  }
+
+  function filterShopeeProductsByStatus(st) {
+    selectedShopeeStatusFilter = (st || "").trim();
+    renderShopeeProductsList(selectedShopeeShopFilter);
+  }
+
+  function renderShopeeProductsList(filterShop = "") {
+    const select = document.getElementById("shopeePendingProducts");
+    const listContainer = document.getElementById("shopeePendingProductsList");
+    if (!listContainer) return;
+
+    if (select) select.innerHTML = '<option value="">-- Chọn sản phẩm --</option>';
+    listContainer.innerHTML = "";
+
+    const filtered = cachedShopeePendingProducts.filter(p => {
+      if (filterShop && (p.shop || "").toLowerCase() !== filterShop.toLowerCase()) {
+        return false;
+      }
+      if (selectedShopeeStatusFilter && (p.notion_status || "").toLowerCase() !== selectedShopeeStatusFilter.toLowerCase()) {
+        return false;
+      }
+      if (shopeeSearchKeyword && !(p.title || "").toLowerCase().includes(shopeeSearchKeyword)) {
+        return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      if (select) select.innerHTML = '<option value="">Không có sản phẩm phù hợp</option>';
+      listContainer.innerHTML = '<div style="padding: 16px; color: var(--muted); font-size:12.5px; text-align:center;">Không có sản phẩm nào phù hợp bộ lọc</div>';
+      return;
+    }
+
+    const currentSelectedId = document.getElementById("productPageId")?.value || "";
+
+    filtered.forEach(p => {
+      if (select) {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `[${p.notion_status || "Chưa đặt"}] ${p.title}`;
+        if (p.id === currentSelectedId) opt.selected = true;
+        select.appendChild(opt);
+      }
+
+      const item = document.createElement("div");
+      item.className = "prompt-item";
+      const isSelected = p.id === currentSelectedId;
+      item.style = `padding: 10px 12px; border: 1px solid ${isSelected ? "var(--brand)" : "var(--panel-border)"}; border-radius: 8px; background: ${isSelected ? "rgba(45, 212, 191, 0.08)" : "var(--soft)"}; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px;`;
+
+      const titleEl = document.createElement("div");
+      titleEl.style = `font-size: 13px; font-weight: 600; color: ${isSelected ? "var(--brand)" : "var(--text)"}; line-height: 1.4; word-break: break-word;`;
+      titleEl.textContent = p.title;
+      item.appendChild(titleEl);
+
+      const metaRow = document.createElement("div");
+      metaRow.style = "display: flex; gap: 5px; align-items: center; flex-wrap: wrap;";
+
+      // 1. Badge Trạng thái Notion (Chờ đăng, Đã đăng...)
+      const nStatus = p.notion_status || "Chưa đặt";
+      const nStatusBadge = document.createElement("span");
+      if (nStatus === "Chờ đăng") {
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 7px; border-radius: 4px; background: rgba(245, 158, 11, 0.18); color: #f59e0b; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.35);";
+        nStatusBadge.textContent = "⏳ Chờ đăng";
+      } else if (nStatus === "Đã đăng") {
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(52, 211, 153, 0.15); color: #34d399; font-weight: 600;";
+        nStatusBadge.textContent = "✅ Đã đăng";
+      } else if (nStatus === "Lên đơn") {
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 600;";
+        nStatusBadge.textContent = "📝 Lên đơn";
+      } else {
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(156, 163, 175, 0.12); color: var(--muted); font-weight: 600;";
+        nStatusBadge.textContent = nStatus;
+      }
+      metaRow.appendChild(nStatusBadge);
+
+      // 2. Badge Shop
+      if (p.shop) {
+        const shopBadge = document.createElement("span");
+        shopBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; font-weight: 600;";
+        shopBadge.textContent = p.shop;
+        metaRow.appendChild(shopBadge);
+      }
+
+      // 3. Badge số Insight
+      const countBadge = document.createElement("span");
+      countBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(45, 212, 191, 0.12); color: #2dd4bf; font-weight: 600;";
+      countBadge.textContent = `${p.insight_count || 0} Insight`;
+      metaRow.appendChild(countBadge);
+
+      // 4. Badge Tình trạng Hình ảnh & Bài viết
+      let statusBg = "rgba(156, 163, 175, 0.12)";
+      let statusColor = "var(--muted)";
+      if (p.status === "Đủ bài & hình") {
+        statusBg = "rgba(52, 211, 153, 0.15)";
+        statusColor = "#34d399";
+      } else if (p.status.includes("Thiếu hình")) {
+        statusBg = "rgba(251, 191, 36, 0.15)";
+        statusColor = "#fbbf24";
+      } else if (p.status === "Chưa có insight") {
+        statusBg = "rgba(239, 68, 68, 0.15)";
+        statusColor = "#f87171";
+      }
+      const readyBadge = document.createElement("span");
+      readyBadge.style = `font-size: 10px; padding: 2px 6px; border-radius: 4px; background: ${statusBg}; color: ${statusColor}; font-weight: 600;`;
+      readyBadge.textContent = p.status;
+      metaRow.appendChild(readyBadge);
+
+      // 5. Giá nếu có
+      if (p.price) {
+        const priceBadge = document.createElement("span");
+        priceBadge.style = "font-size: 10px; color: #34d399; font-weight: 700; margin-left: auto;";
+        priceBadge.textContent = p.price;
+        metaRow.appendChild(priceBadge);
+      }
+
+      item.appendChild(metaRow);
+
+      item.onclick = () => {
+        listContainer.querySelectorAll(".prompt-item").forEach(el => {
+          el.style.borderColor = "var(--panel-border)";
+          el.style.background = "var(--soft)";
+          const t = el.querySelector("div");
+          if (t) t.style.color = "var(--text)";
+        });
+        item.style.borderColor = "var(--brand)";
+        item.style.background = "rgba(45, 212, 191, 0.08)";
+        titleEl.style.color = "var(--brand)";
+
+        if (select) select.value = p.id;
+        onSelectPendingProduct(p.id);
+      };
+
+      listContainer.appendChild(item);
+    });
   }
   // --- New AI Insight Shopee JS Logic ---
   const defaultInsightPrompt = [
@@ -3111,13 +3428,28 @@ HTML = r"""
       const driveInput = document.getElementById("shopeeSyncDriveUrl");
       if (driveInput) driveInput.value = "";
       localStorage.removeItem("shopee_sync_drive_url");
+      state.insights = [];
+      const emptyState = document.getElementById("empty-state");
+      const saveForm = document.getElementById("save-form");
+      if (emptyState) emptyState.hidden = false;
+      if (saveForm) saveForm.hidden = true;
+      const btnPreview = document.getElementById("btnPreviewPosts");
+      if (btnPreview) {
+        btnPreview.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span>Xem chi tiết bài viết</span>';
+      }
       return;
     }
 
     // Ghi nhận lựa chọn ngay khi click để nút Đồng bộ không dùng page_id cũ.
     document.getElementById("productPageId").value = pageId;
 
-    setStatus("analyze-status", "Đang tải thông tin sản phẩm từ Notion...", "muted");
+    // Hiển thị Pop-up loading chuyên nghiệp
+    const loadingModal = document.getElementById("productLoadingModal");
+    if (loadingModal) {
+      loadingModal.style.display = "flex";
+    }
+
+    setStatus("analyze-status", "Đang tải thông tin sản phẩm và nội dung các Insight từ Notion...", "muted");
     try {
       const details = await api(`/api/shopee/product/details?page_id=${pageId}`);
       const selectedPageId = document.getElementById("shopeePendingProducts")?.value || "";
@@ -3125,7 +3457,7 @@ HTML = r"""
         return;
       }
       document.getElementById("productPageId").value = details.id || "";
-      document.getElementById("productNameInput").value = details.title || "";
+      document.getElementById("productNameInput").value = details.master_title || details.title || "";
       document.getElementById("productPrice").value = details.price || "";
       document.getElementById("productClassification").value = details.classification || "";
       document.getElementById("productVariants").value = details.variants || "";
@@ -3135,22 +3467,235 @@ HTML = r"""
         localStorage.setItem("shopee_sync_drive_url", driveInput.value);
       }
 
-      // Cập nhật state.product và nhãn màu đỏ ở bảng review
+      // Cập nhật state.product
       state.product = {
         productPageId: details.id || "",
-        name: details.title || "",
+        name: details.master_title || details.title || "",
         price: details.price || "",
         classification: details.classification || "",
-        variants: details.variants || ""
+        variants: details.variants || "",
+        shop: details.shop || "",
+        folderPath: details.selected_folder_path || "",
+        folderName: details.selected_folder || "",
+        master: details.master || null,
+        notion_status: details.notion_status || "",
+        note: details.note || "",
+        driveUrl: details.drive_url || ""
       };
-      state.productName = details.title || "";
-      renderProductSummary();
+      state.productName = details.master_title || details.title || "";
 
-      setStatus("analyze-status", "Đã tải xong thông tin từ Notion.", "is-success");
+      // Đồng bộ trạng thái Notion vào dropdown chuyển nhanh
+      const statusSelect = document.getElementById("quickNotionStatusSelect");
+      if (statusSelect && details.notion_status) {
+        statusSelect.value = details.notion_status;
+      }
+
+      // Nạp danh sách Insight từ Notion page
+      state.insights = (details.insights || []).map(ins => ({
+        id: ins.id,
+        order: ins.order,
+        angle: ins.angle || "",
+        postTitle: ins.title || "",
+        insightContent: ins.description || "",
+        keywords: ins.keywords || "",
+        folderName: ins.folder_name || "",
+        driveUrl: ins.drive_url || "",
+        imageCount: ins.image_count || 0,
+        images: ins.images || []
+      }));
+
+      // Cập nhật giao diện Review Panel
+      const emptyState = document.getElementById("empty-state");
+      const saveForm = document.getElementById("save-form");
+      const prodNameEl = document.getElementById("product-name");
+
+      if (prodNameEl) {
+        prodNameEl.innerHTML = `<span style="font-weight: 700; color: var(--text);">${escapeHtml(details.title)}</span>` +
+          (details.master_title && details.master_title !== details.title ? ` <span style="font-size: 11.5px; color: var(--muted);">(Master DB: ${escapeHtml(details.master_title)})</span>` : "") +
+          ` · <span style="color: var(--brand); font-weight: 600;">${state.insights.length} Insight sẵn sàng</span>`;
+      }
+
+      if (emptyState) emptyState.hidden = state.insights.length > 0;
+      if (saveForm) saveForm.hidden = state.insights.length === 0;
+
+      renderProductSummary();
+      renderInsightsTable();
+
+      // Cập nhật text nút Xem chi tiết bài viết theo đúng số lượng Insight thực tế (chỉ 1 icon)
+      const btnPreview = document.getElementById("btnPreviewPosts");
+      if (btnPreview) {
+        const insCount = state.insights.length;
+        btnPreview.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span>Xem chi tiết bài viết (${insCount} Insight)</span>`;
+      }
+
+      // Cập nhật thanh Media & Tạo hình thống nhất
+      const uTitle = document.getElementById("unifiedProductTitle");
+      if (uTitle) uTitle.textContent = details.title || "Chưa có tiêu đề";
+      const uShop = document.getElementById("unifiedProductShopBadge");
+      if (uShop) uShop.textContent = details.shop || "Chưa xác định Shop";
+      const uCountBadge = document.getElementById("unifiedInsightCountBadge");
+      if (uCountBadge) {
+        uCountBadge.style.display = "inline-flex";
+        uCountBadge.textContent = `${state.insights.length} Insight sẵn sàng`;
+      }
+      const uSelect = document.getElementById("unifiedInsightTargetSelect");
+      if (uSelect) {
+        uSelect.innerHTML = `<option value="">-- Cả thư mục sản phẩm (${escapeHtml(details.selected_folder || details.title)}) --</option>` +
+          (details.insights || []).map(ins => `<option value="${escapeHtml(ins.folder_name)}">${escapeHtml(ins.folder_name)} (${ins.image_count || 0} hình)</option>`).join("");
+      }
+      const uMeta = document.getElementById("unifiedProductMeta");
+      if (uMeta) {
+        let metaHtml = "";
+        if (details.master_title) {
+          metaHtml += `<span>🏷️ Master DB: <b>${escapeHtml(details.master_title)}</b></span>`;
+        }
+        if (details.price) {
+          metaHtml += `<span style="color: #34d399;">💰 Giá: <b>${escapeHtml(details.price)}</b></span>`;
+        }
+        if (details.classification) {
+          metaHtml += `<span>📦 Phân loại: <b>${escapeHtml(details.classification)}</b></span>`;
+        }
+        if (details.selected_folder_path) {
+          metaHtml += `<span style="color: #38bdf8; cursor: pointer; text-decoration: underline; font-weight: 600;" onclick="openCurrentProductFolder()" title="Bấm để mở thư mục trên máy tính">📁 ${escapeHtml(details.selected_folder_path)}</span>`;
+        } else {
+          metaHtml += `<span style="color: #fbbf24; font-weight: 600;">⚠️ Chưa tạo thư mục local Drive</span>`;
+        }
+        uMeta.innerHTML = metaHtml;
+      }
+
+      setStatus("analyze-status", `✓ Đã tải xong ${state.insights.length} Insight từ Notion!`, "is-success");
     } catch(e) {
       if (requestId !== pendingProductDetailsRequestId) return;
       console.error("Lỗi tải chi tiết sản phẩm:", e);
       setStatus("analyze-status", "Lỗi tải thông tin sản phẩm: " + (e.error || e.message || JSON.stringify(e)), "is-error");
+    } finally {
+      if (loadingModal) {
+        loadingModal.style.display = "none";
+      }
+    }
+  }
+
+  async function changeCurrentProductNotionStatus(newStatus) {
+    const pageId = document.getElementById("productPageId")?.value || state.product?.productPageId;
+    if (!pageId) {
+      alert("Vui lòng chọn một sản phẩm trước khi đổi trạng thái!");
+      return;
+    }
+    const feedback = document.getElementById("quickStatusSaveFeedback");
+    if (feedback) {
+      feedback.textContent = "Đang lưu...";
+      feedback.style.color = "var(--muted)";
+    }
+    try {
+      const res = await api("/api/shopee/product/update-status", { page_id: pageId, status: newStatus });
+      if (feedback) {
+        feedback.textContent = "✓ Đã cập nhật!";
+        feedback.style.color = "#34d399";
+        setTimeout(() => { if (feedback) feedback.textContent = ""; }, 3000);
+      }
+      if (state.product) {
+        state.product.notion_status = newStatus;
+      }
+      // Làm mới danh sách sản phẩm bên trái để cập nhật badge trạng thái
+      if (typeof fetchShopeePendingProducts === "function") {
+        fetchShopeePendingProducts();
+      }
+    } catch(e) {
+      console.error(e);
+      if (feedback) {
+        feedback.textContent = "❌ Lỗi!";
+        feedback.style.color = "var(--danger)";
+      }
+      alert("Lỗi cập nhật trạng thái Notion: " + (e.error || e.message || JSON.stringify(e)));
+    }
+  }
+
+  async function captureForCurrentProduct(specificSubfolder = "") {
+    if (busy) {
+      alert("Pixel đang bận xử lý tác vụ khác, vui lòng đợi...");
+      return;
+    }
+    const currentProd = state.product;
+    if (!currentProd || !currentProd.name) {
+      alert("Vui lòng chọn một sản phẩm từ danh sách bên trái trước khi chụp ảnh.");
+      return;
+    }
+
+    let targetFolder = "";
+    const shop = currentProd.shop || document.getElementById("shopeeShopFilter")?.value || "";
+    const prodFolder = currentProd.folderName || currentProd.name;
+
+    const sub = specificSubfolder || document.getElementById("unifiedInsightTargetSelect")?.value || "";
+    if (sub) {
+      targetFolder = (shop ? `${shop}/` : "") + `${prodFolder}/${sub}`;
+    } else {
+      targetFolder = (shop ? `${shop}/` : "") + `${prodFolder}`;
+    }
+
+    setBusy(true);
+    try {
+      log({ step: "capture", message: `📸 Đang chụp ảnh Pixel vào: ${targetFolder}...` });
+      const res = await api("/api/capture", { folder: targetFolder, shop: shop });
+      log(res);
+      // Tự động quét lại và reload hình ảnh sản phẩm để cập nhật thumbnail ngay trên bảng review
+      if (currentProd.productPageId) {
+        await onSelectPendingProduct(currentProd.productPageId);
+      }
+    } catch(e) {
+      console.error(e);
+      log({ step: "error", message: `Lỗi chụp ảnh: ${e.error || e.message || JSON.stringify(e)}` });
+      alert(`Lỗi chụp ảnh Pixel: ${e.error || e.message || JSON.stringify(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function recordForCurrentProduct() {
+    if (busy) return;
+    const currentProd = state.product;
+    if (!currentProd || !currentProd.name) {
+      alert("Vui lòng chọn sản phẩm trước.");
+      return;
+    }
+    const shop = currentProd.shop || "";
+    const prodFolder = currentProd.folderName || currentProd.name;
+    const sub = document.getElementById("unifiedInsightTargetSelect")?.value || "";
+    const targetFolder = (shop ? `${shop}/` : "") + `${prodFolder}` + (sub ? `/${sub}` : "");
+    const duration = 10;
+    setBusy(true);
+    try {
+      log({ step: "record", message: `🎥 Đang quay video Pixel (${duration}s) vào: ${targetFolder}...` });
+      const res = await api("/api/record", { folder: targetFolder, duration: duration, shop: shop });
+      log(res);
+      if (currentProd.productPageId) {
+        await onSelectPendingProduct(currentProd.productPageId);
+      }
+    } catch(e) {
+      log({ step: "error", message: `Lỗi quay video: ${e.error || e.message}` });
+      alert(`Lỗi quay video: ${e.error || e.message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openCurrentProductFolder() {
+    const currentProd = state.product;
+    const folderPath = currentProd?.folderPath;
+    if (!folderPath) {
+      alert("Chưa tìm thấy thư mục local của sản phẩm trên máy tính.");
+      return;
+    }
+    try {
+      await api("/api/folder/reveal", { folder_path: folderPath });
+    } catch(e) {
+      alert("Không thể mở thư mục: " + (e.error || e.message));
+    }
+  }
+
+  async function refreshCurrentProductImages() {
+    const currentProd = state.product;
+    if (currentProd?.productPageId) {
+      await onSelectPendingProduct(currentProd.productPageId);
     }
   }
 
@@ -3502,50 +4047,199 @@ HTML = r"""
 
   function renderProductSummary() {
     const summary = document.getElementById("save-product-summary");
-    const product = state.product;
-    const items = [
-      ["Tên", product.name],
-      ["Giá", product.price],
-      ["Phân loại", product.classification],
-      ["Biến thể", product.variants]
-    ].filter(([, value]) => value);
-
+    if (!summary) return;
+    const product = state.product || {};
     summary.innerHTML = "";
-    items.forEach(([label, value]) => {
-      const item = document.createElement("span");
-      item.textContent = `${label}: ${value}`;
-      summary.appendChild(item);
-    });
+
+    // 1. Badge Master DB status
+    const masterChip = document.createElement("div");
+    if (product.master && product.master.title) {
+      masterChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3); color: #34d399; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;";
+      masterChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Master DB: ${escapeHtml(product.master.title)} (Giá: ${escapeHtml(product.price || 'Chưa có')} | ${escapeHtml(product.classification || 'Mặc định')})`;
+    } else {
+      masterChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.25); color: #fbbf24; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;";
+      masterChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Chưa tìm thấy trong Master DB (ca055a7742824b9598abde7a7686d144)`;
+    }
+    summary.appendChild(masterChip);
+
+    // 2. Thư mục local Drive chip
+    if (product.folderPath) {
+      const folderChip = document.createElement("div");
+      folderChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; word-break: break-all;";
+      folderChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Thư mục Drive: ${escapeHtml(product.shop ? product.shop + ' / ' : '')}${escapeHtml(product.folderName || product.folderPath)}`;
+      summary.appendChild(folderChip);
+    }
+
+    // 3. Link Media sản phẩm Drive chip (nếu có)
+    if (product.driveUrl) {
+      const mediaChip = document.createElement("a");
+      mediaChip.href = product.driveUrl;
+      mediaChip.target = "_blank";
+      mediaChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #60a5fa; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;";
+      mediaChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> Link Media Drive ↗`;
+      summary.appendChild(mediaChip);
+    }
+
+    // 4. Ghi chú (Note) nếu có
+    if (product.note) {
+      const noteChip = document.createElement("div");
+      noteChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); color: #c084fc; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;";
+      noteChip.innerHTML = `📝 Ghi chú: ${escapeHtml(product.note)}`;
+      summary.appendChild(noteChip);
+    }
   }
 
   function renderInsightsTable() {
     const tbody = document.getElementById("insight-table-body");
+    if (!tbody) return;
     tbody.innerHTML = "";
 
     state.insights.forEach((insight, index) => {
       const row = document.createElement("tr");
 
+      // 1. Cột STT
       const indexCell = document.createElement("td");
+      indexCell.style = "text-align: center; font-weight: 700; color: var(--brand); vertical-align: top; padding-top: 14px;";
       indexCell.textContent = String(index + 1);
 
+      // 2. Cột Góc viết
       const angleCell = document.createElement("td");
-      angleCell.appendChild(createEditableCell(insight.angle || "", "angle", index));
+      angleCell.style = "vertical-align: top; padding-top: 12px;";
+      const angleBadge = document.createElement("div");
+      angleBadge.style = "display: inline-block; padding: 5px 10px; border-radius: 6px; background: rgba(45, 212, 191, 0.12); color: var(--brand); font-weight: 700; font-size: 12px; line-height: 1.4; border: 1px solid rgba(45, 212, 191, 0.25);";
+      angleBadge.textContent = insight.angle || `Góc #${index + 1}`;
+      angleCell.appendChild(angleBadge);
 
+      // 3. Cột Tiêu đề post
       const titleCell = document.createElement("td");
-      titleCell.appendChild(createEditableCell(insight.postTitle, "postTitle", index));
+      titleCell.style = "vertical-align: top; padding-top: 12px;";
+      const titleEl = document.createElement("div");
+      titleEl.style = "font-weight: 700; font-size: 13px; color: var(--text); line-height: 1.45;";
+      titleEl.textContent = insight.postTitle || "Chưa có tiêu đề";
+      titleCell.appendChild(titleEl);
 
+      // 4. Cột Nội dung bài viết (Tóm tắt ngắn gọn + nút xem chi tiết)
       const contentCell = document.createElement("td");
-      contentCell.appendChild(createEditableCell(insight.insightContent, "insightContent", index, true));
+      contentCell.style = "vertical-align: top; padding-top: 12px;";
+      const contentPreview = document.createElement("div");
+      contentPreview.style = "font-size: 12px; color: var(--muted); line-height: 1.5; max-height: 60px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word;";
+      const rawText = (insight.insightContent || "").replace(/[*#⭐🍀📍]/g, "").trim();
+      contentPreview.textContent = rawText || "Chưa có nội dung bài viết.";
+      
+      const btnViewInline = document.createElement("button");
+      btnViewInline.type = "button";
+      btnViewInline.className = "ghost";
+      btnViewInline.style = "margin-top: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; border-radius: 4px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;";
+      btnViewInline.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> Xem chi tiết bài`;
+      btnViewInline.onclick = () => openInsightDetailModal(index);
+      contentCell.append(contentPreview, btnViewInline);
 
+      // 5. Cột Từ khóa
       const keywordsCell = document.createElement("td");
-      keywordsCell.appendChild(createEditableCell(insight.keywords || "", "keywords", index, true));
+      keywordsCell.style = "vertical-align: top; padding-top: 12px;";
+      const kwWrapper = document.createElement("div");
+      kwWrapper.style = "display: flex; flex-wrap: wrap; gap: 4px;";
+      const kws = (insight.keywords || "").split(/[,;\n]/).map(k => k.trim()).filter(Boolean);
+      if (kws.length > 0) {
+        kws.slice(0, 3).forEach(k => {
+          const tag = document.createElement("span");
+          tag.style = "font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--muted);";
+          tag.textContent = k;
+          kwWrapper.appendChild(tag);
+        });
+        if (kws.length > 3) {
+          const more = document.createElement("span");
+          more.style = "font-size: 10px; color: var(--muted); align-self: center;";
+          more.textContent = `+${kws.length - 3}`;
+          kwWrapper.appendChild(more);
+        }
+      } else {
+        kwWrapper.innerHTML = `<span style="font-size: 11px; color: var(--muted);">—</span>`;
+      }
+      keywordsCell.appendChild(kwWrapper);
 
-      const rewriteCell = document.createElement("td");
-      rewriteCell.appendChild(createRewriteCell(index));
+      // 6. Cột Hình ảnh & Thư mục
+      const mediaCell = document.createElement("td");
+      mediaCell.style = "vertical-align: top; padding-top: 12px;";
+      mediaCell.appendChild(createInsightMediaCell(insight, index));
 
-      row.append(indexCell, angleCell, titleCell, contentCell, keywordsCell, rewriteCell);
+      // 7. Cột Thao tác Chi tiết
+      const actionCell = document.createElement("td");
+      actionCell.style = "vertical-align: top; text-align: center; padding-top: 12px;";
+      const btnAction = document.createElement("button");
+      btnAction.type = "button";
+      btnAction.className = "secondary";
+      btnAction.style = "min-height: 32px; padding: 0 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;";
+      btnAction.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> Chi tiết`;
+      btnAction.onclick = () => openInsightDetailModal(index);
+      actionCell.appendChild(btnAction);
+
+      row.append(indexCell, angleCell, titleCell, contentCell, keywordsCell, mediaCell, actionCell);
       tbody.appendChild(row);
     });
+  }
+
+  function createInsightMediaCell(insight, index) {
+    const wrapper = document.createElement("div");
+    wrapper.style = "display: flex; flex-direction: column; gap: 6px; padding: 4px 0;";
+
+    // Status & Count badge
+    const statusRow = document.createElement("div");
+    statusRow.style = "display: flex; align-items: center; justify-content: space-between; gap: 6px;";
+
+    const countBadge = document.createElement("span");
+    const count = insight.imageCount || (insight.images ? insight.images.length : 0);
+    if (count > 0) {
+      countBadge.style = "color: #34d399; font-weight: 700; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;";
+      countBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> ${count} hình`;
+    } else {
+      countBadge.style = "color: #fbbf24; font-weight: 600; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;";
+      countBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Chưa có hình`;
+    }
+    statusRow.appendChild(countBadge);
+
+    if (insight.driveUrl) {
+      const linkA = document.createElement("a");
+      linkA.href = insight.driveUrl;
+      linkA.target = "_blank";
+      linkA.style = "color: #38bdf8; font-size: 11px; text-decoration: underline; font-weight: 600;";
+      linkA.textContent = "Mở Drive ↗";
+      statusRow.appendChild(linkA);
+    }
+    wrapper.appendChild(statusRow);
+
+    // Folder name
+    if (insight.folderName) {
+      const folderDiv = document.createElement("div");
+      folderDiv.style = "font-size: 10.5px; color: var(--muted); word-break: break-all; line-height: 1.3;";
+      folderDiv.innerHTML = `📁 ${escapeHtml(insight.folderName)}`;
+      wrapper.appendChild(folderDiv);
+    }
+
+    // Thumbnails
+    if (insight.images && insight.images.length > 0) {
+      const thumbRow = document.createElement("div");
+      thumbRow.style = "display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;";
+      insight.images.slice(0, 4).forEach(img => {
+        const thumb = document.createElement("img");
+        thumb.src = img.url;
+        thumb.title = img.name;
+        thumb.style = "width: 32px; height: 32px; object-fit: cover; border-radius: 4px; border: 1px solid var(--panel-border); cursor: pointer; transition: transform 0.15s;";
+        thumb.onmouseenter = () => { thumb.style.transform = "scale(1.15)"; };
+        thumb.onmouseleave = () => { thumb.style.transform = "scale(1)"; };
+        thumb.onclick = () => window.open(img.url, "_blank");
+        thumbRow.appendChild(thumb);
+      });
+      if (insight.images.length > 4) {
+        const moreSpan = document.createElement("span");
+        moreSpan.style = "font-size: 10px; color: var(--muted); align-self: center;";
+        moreSpan.textContent = `+${insight.images.length - 4}`;
+        thumbRow.appendChild(moreSpan);
+      }
+      wrapper.appendChild(thumbRow);
+    }
+
+    return wrapper;
   }
 
   function createEditableCell(value, field, rowIndex, multiline = false) {
@@ -3635,58 +4329,24 @@ HTML = r"""
 
   let activeModalPostIndex = 0;
 
-  async function openFullPostsEditorModal() {
+  function openInsightDetailModal(targetIndex = 0) {
     if (!state.insights || state.insights.length === 0) {
-      alert("Chưa có danh sách 5 Insight. Vui lòng phân tích ảnh để sinh Insight trước!");
+      alert("Vui lòng chọn một sản phẩm từ danh sách bên trái trước!");
       return;
     }
-
-    const btn = document.getElementById("btnPreviewPosts");
-    const origHtml = btn ? btn.innerHTML : "";
-    if (btn) {
-      btn.innerHTML = '<span style="color:var(--brand);">Đang chuẩn bị 5 bài viết AI...</span>';
-      btn.disabled = true;
+    const modalTitle = document.getElementById("fullPostsModalTitle");
+    if (modalTitle) {
+      modalTitle.textContent = `Xem & Chỉnh Sửa Chi Tiết Bài Viết (${state.insights.length} Insight)`;
     }
+    activeModalPostIndex = Math.max(0, Math.min(targetIndex, state.insights.length - 1));
+    renderFullPostsModalTabs();
+    loadPostToModalFields(activeModalPostIndex);
+    const modal = document.getElementById("fullPostsModal");
+    if (modal) modal.style.display = "flex";
+  }
 
-    try {
-      // Kiểm tra xem đã có bài viết chi tiết cho cả 5 insight chưa
-      const writingPrompt = getCurrentPostWritingPrompt();
-      const promptChanged = state.lastPostPrompt !== writingPrompt;
-      const needGenerate = promptChanged || state.insights.some(item => !item.full_post);
-      if (needGenerate) {
-        const product = collectProductInfo();
-        const res = await api("/api/insight/generate-all-posts", {
-          productName: product.name || state.productName,
-          productDescription: product.description || "",
-          classification: product.classification || "",
-          insights: state.insights,
-          writingPrompt,
-          forceRegenerate: promptChanged
-        });
-        if (res.full_posts && res.full_posts.length > 0) {
-          for (let i = 0; i < state.insights.length; i++) {
-            if (res.full_posts[i]) {
-              state.insights[i].full_post = res.full_posts[i];
-            }
-          }
-          state.lastPostPrompt = writingPrompt;
-        }
-      }
-
-      activeModalPostIndex = 0;
-      renderFullPostsModalTabs();
-      loadPostToModalFields(activeModalPostIndex);
-
-      const modal = document.getElementById("fullPostsModal");
-      if (modal) modal.style.display = "flex";
-    } catch (e) {
-      alert("Lỗi tải bài viết chi tiết: " + (e.error || e.message || JSON.stringify(e)));
-    } finally {
-      if (btn) {
-        btn.innerHTML = origHtml;
-        btn.disabled = false;
-      }
-    }
+  async function openFullPostsEditorModal() {
+    openInsightDetailModal(0);
   }
 
   function closeFullPostsEditorModal() {
@@ -3700,22 +4360,61 @@ HTML = r"""
     header.innerHTML = "";
 
     state.insights.forEach((item, idx) => {
-      const tabBtn = document.createElement("button");
-      tabBtn.type = "button";
-      tabBtn.className = idx === activeModalPostIndex ? "md3-btn-primary" : "secondary";
-      tabBtn.style.padding = "6px 14px";
-      tabBtn.style.fontSize = "12px";
-      tabBtn.style.minHeight = "32px";
-      tabBtn.style.borderRadius = "6px";
-      tabBtn.style.whiteSpace = "nowrap";
-      tabBtn.style.cursor = "pointer";
-      tabBtn.textContent = `Bài #${idx + 1}: ${item.angle || ('Insight ' + (idx + 1))}`;
+      const isActive = (idx === activeModalPostIndex);
+      const tabBtn = document.createElement("div");
+      tabBtn.role = "button";
+      tabBtn.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid ${isActive ? '#38bdf8' : 'var(--panel-border)'};
+        background: ${isActive ? 'rgba(56, 189, 248, 0.16)' : 'rgba(255, 255, 255, 0.03)'};
+        box-shadow: ${isActive ? '0 2px 8px rgba(56, 189, 248, 0.2)' : 'none'};
+      `;
+
+      const titleText = escapeHtml(item.angle || item.postTitle || ('Insight ' + (idx + 1)));
+      const activePill = isActive
+        ? `<span style="font-size: 11px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 12px; flex-shrink: 0;">Đang xem</span>`
+        : `<span style="font-size: 11px; color: var(--muted); background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 12px; flex-shrink: 0;">Nhấn chọn</span>`;
+
+      tabBtn.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1;">
+          <span style="display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 13px; color: ${isActive ? '#38bdf8' : 'var(--text)'}; min-width: 66px; flex-shrink: 0;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            Bài #${idx + 1}
+          </span>
+          <span style="font-size: 12px; font-weight: ${isActive ? '600' : '400'}; color: ${isActive ? '#f8fafc' : 'var(--muted)'}; white-space: normal; line-height: 1.4; word-break: break-word;">
+            ${titleText}
+          </span>
+        </div>
+        ${activePill}
+      `;
+
       tabBtn.onclick = () => {
         saveModalFieldsToPost(activeModalPostIndex);
         activeModalPostIndex = idx;
         renderFullPostsModalTabs();
         loadPostToModalFields(activeModalPostIndex);
       };
+
+      tabBtn.onmouseover = () => {
+        if (idx !== activeModalPostIndex) {
+          tabBtn.style.background = 'rgba(255, 255, 255, 0.07)';
+          tabBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        }
+      };
+      tabBtn.onmouseout = () => {
+        if (idx !== activeModalPostIndex) {
+          tabBtn.style.background = 'rgba(255, 255, 255, 0.03)';
+          tabBtn.style.borderColor = 'var(--panel-border)';
+        }
+      };
+
       header.appendChild(tabBtn);
     });
   }
@@ -3727,20 +4426,36 @@ HTML = r"""
 
     document.getElementById("modalEditPostTitle").value = item.postTitle || "";
     document.getElementById("modalEditAngle").value = item.angle || "";
-    document.getElementById("modalEditDescription").value = typeof post.description === "string" ? post.description : (post.description || []).join("\n\n");
+    
+    // Nạp toàn văn bài viết chi tiết từ Notion hoặc AI sinh
+    let desc = "";
+    if (typeof post.description === "string" && post.description.trim()) {
+      desc = post.description;
+    } else if (Array.isArray(post.description) && post.description.length > 0) {
+      desc = post.description.join("\n\n");
+    } else {
+      desc = item.insightContent || "";
+    }
+    document.getElementById("modalEditDescription").value = desc;
+
     document.getElementById("modalEditIngredients").value = Array.isArray(post.ingredients) ? post.ingredients.join("\n") : (post.ingredients || "");
     document.getElementById("modalEditBenefits").value = Array.isArray(post.benefits) ? post.benefits.join("\n") : (post.benefits || "");
     document.getElementById("modalEditTargetUsers").value = Array.isArray(post.target_users) ? post.target_users.join("\n") : (post.target_users || "");
     document.getElementById("modalEditUsage").value = Array.isArray(post.usage) ? post.usage.join("\n") : (post.usage || "");
     document.getElementById("modalEditNotes").value = Array.isArray(post.notes) ? post.notes.join("\n") : (post.notes || "");
-    document.getElementById("modalEditHashtags").value = Array.isArray(post.hashtags) ? post.hashtags.join(" ") : (post.hashtags || "");
+    document.getElementById("modalEditHashtags").value = Array.isArray(post.hashtags) ? post.hashtags.join(" ") : (post.hashtags || item.keywords || "");
   }
 
   function saveModalFieldsToPost(idx) {
     if (!state.insights[idx]) return;
 
-    state.insights[idx].postTitle = document.getElementById("modalEditPostTitle").value.trim();
-    state.insights[idx].angle = document.getElementById("modalEditAngle").value.trim();
+    const postTitle = document.getElementById("modalEditPostTitle").value.trim();
+    const angle = document.getElementById("modalEditAngle").value.trim();
+    const descText = document.getElementById("modalEditDescription").value.trim();
+
+    state.insights[idx].postTitle = postTitle;
+    state.insights[idx].angle = angle;
+    state.insights[idx].insightContent = descText;
 
     const ingText = document.getElementById("modalEditIngredients").value.trim();
     const benText = document.getElementById("modalEditBenefits").value.trim();
@@ -3748,7 +4463,7 @@ HTML = r"""
     const noteText = document.getElementById("modalEditNotes").value.trim();
 
     state.insights[idx].full_post = {
-      description: document.getElementById("modalEditDescription").value.trim(),
+      description: descText,
       ingredients: ingText ? ingText.split("\n").map(s => s.trim()).filter(Boolean) : [],
       benefits: benText ? benText.split("\n").map(s => s.trim()).filter(Boolean) : [],
       target_users: tarText ? tarText.split("\n").map(s => s.trim()).filter(Boolean) : [],
@@ -3760,14 +4475,15 @@ HTML = r"""
 
   function saveFullPostsFromModal() {
     saveModalFieldsToPost(activeModalPostIndex);
-    renderInsightsTable(); // Cập nhật lại tiêu đề và angle lên bảng review
+    renderInsightsTable(); // Cập nhật lại tiêu đề, angle và tóm tắt lên bảng review
     closeFullPostsEditorModal();
 
     const previewBtn = document.getElementById("btnPreviewPosts");
     if (previewBtn) {
-      previewBtn.innerHTML = '<span style="color:var(--success);">✔ Đã chỉnh sửa 5 bài viết</span>';
+      const insCount = state.insights.length;
+      previewBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span>Xem chi tiết bài viết (${insCount} Insight - Đã lưu sửa)</span>`;
     }
-    alert("Đã lưu 5 bài viết chi tiết! Bây giờ bạn có thể bấm 'Ghi nhận vào Notion' để đẩy toàn bộ lên hệ thống.");
+    alert("Đã lưu nội dung chi tiết bài viết! Bạn có thể bấm 'Lưu bài viết vào Notion' để cập nhật lên hệ thống.");
   }
 
   async function regenerateCurrentPostWithAI() {
@@ -3806,57 +4522,36 @@ HTML = r"""
   async function saveInsightsToNotion(event) {
     if (event) event.preventDefault();
 
-    const product = collectProductInfo();
-    if (!product.name) {
-      setStatus("save-status", "Nhập tên sản phẩm trước khi ghi Notion.", "is-error");
-      document.getElementById("productNameInput").focus();
-      return;
-    }
-
     const saveBtn = document.getElementById("save-button");
-    saveBtn.disabled = true;
-    setStatus("save-status", "Đang ghi nhận sản phẩm và 5 insight lên Notion...", "muted");
+    if (saveBtn) saveBtn.disabled = true;
+    setStatus("save-status", "Đang lưu bài viết và insight vào Notion...", "muted");
 
     try {
-      const writingPrompt = getCurrentPostWritingPrompt();
-      const response = await fetch("/api/review-save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          product,
-          productName: product.name,
-          insights: state.insights,
-          writingPrompt,
-          forceRegenerate: state.lastPostPrompt !== writingPrompt
-        })
-      });
+      const selectedPageId = document.getElementById("productPageId")?.value.trim() || "";
+      const payload = {
+        page_id: selectedPageId,
+        product_name: document.getElementById("productNameInput")?.value.trim() || "",
+        price: document.getElementById("productPrice")?.value.trim() || "",
+        classification: document.getElementById("productClassification")?.value.trim() || "",
+        variants: document.getElementById("productVariants")?.value.trim() || "",
+        insights: state.insights.map(item => ({
+          id: item.id,
+          title: item.postTitle || "",
+          angle: item.angle || "",
+          keywords: item.keywords || "",
+          content: item.insightContent || ""
+        }))
+      };
 
-      const payload = await response.json();
-      if (!response.ok || payload.error) {
-        throw new Error(payload.error || "Lỗi không xác định khi lưu Notion.");
-      }
-
-      setStatus("save-status", `Ghi Notion thành công! Page ID sản phẩm: ${payload.productPageId}`, "is-success");
-      alert("Đã lưu thành công 5 Insight vào Notion!");
-
-      loadPendingProducts();
-      clearImageState();
-      state.insights = [];
-      document.getElementById("productPageId").value = "";
-      document.getElementById("productNameInput").value = "";
-      document.getElementById("productPrice").value = "";
-      document.getElementById("productClassification").value = "";
-      document.getElementById("productVariants").value = "";
-      state.product = {};
-      state.productName = "";
-      document.getElementById("empty-state").hidden = false;
-      document.getElementById("save-form").hidden = true;
+      const res = await api("/api/shopee/insights/save-to-notion", payload);
+      setStatus("save-status", `✓ ${res.message || "Đã lưu vào Notion thành công!"}`, "is-success");
+      alert(res.message || "Đã lưu thành công các Insight vào Notion!");
     } catch(e) {
-      setStatus("save-status", "Lỗi ghi Notion: " + e.message, "is-error");
+      console.error(e);
+      setStatus("save-status", "Lỗi lưu Notion: " + (e.error || e.message || JSON.stringify(e)), "is-error");
+      alert("Lỗi lưu Notion: " + (e.error || e.message || JSON.stringify(e)));
     } finally {
-      saveBtn.disabled = false;
+      if (saveBtn) saveBtn.disabled = false;
     }
   }
 
@@ -4003,7 +4698,7 @@ HTML = r"""
             <div style="display: flex; gap: 8px; align-items: center;">
               <a href="${f.url}" download="${escapeHtml(f.name)}" style="color: var(--brand); text-decoration: none; font-weight: 700;">Tải về</a>
               <span style="color: var(--panel-border);">|</span>
-              <a href="#" onclick="deleteShopeeExcel('${escapeHtml(f.name)}'); return false;" style="color: #ef4444; text-decoration: none; font-weight: 700;">Xóa</a>
+              <a href="#" onclick="deleteShopeeExcel('${escapeHtml(f.name)}', '${escapeHtml((f.file_path || '').replace(/\\/g, '\\\\'))}'); return false;" style="color: #ef4444; text-decoration: none; font-weight: 700;">Xóa</a>
             </div>
           </div>
         </div>
@@ -4013,13 +4708,13 @@ HTML = r"""
     }
   }
 
-  async function deleteShopeeExcel(name) {
+  async function deleteShopeeExcel(name, filePath) {
     if (!confirm(`Bạn có chắc chắn muốn xóa file ${name}?`)) return;
     try {
       const res = await fetch("/api/shopee/excel/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name, file_path: filePath })
       });
       const d = await res.json();
       if (d.success) {
@@ -4282,7 +4977,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.8";
+  const CURRENT_VERSION = "v2.2.55";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -5310,15 +6005,21 @@ HTML = r"""
   <div class="panel" style="width: 900px; max-width: 95vw; max-height: 90vh; padding: 24px; display: flex; flex-direction: column; gap: 16px; border: 1px solid var(--panel-border); box-shadow: 0 25px 35px -5px rgb(0 0 0 / 0.6); background: var(--bg); border-radius: 14px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
       <div>
-        <h3 style="font-family: var(--font-title); font-weight: 700; margin: 0; font-size: 18px; color: var(--text);">Xem & Chỉnh Sửa Chi Tiết Bài Viết 5 Insight (Gemini AI)</h3>
+        <h3 id="fullPostsModalTitle" style="font-family: var(--font-title); font-weight: 700; margin: 0; font-size: 18px; color: var(--text);">Xem & Chỉnh Sửa Chi Tiết Bài Viết</h3>
         <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Kiểm tra và sửa trực tiếp từng mục trước khi ghi nhận lên Notion</p>
       </div>
       <button type="button" onclick="closeFullPostsEditorModal()" style="background:none; border:none; color:var(--muted); font-size:24px; cursor:pointer; padding:0 6px; line-height:1;">&times;</button>
     </div>
 
-    <!-- Tabs chọn Insight 1 -> 5 -->
-    <div id="fullPostsTabHeader" style="display: flex; gap: 8px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; overflow-x: auto;">
-      <!-- Sẽ được render động bằng JS -->
+    <!-- Danh sách chọn Insight xếp từ trên xuống dưới (1 -> 2 -> ...) -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div style="font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;">
+        <span>Danh sách Insight bài viết</span>
+        <span style="font-size: 11.5px; font-weight: 400; text-transform: none; color: var(--muted);">Nhấp vào bài viết bên dưới để chuyển đổi nội dung xem & sửa</span>
+      </div>
+      <div id="fullPostsTabHeader" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding: 4px; border: 1px solid var(--panel-border); border-radius: 8px; background: rgba(0, 0, 0, 0.15);">
+        <!-- Sẽ được render động bằng JS -->
+      </div>
     </div>
 
     <!-- Form chỉnh sửa nội dung bài viết của tab hiện tại -->
@@ -5335,36 +6036,41 @@ HTML = r"""
       </div>
 
       <div>
-        <label class="md3-label">Mô tả sản phẩm chi tiết (Chuẩn Shopee)</label>
-        <textarea id="modalEditDescription" class="md3-input" rows="4" style="height: 100px; resize: vertical;" placeholder="Đoạn văn giới thiệu sản phẩm..."></textarea>
+        <label class="md3-label" style="font-weight: 700; color: var(--brand); font-size: 13px;">Nội dung bài viết chi tiết (Chuẩn Shopee)</label>
+        <textarea id="modalEditDescription" class="md3-input" rows="12" style="width: 100%; min-height: 260px; font-size: 13px; line-height: 1.6; resize: vertical; padding: 12px; font-family: inherit;" placeholder="Nội dung bài viết chi tiết..."></textarea>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="md3-label">Thành phần nổi bật (Mỗi thành phần 1 dòng)</label>
-          <textarea id="modalEditIngredients" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Hoạt chất 1: giải thích...&#10;Hoạt chất 2: giải thích..."></textarea>
-        </div>
-        <div>
-          <label class="md3-label">Công dụng hỗ trợ (Mỗi công dụng 1 dòng)</label>
-          <textarea id="modalEditBenefits" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Công dụng 1...&#10;Công dụng 2..."></textarea>
-        </div>
-      </div>
+      <details style="margin-top: 4px; font-size: 12px; color: var(--muted); border: 1px solid var(--panel-border); border-radius: 8px; padding: 8px 12px; background: var(--soft);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--text);">➕ Phân rã từng phần cấu trúc (Thành phần, Công dụng, HDSD...)</summary>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="md3-label">Thành phần nổi bật (Mỗi thành phần 1 dòng)</label>
+              <textarea id="modalEditIngredients" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Hoạt chất 1: giải thích...&#10;Hoạt chất 2: giải thích..."></textarea>
+            </div>
+            <div>
+              <label class="md3-label">Công dụng hỗ trợ (Mỗi công dụng 1 dòng)</label>
+              <textarea id="modalEditBenefits" class="md3-input" rows="3" style="height: 80px; resize: vertical;" placeholder="Công dụng 1...&#10;Công dụng 2..."></textarea>
+            </div>
+          </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div>
-          <label class="md3-label">Đối tượng sử dụng (Mỗi đối tượng 1 dòng)</label>
-          <textarea id="modalEditTargetUsers" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Đối tượng 1...&#10;Đối tượng 2..."></textarea>
-        </div>
-        <div>
-          <label class="md3-label">Lưu ý khi sử dụng (Mỗi lưu ý 1 dòng)</label>
-          <textarea id="modalEditNotes" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Lưu ý 1...&#10;Lưu ý 2..."></textarea>
-        </div>
-      </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <label class="md3-label">Đối tượng sử dụng (Mỗi đối tượng 1 dòng)</label>
+              <textarea id="modalEditTargetUsers" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Đối tượng 1...&#10;Đối tượng 2..."></textarea>
+            </div>
+            <div>
+              <label class="md3-label">Lưu ý khi sử dụng (Mỗi lưu ý 1 dòng)</label>
+              <textarea id="modalEditNotes" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Lưu ý 1...&#10;Lưu ý 2..."></textarea>
+            </div>
+          </div>
 
-      <div>
-        <label class="md3-label">Hướng dẫn sử dụng</label>
-        <textarea id="modalEditUsage" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Hướng dẫn sử dụng từng bước..."></textarea>
-      </div>
+          <div>
+            <label class="md3-label">Hướng dẫn sử dụng</label>
+            <textarea id="modalEditUsage" class="md3-input" rows="2" style="height: 65px; resize: vertical;" placeholder="Hướng dẫn sử dụng từng bước..."></textarea>
+          </div>
+        </div>
+      </details>
 
       <div>
         <label class="md3-label">Hashtags bài viết</label>
@@ -5454,29 +6160,98 @@ def validate_drive_root(path: Path) -> Path:
     return path.resolve()
 
 
-def list_drive_folders() -> list[str]:
+def list_shop_names() -> list[str]:
+    try:
+        root = validate_drive_root(drive_root())
+        shops = []
+        for path in root.iterdir():
+            if path.is_dir() and not path.name.startswith("."):
+                shops.append(path.name)
+        preferred = ["nhathuockh.pharma", "khaihoanpharmacy"]
+        return sorted(shops, key=lambda s: (preferred.index(s) if s in preferred else 99, s.lower()))
+    except Exception:
+        return ["nhathuockh.pharma", "khaihoanpharmacy"]
+
+
+def selected_shop_name() -> str:
+    config = load_config()
+    shop = str(config.get("paths", {}).get("selected_shop", "")).strip()
+    shops = list_shop_names()
+    if shop in shops:
+        return shop
+    if "nhathuockh.pharma" in shops:
+        return "nhathuockh.pharma"
+    return shops[0] if shops else "nhathuockh.pharma"
+
+
+def list_drive_folders(shop: str | None = None) -> list[str]:
     root = validate_drive_root(drive_root())
-    return sorted((path.name for path in root.iterdir() if path.is_dir()), key=str.casefold)
+    active_shop = (shop or selected_shop_name()).strip()
+    if active_shop:
+        shop_dir = root / active_shop
+        if shop_dir.is_dir():
+            return sorted((path.name for path in shop_dir.iterdir() if path.is_dir() and not path.name.startswith(".")), key=str.casefold)
+
+    folders = []
+    for sub in root.iterdir():
+        if sub.is_dir() and not sub.name.startswith("."):
+            if sub.name in ["nhathuockh.pharma", "khaihoanpharmacy"]:
+                for p in sub.iterdir():
+                    if p.is_dir() and not p.name.startswith("."):
+                        folders.append(f"{sub.name}/{p.name}")
+            else:
+                folders.append(sub.name)
+    return sorted(folders, key=str.casefold)
 
 
 def validate_folder_name(name: str) -> str:
     cleaned = name.strip().rstrip(". ")
     if not cleaned:
         raise ValueError("Tên thư mục sản phẩm không được để trống.")
-    if any(char in cleaned for char in '<>:"/\\|?*'):
-        raise ValueError("Tên thư mục chứa ký tự không hợp lệ trên Windows.")
+    cleaned = re.sub(r'[\\/*?:"<>|]', '-', cleaned).strip()
+    cleaned = re.sub(r'-+', '-', cleaned).strip()
     if cleaned in {".", ".."}:
         raise ValueError("Tên thư mục không hợp lệ.")
     return cleaned
 
 
-def selected_drive_folder(requested: str | None = None) -> Path:
+def selected_drive_folder(requested: str | None = None, shop: str | None = None) -> Path:
     root = validate_drive_root(drive_root())
-    name = validate_folder_name((requested or selected_folder_name()).strip())
-    target = (root / name).resolve()
-    if target.parent != root or not target.is_dir():
-        raise ValueError("Thư mục sản phẩm không tồn tại. Hãy quét lại và chọn đúng thư mục.")
-    return target
+    raw_name = (requested or selected_folder_name()).strip()
+    if not raw_name:
+        raise ValueError("Chưa chọn thư mục sản phẩm.")
+
+    active_shop = (shop or selected_shop_name()).strip()
+
+    # 1. Trực tiếp nếu là relative path có chứa separator
+    if "/" in raw_name or "\\" in raw_name:
+        target = (root / raw_name).resolve()
+        if target.is_relative_to(root) and target.is_dir():
+            return target
+
+    clean_name = validate_folder_name(raw_name)
+
+    # 2. Tìm trong shop đang chọn
+    if active_shop:
+        target = (root / active_shop / clean_name).resolve()
+        if target.is_relative_to(root) and target.is_dir():
+            return target
+
+    # 3. Tìm trực tiếp tại root
+    target = (root / clean_name).resolve()
+    if target.is_relative_to(root) and target.is_dir():
+        return target
+
+    # 4. Tìm trong tất cả các shop con
+    for sub in root.iterdir():
+        if sub.is_dir() and not sub.name.startswith("."):
+            candidate = (sub / clean_name).resolve()
+            if candidate.is_dir():
+                return candidate
+
+    # 5. Fallback đường dẫn theo active_shop
+    parent = (root / active_shop) if active_shop and (root / active_shop).is_dir() else root
+    return (parent / clean_name).resolve()
 
 
 def unique_target(folder: Path, filename: str) -> Path:
@@ -5742,6 +6517,8 @@ def api_status():
         "adb_device": current_device,
         "drive_root": str(drive_root()),
         "drive_ready": ready,
+        "shops": list_shop_names(),
+        "selected_shop": selected_shop_name(),
         "selected_folder": selected_folder_name(),
         "folders": folders,
         "operation_busy": OPERATION_LOCK.locked(),
@@ -5753,6 +6530,36 @@ def api_status():
     })
 
 
+@app.get("/api/shops")
+def api_get_shops():
+    try:
+        return jsonify({
+            "shops": list_shop_names(),
+            "selected_shop": selected_shop_name()
+        })
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+@app.post("/api/select-shop")
+def api_select_shop():
+    try:
+        shop = str((request.json or {}).get("shop", "")).strip()
+        shops = list_shop_names()
+        if shop not in shops:
+            raise ValueError(f"Shop '{shop}' không tồn tại trên Drive.")
+        save_path_setting("selected_shop", shop)
+        save_path_setting("selected_drive_folder", "")
+        folders = list_drive_folders(shop)
+        return jsonify({
+            "status": f"Đã chuyển sang shop {shop}.",
+            "selected_shop": shop,
+            "folders": folders
+        })
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
 @app.post("/api/drive-root")
 def api_drive_root():
     try:
@@ -5760,7 +6567,7 @@ def api_drive_root():
         root = validate_drive_root(Path(value).expanduser())
         save_path_setting("drive_root_dir", str(root))
         save_path_setting("selected_drive_folder", "")
-        return jsonify({"status": "Đã lưu thư mục Drive.", "drive_root": str(root), "folders": list_drive_folders()})
+        return jsonify({"status": "Đã lưu thư mục Drive.", "drive_root": str(root), "shops": list_shop_names(), "selected_shop": selected_shop_name(), "folders": list_drive_folders()})
     except Exception as exc:
         return error_response(exc, 400)
 
@@ -5768,22 +6575,312 @@ def api_drive_root():
 @app.post("/api/folders")
 def api_create_folder():
     try:
+        data = request.json or {}
+        raw_name = str(data.get("name", "")).strip()
+        shop_name = str(data.get("shop", "")).strip() or selected_shop_name()
+        insights_list = data.get("insights", [])
+
         root = validate_drive_root(drive_root())
-        name = validate_folder_name(str((request.json or {}).get("name", "")))
-        target = root / name
+        shop_dir = root / shop_name if shop_name else root
+        shop_dir.mkdir(parents=True, exist_ok=True)
+
+        name = validate_folder_name(raw_name)
+        target = shop_dir / name
         created = not target.exists()
-        target.mkdir(exist_ok=True)
+        target.mkdir(parents=True, exist_ok=True)
         if not target.is_dir():
             raise ValueError("Đường dẫn đã tồn tại nhưng không phải thư mục.")
 
-        # Tự động tạo 5 thư mục Insight 1 - 5 bên trong thư mục sản phẩm chính
-        for i in range(1, 6):
-            insight_folder = target / f"Insight {i}"
-            insight_folder.mkdir(exist_ok=True)
+        # Tạo insight con nếu có danh sách chỉ định
+        if insights_list and isinstance(insights_list, list):
+            for ins in insights_list:
+                ins_title = ins if isinstance(ins, str) else (ins.get("folder_name") or ins.get("title") or "")
+                if ins_title:
+                    clean_ins = validate_folder_name(ins_title)
+                    (target / clean_ins).mkdir(parents=True, exist_ok=True)
+        elif data.get("auto_insights", False):
+            for i in range(1, 6):
+                insight_folder = target / f"Insight {i}"
+                insight_folder.mkdir(exist_ok=True)
 
+        save_path_setting("selected_shop", shop_name)
         save_path_setting("selected_drive_folder", name)
-        return jsonify({"status": "Đã tạo thư mục sản phẩm cùng 5 thư mục Insight." if created else "Thư mục đã tồn tại, app đã chọn lại.", "folder": name, "path": str(target)})
+        return jsonify({
+            "status": "Đã tạo thư mục sản phẩm thành công." if created else "Thư mục đã tồn tại, app đã chọn lại.",
+            "folder": name,
+            "shop": shop_name,
+            "path": str(target)
+        })
     except Exception as exc:
+        return error_response(exc, 400)
+
+
+NOTION_INSIGHT_DB_ID = "88159c9046fb426db3c9a0d79358e76c"
+
+
+@app.get("/api/notion/insight-products")
+def api_get_notion_insight_products():
+    try:
+        from notion_client import Client
+        try:
+            from shopee_sync.src.notion_sync import call_notion_with_retry, find_local_product_folder
+        except ImportError:
+            from src.notion_sync import call_notion_with_retry, find_local_product_folder
+        from dotenv import load_dotenv
+        load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+        token = os.getenv("NOTION_TOKEN")
+        if not token:
+            raise ValueError("Chưa cấu hình NOTION_TOKEN trong file .env")
+
+        notion = Client(auth=token)
+        db = call_notion_with_retry(notion.databases.retrieve, database_id=NOTION_INSIGHT_DB_ID)
+        data_sources = db.get("data_sources", [])
+        if not data_sources:
+            raise ValueError("Không tìm thấy data source cho Shopee Insight Library.")
+
+        ds_id = data_sources[0].get("id")
+        res = call_notion_with_retry(notion.data_sources.query, data_source_id=ds_id, page_size=100)
+
+        # Lấy danh sách subfolder đã có trên local Drive
+        root = validate_drive_root(drive_root())
+        local_folders_by_shop = {}
+        for s in list_shop_names():
+            s_dir = root / s
+            if s_dir.is_dir():
+                local_folders_by_shop[s] = [f.name.lower() for f in s_dir.iterdir() if f.is_dir()]
+
+        products = []
+        for page in res.get("results", []):
+            props = page.get("properties", {})
+            loai_sel = props.get("Loại bản ghi", {}).get("select") or {}
+            loai_name = loai_sel.get("name", "")
+
+            title_list = props.get("Tên post Shopee", {}).get("title", [])
+            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            if not title:
+                for p_val in props.values():
+                    if p_val.get("type") == "title":
+                        tl = p_val.get("title", [])
+                        if tl:
+                            title = tl[0].get("plain_text", "").strip()
+                        break
+
+            if loai_name == "Nhóm Insight" or title.startswith("Insight "):
+                num_prop = props.get("Số Insight", {}).get("rollup", {})
+                insight_count = int(num_prop.get("number") or 0)
+
+                status_sel = props.get("Trạng thái", {}).get("select") or {}
+                status_name = status_sel.get("name", "")
+
+                drive_url = props.get("URL", {}).get("url") or ""
+
+                rel_insights = props.get("Danh sách Insight", {}).get("relation", [])
+                if not insight_count:
+                    insight_count = len(rel_insights)
+
+                child_insights = []
+                for rel in rel_insights:
+                    child_id = rel.get("id")
+                    try:
+                        c_page = call_notion_with_retry(notion.pages.retrieve, page_id=child_id)
+                        c_props = c_page.get("properties", {})
+                        c_title = ""
+                        for cp_val in c_props.values():
+                            if cp_val.get("type") == "title":
+                                ctl = cp_val.get("title", [])
+                                if ctl:
+                                    c_title = ctl[0].get("plain_text", "").strip()
+                                break
+                        clean_child = re.sub(r'[\\/*?:"<>|]', '-', c_title).strip()
+                        clean_child = re.sub(r'-+', '-', clean_child).strip()
+                        order_val = c_props.get("Thứ tự", {}).get("number")
+                        child_insights.append({
+                            "id": child_id,
+                            "title": c_title,
+                            "folder_name": clean_child,
+                            "order": order_val or (len(child_insights) + 1),
+                            "drive_url": c_props.get("Link Drive bộ ảnh", {}).get("url") or ""
+                        })
+                    except Exception as e:
+                        print(f"Lỗi đọc insight con {child_id}: {e}")
+
+                child_insights.sort(key=lambda x: x["order"])
+
+                existing_shop = None
+                if root and root.is_dir():
+                    matched = find_local_product_folder(root, title)
+                    if matched and matched.is_dir():
+                        try:
+                            rel = matched.relative_to(root)
+                            if len(rel.parts) > 1:
+                                existing_shop = rel.parts[0]
+                            else:
+                                existing_shop = matched.name
+                        except Exception:
+                            existing_shop = "Drive"
+
+                # Logic trạng thái chuẩn xác tuyệt đối:
+                # 1. Nếu số insight = 0: Luôn luôn là "Chưa có insight", dù trước đó đã tạo thư mục hay có link Drive
+                if insight_count == 0:
+                    status_name = "Chưa có insight"
+                elif existing_shop is not None:
+                    status_name = "Hoàn thành"
+                else:
+                    status_name = "Có insight"
+
+                products.append({
+                    "page_id": page.get("id"),
+                    "title": title,
+                    "clean_folder_name": re.sub(r'[\\/*?:"<>|]', '-', title).strip(),
+                    "insight_count": insight_count,
+                    "status": status_name,
+                    "drive_url": drive_url,
+                    "existing_shop": existing_shop,
+                    "insights": child_insights
+                })
+
+        order_map = {"Có insight": 0, "Chưa có insight": 1, "Hoàn thành": 2}
+        products.sort(key=lambda x: (order_map.get(x["status"], 9), x["title"]))
+        return jsonify({"success": True, "products": products})
+    except Exception as exc:
+        return error_response(exc, 400)
+
+
+@app.post("/api/notion/create-product-folders")
+def api_create_notion_product_folders():
+    try:
+        data = request.json or {}
+        page_id = str(data.get("page_id", "")).strip()
+        shop_name = str(data.get("shop", "")).strip() or selected_shop_name()
+        if not page_id:
+            raise ValueError("Thiếu page_id sản phẩm.")
+
+        from notion_client import Client
+        from shopee_sync.src.notion_sync import call_notion_with_retry, update_notion_page_safe
+        from shopee_sync.src import convert_zicum
+        from dotenv import load_dotenv
+        load_dotenv(SHOPEE_SYNC_ROOT / ".env")
+        token = os.getenv("NOTION_TOKEN")
+        notion = Client(auth=token)
+
+        page = call_notion_with_retry(notion.pages.retrieve, page_id=page_id)
+        props = page.get("properties", {})
+        title_list = props.get("Tên post Shopee", {}).get("title", [])
+        title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        if not title:
+            for p_val in props.values():
+                if p_val.get("type") == "title":
+                    tl = p_val.get("title", [])
+                    if tl:
+                        title = tl[0].get("plain_text", "").strip()
+                    break
+
+        if not title:
+            raise ValueError("Không tìm thấy tiêu đề sản phẩm trên Notion.")
+
+        root = validate_drive_root(drive_root())
+        shop_dir = root / shop_name
+        shop_dir.mkdir(parents=True, exist_ok=True)
+
+        clean_prod_name = re.sub(r'[\\/*?:"<>|]', '-', title).strip()
+        clean_prod_name = re.sub(r'-+', '-', clean_prod_name).strip()
+        product_dir = shop_dir / clean_prod_name
+        product_dir.mkdir(parents=True, exist_ok=True)
+
+        rel_insights = props.get("Danh sách Insight", {}).get("relation", [])
+        created_insights = []
+
+        for idx, rel in enumerate(rel_insights, 1):
+            child_id = rel.get("id")
+            try:
+                c_page = call_notion_with_retry(notion.pages.retrieve, page_id=child_id)
+                c_props = c_page.get("properties", {})
+                c_title = ""
+                for cp_val in c_props.values():
+                    if cp_val.get("type") == "title":
+                        ctl = cp_val.get("title", [])
+                        if ctl:
+                            c_title = ctl[0].get("plain_text", "").strip()
+                        break
+                if not c_title:
+                    c_title = f"Insight {idx}"
+
+                clean_child = re.sub(r'[\\/*?:"<>|]', '-', c_title).strip()
+                clean_child = re.sub(r'-+', '-', clean_child).strip()
+                child_dir = product_dir / clean_child
+                child_dir.mkdir(parents=True, exist_ok=True)
+                created_insights.append({
+                    "page_id": child_id,
+                    "title": c_title,
+                    "folder_name": clean_child,
+                    "path": str(child_dir)
+                })
+            except Exception as e:
+                print(f"Lỗi tạo thư mục insight con {child_id}: {e}")
+
+        # Thử lấy link Drive online từ Google Drive web crawler nếu có
+        drive_url = props.get("URL", {}).get("url") or ""
+        try:
+            root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ")
+            shop_subfolders = convert_zicum.get_subfolders_of_drive_folder(root_folder_id)
+            shop_key = convert_zicum.clean_name(shop_name)
+            shop_folder_id = shop_subfolders.get(shop_key)
+
+            if shop_folder_id:
+                prod_subfolders = convert_zicum.get_subfolders_of_drive_folder(shop_folder_id)
+                prod_key = convert_zicum.clean_name(clean_prod_name)
+                prod_folder_id = prod_subfolders.get(prod_key)
+                if not prod_folder_id:
+                    for k, fid in prod_subfolders.items():
+                        if k in prod_key or prod_key in k:
+                            prod_folder_id = fid
+                            break
+                if prod_folder_id:
+                    drive_url = f"https://drive.google.com/drive/folders/{prod_folder_id}"
+
+                    # Cập nhật link Drive cho từng insight con
+                    child_subfolders = convert_zicum.get_subfolders_of_drive_folder(prod_folder_id)
+                    for ci in created_insights:
+                        c_key = convert_zicum.clean_name(ci["folder_name"])
+                        c_fid = child_subfolders.get(c_key)
+                        if c_fid:
+                            c_link = f"https://drive.google.com/drive/folders/{c_fid}"
+                            try:
+                                update_notion_page_safe(notion, page_id=ci["page_id"], properties={
+                                    "Link Drive bộ ảnh": {"url": c_link}
+                                })
+                            except Exception:
+                                pass
+        except Exception as e:
+            print(f"Lỗi quét Drive link: {e}")
+
+        # Cập nhật Notion: Trạng thái = "Hoàn thành", URL = drive_url
+        update_props = {
+            "Trạng thái": {"select": {"name": "Hoàn thành"}}
+        }
+        if drive_url:
+            update_props["URL"] = {"url": drive_url}
+
+        try:
+            update_notion_page_safe(notion, page_id=page_id, properties=update_props)
+        except Exception as e:
+            print(f"Lỗi cập nhật Notion page {page_id}: {e}")
+
+        # Ghi nhận trạng thái chọn folder hiện tại
+        save_path_setting("selected_shop", shop_name)
+        save_path_setting("selected_drive_folder", clean_prod_name)
+
+        return jsonify({
+            "success": True,
+            "status": f"Đã tạo thư mục sản phẩm '{clean_prod_name}' cùng {len(created_insights)} thư mục Insight tại shop '{shop_name}'.",
+            "product_name": clean_prod_name,
+            "shop": shop_name,
+            "product_dir": str(product_dir),
+            "drive_url": drive_url,
+            "created_insights": created_insights
+        })
+    except Exception as exc:
+        return error_response(exc, 400)
         return error_response(exc, 400)
 
 
@@ -6086,6 +7183,23 @@ def api_record():
         return error_response(exc)
     finally:
         OPERATION_LOCK.release()
+
+
+@app.post("/api/folder/reveal")
+def api_reveal_folder():
+    try:
+        payload = request.json or {}
+        folder_path_str = payload.get("folder_path", "").strip()
+        if not folder_path_str:
+            raise ValueError("Thiếu đường dẫn thư mục.")
+        p = Path(folder_path_str)
+        if not p.exists():
+            raise FileNotFoundError(f"Thư mục không tồn tại: {folder_path_str}")
+        import subprocess
+        subprocess.Popen(["explorer.exe", str(p)])
+        return jsonify({"success": True, "status": "Đã mở thư mục trong Explorer.", "path": str(p)})
+    except Exception as exc:
+        return error_response(exc, 400)
 
 
 @app.post("/api/utils/select-directory")
@@ -8644,12 +9758,14 @@ def api_list_downloaded_images():
                 if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
                     img_files.append((f, out_dir))
 
-        # Quét ở các thư mục con Insight *
-        for ext in ("Insight*/*.png", "Insight*/*.jpg", "Insight*/*.jpeg", "Insight*/*.mp4", "Insight*/*.webm"):
+        # Quét ở các thư mục con (Insight hoặc bất kỳ thư mục con nào)
+        for ext in ("*/*.png", "*/*.jpg", "*/*.jpeg", "*/*.mp4", "*/*.webm"):
             for f in out_dir.glob(ext):
+                if f.parent.name.startswith(".") or f.parent.name.lower() in ["output", "__pycache__"]:
+                    continue
                 name_lower = f.name.lower()
                 is_numbered = re.match(r'^[1-9]\.(png|jpg|jpeg|mp4|webm|mov)$', name_lower) is not None
-                if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered:
+                if name_lower.startswith("chatgpt_") or name_lower.startswith("gemini_") or is_numbered or True:
                     img_files.append((f, out_dir))
 
         # Sắp xếp theo mtime của file
@@ -9341,9 +10457,174 @@ def api_get_pending_products():
         load_dotenv(env_file, override=True)
 
         token = os.getenv("NOTION_TOKEN")
-        db_id = os.getenv("NOTION_DATABASE_ID")
-        if not token or not db_id:
+        if not token:
             return jsonify([])
+
+        notion = Client(auth=token)
+        try:
+            from shopee_sync.src.notion_sync import call_notion_with_retry, find_local_product_folder
+        except ImportError:
+            from src.notion_sync import call_notion_with_retry, find_local_product_folder
+
+        root = validate_drive_root(drive_root())
+
+        # 1. Quét từ Database chính: Shopee - Xử lý sản phẩm đăng (ca055a7742824b9598abde7a7686d144)
+        db_main_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+        pending_items = []
+
+        try:
+            db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=db_main_id)
+            data_sources = db_meta.get("data_sources", [])
+            q_target = data_sources[0]["id"] if data_sources else db_main_id
+            res = call_notion_with_retry(
+                notion.data_sources.query if data_sources else notion.databases.query,
+                **{"data_source_id" if data_sources else "database_id": q_target, "page_size": 100}
+            )
+            records = res.get("results", [])
+
+            for page in records:
+                properties = page.get("properties", {})
+                title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+                title = title_list[0].get("plain_text", "").strip() if title_list else ""
+                if not title:
+                    continue
+
+                # Trạng thái Notion (select): Chờ đăng, Đã đăng, Lên đơn, Nội dung, Hủy...
+                st_sel = properties.get("Trạng thái", {}).get("select") or {}
+                notion_status = st_sel.get("name", "").strip() if isinstance(st_sel, dict) else ""
+                if not notion_status:
+                    notion_status = "Chưa đặt"
+
+                p1 = properties.get("Giá biến thể 1", {}).get("number")
+                v1 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+                p2 = properties.get("Giá biến thể 2", {}).get("number")
+                v2 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+                media_url = properties.get("Media sản phẩm", {}).get("url") or ""
+                note = "".join([x.get("plain_text", "") for x in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
+
+                # Relation trỏ sang database Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
+                rel_lib = properties.get("Insight Library", {}).get("relation", [])
+                insight_lib_id = rel_lib[0].get("id") if rel_lib else None
+
+                # Lấy số insight từ Insight Library nếu có
+                insight_count = 0
+                rel_insight_ids = []
+                lib_title = ""
+                if insight_lib_id:
+                    try:
+                        lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_lib_id)
+                        lib_props = lib_page.get("properties", {})
+                        lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
+                        lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
+                        rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
+                        rel_insight_ids = [r.get("id") for r in rel_ins]
+                        num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
+                        insight_count = int(num_prop.get("number") or len(rel_insight_ids))
+                    except Exception as err:
+                        print(f"[Pending Products] Lỗi đọc Insight Lib {insight_lib_id}: {err}")
+
+                # Tìm thư mục local/Drive
+                existing_shop = None
+                matched_folder_name = ""
+                matched_folder_path = None
+                if root and root.is_dir():
+                    matched = find_local_product_folder(root, title)
+                    if not matched and lib_title:
+                        matched = find_local_product_folder(root, lib_title)
+                    if matched and matched.is_dir():
+                        matched_folder_name = matched.name
+                        matched_folder_path = matched
+                        try:
+                            rel = matched.relative_to(root)
+                            if len(rel.parts) > 1:
+                                existing_shop = rel.parts[0]
+                            else:
+                                existing_shop = matched.name
+                        except Exception:
+                            existing_shop = "Drive"
+
+                # Đánh giá tình trạng hoàn thành bài viết & hình ảnh
+                has_images_count = 0
+                if matched_folder_path and matched_folder_path.is_dir():
+                    for sub in matched_folder_path.iterdir():
+                        if sub.is_dir():
+                            imgs = [x for x in sub.iterdir() if x.is_file() and x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]]
+                            if imgs:
+                                has_images_count += 1
+
+                if insight_count == 0:
+                    ready_status = "Chưa có insight"
+                elif has_images_count >= insight_count and insight_count > 0:
+                    ready_status = "Đủ bài & hình"
+                elif has_images_count > 0:
+                    ready_status = f"Thiếu hình ({has_images_count}/{insight_count})"
+                else:
+                    ready_status = "Thiếu hình"
+
+                # Ghép định dạng giá hiển thị
+                price_display = f"{int(p1):,}đ" if p1 else ""
+
+                pending_items.append({
+                    "id": page.get("id"),
+                    "title": title,
+                    "insight_count": insight_count,
+                    "status": ready_status,
+                    "notion_status": notion_status,
+                    "price": price_display,
+                    "price_num": p1,
+                    "classification": v1 or "Mặc định",
+                    "variant_2": v2,
+                    "drive_url": media_url,
+                    "note": note,
+                    "insight_lib_id": insight_lib_id,
+                    "lib_title": lib_title,
+                    "shop": existing_shop or "",
+                    "folder_name": matched_folder_name
+                })
+        except Exception as query_err:
+            print(f"[Pending Products] Lỗi query DB chính: {query_err}")
+
+        # Sắp xếp ưu tiên:
+        # 1. Chờ đăng lên đầu tiên (ưu tiên xử lý)
+        # 2. Chưa đặt / Lên đơn
+        # 3. Đã đăng
+        status_priority = {
+            "Chờ đăng": 0,
+            "Chưa đặt": 1,
+            "Lên đơn": 2,
+            "Nội dung": 3,
+            "Đã đăng": 4,
+            "Hủy": 5
+        }
+        pending_items.sort(key=lambda x: (
+            status_priority.get(x["notion_status"], 9),
+            0 if x["status"] == "Đủ bài & hình" else 1,
+            x["title"]
+        ))
+        return jsonify(pending_items)
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.post("/api/shopee/product/update-status")
+def api_update_product_status():
+    try:
+        from notion_client import Client
+        from dotenv import load_dotenv
+        env_file = SHOPEE_SYNC_ROOT / ".env"
+        if env_file.exists():
+            load_dotenv(env_file, override=True)
+
+        config = load_config()
+        token = config.get("notion", {}).get("token", "").strip() or os.getenv("NOTION_TOKEN", "").strip()
+        if not token:
+            return jsonify({"success": False, "error": "Chưa cấu hình NOTION_TOKEN"}), 400
+
+        data = request.json or {}
+        page_id = data.get("page_id", "").strip()
+        new_status = data.get("status", "").strip()
+        if not page_id or not new_status:
+            return jsonify({"success": False, "error": "Thiếu page_id hoặc status"}), 400
 
         notion = Client(auth=token)
         try:
@@ -9351,30 +10632,241 @@ def api_get_pending_products():
         except ImportError:
             from src.notion_sync import call_notion_with_retry
 
-        db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=db_id)
-        data_sources = db_meta.get("data_sources", [])
-        if not data_sources:
-            return jsonify([])
+        call_notion_with_retry(
+            notion.pages.update,
+            page_id=page_id,
+            properties={"Trạng thái": {"select": {"name": new_status}}}
+        )
+        return jsonify({"success": True, "message": f"Đã chuyển trạng thái sang '{new_status}'"})
+    except Exception as exc:
+        return error_response(exc, 500)
 
-        data_source_id = data_sources[0].get("id")
-        res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
-        records = res.get("results", [])
 
-        pending_items = []
-        for page in records:
-            properties = page.get("properties", {})
-            bai_viet = properties.get("Bài viết", {}).get("checkbox", False)
-            it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
+@app.post("/api/shopee/insights/save-to-notion")
+def api_save_insights_to_notion():
+    try:
+        from notion_client import Client
+        from dotenv import load_dotenv
+        env_file = SHOPEE_SYNC_ROOT / ".env"
+        if env_file.exists():
+            load_dotenv(env_file, override=True)
 
-            title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        config = load_config()
+        token = config.get("notion", {}).get("token", "").strip() or os.getenv("NOTION_TOKEN", "").strip()
+        if not token:
+            return jsonify({"success": False, "error": "Chưa cấu hình NOTION_TOKEN"}), 400
 
-            if title and not bai_viet and not it_status:
-                pending_items.append({
-                    "id": page.get("id"),
-                    "title": title
-                })
-        return jsonify(pending_items)
+        notion = Client(auth=token)
+        try:
+            from shopee_sync.src.notion_sync import call_notion_with_retry, fetch_all_blocks_recursive, format_notion_blocks_to_text
+        except ImportError:
+            from src.notion_sync import call_notion_with_retry, fetch_all_blocks_recursive, format_notion_blocks_to_text
+
+        data = request.json or {}
+        parent_page_id = data.get("page_id", "").strip()
+        product_name = data.get("product_name", "").strip()
+        price_raw = data.get("price", "").strip()
+        classification = data.get("classification", "").strip()
+        variants = data.get("variants", "").strip()
+        insights = data.get("insights", [])
+
+        if not insights:
+            return jsonify({"success": False, "error": "Không có insight nào để lưu."}), 400
+
+        def build_rich_text_safe(text_val):
+            if not text_val:
+                return []
+            s = str(text_val).strip()
+            if not s:
+                return []
+            chunks = [s[i:i+1900] for i in range(0, len(s), 1900)]
+            return [{"type": "text", "text": {"content": c}} for c in chunks]
+
+        def convert_text_to_blocks(raw_text):
+            blocks = []
+            if not raw_text or not raw_text.strip():
+                return blocks
+            lines = raw_text.split("\n")
+            for line in lines:
+                l_strip = line.strip()
+                if not l_strip:
+                    continue
+                if l_strip.startswith("⭐") or l_strip.startswith("## "):
+                    clean_h = l_strip.lstrip("⭐").lstrip("#").strip()
+                    blocks.append({
+                        "object": "block",
+                        "type": "heading_2",
+                        "heading_2": {"rich_text": build_rich_text_safe(f"⭐ {clean_h}")}
+                    })
+                elif l_strip.startswith("🍀") or l_strip.startswith("# "):
+                    clean_h = l_strip.lstrip("🍀").lstrip("#").strip()
+                    blocks.append({
+                        "object": "block",
+                        "type": "heading_1",
+                        "heading_1": {"rich_text": build_rich_text_safe(f"🍀 {clean_h}")}
+                    })
+                elif l_strip.startswith("📍") or l_strip.startswith("### "):
+                    clean_h = l_strip.lstrip("📍").lstrip("#").strip()
+                    blocks.append({
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {"rich_text": build_rich_text_safe(f"📍 {clean_h}")}
+                    })
+                elif l_strip.startswith("- ") or l_strip.startswith("• ") or l_strip.startswith("* "):
+                    clean_bullet = l_strip[2:].strip()
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {"rich_text": build_rich_text_safe(clean_bullet)}
+                    })
+                elif l_strip.startswith("> "):
+                    clean_quote = l_strip[2:].strip()
+                    blocks.append({
+                        "object": "block",
+                        "type": "quote",
+                        "quote": {"rich_text": build_rich_text_safe(clean_quote)}
+                    })
+                else:
+                    blocks.append({
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {"rich_text": build_rich_text_safe(l_strip)}
+                    })
+            return blocks
+
+        updated_count = 0
+        for item in insights:
+            child_id = item.get("id", "").strip()
+            if not child_id:
+                continue
+
+            c_title = item.get("title", "").strip()
+            c_angle = item.get("angle", "").strip()
+            c_keywords = item.get("keywords", "").strip()
+            c_content = item.get("content", "").strip()
+
+            try:
+                c_page = call_notion_with_retry(notion.pages.retrieve, page_id=child_id)
+                c_props = c_page.get("properties", {})
+            except Exception as get_err:
+                print(f"[Save Insight] Không thể đọc trang {child_id}: {get_err}")
+                continue
+
+            props_to_update = {}
+            # 1. Title property
+            title_prop_name = None
+            for p_name, p_val in c_props.items():
+                if p_val.get("type") == "title":
+                    title_prop_name = p_name
+                    break
+            if title_prop_name and c_title:
+                props_to_update[title_prop_name] = {"title": [{"type": "text", "text": {"content": c_title}}]}
+
+            # 2. Angle property
+            for p_name in c_props.keys():
+                if p_name.lower() == "angle":
+                    props_to_update[p_name] = {"rich_text": build_rich_text_safe(c_angle)}
+                    break
+
+            # 3. Keywords property
+            for p_name in c_props.keys():
+                if "từ khóa" in p_name.lower() or "keyword" in p_name.lower():
+                    props_to_update[p_name] = {"rich_text": build_rich_text_safe(c_keywords)}
+                    break
+
+            # 4. Property "Nội dung đăng Shopee"
+            for p_name in c_props.keys():
+                if "nội dung" in p_name.lower() and "shopee" in p_name.lower():
+                    props_to_update[p_name] = {"rich_text": build_rich_text_safe(c_content[:1900])}
+                    break
+
+            # Cập nhật properties
+            if props_to_update:
+                try:
+                    call_notion_with_retry(notion.pages.update, page_id=child_id, properties=props_to_update)
+                except Exception as up_err:
+                    print(f"[Save Insight] Lỗi cập nhật properties trang {child_id}: {up_err}")
+
+            # 5. Cập nhật Blocks nội dung bài viết nếu có thay đổi
+            if c_content:
+                try:
+                    existing_blocks = fetch_all_blocks_recursive(notion, child_id)
+                    existing_text = format_notion_blocks_to_text(existing_blocks)
+                    if existing_text.strip() != c_content.strip():
+                        top_blocks = call_notion_with_retry(notion.blocks.children.list, block_id=child_id).get("results", [])
+                        for b in top_blocks:
+                            try:
+                                call_notion_with_retry(notion.blocks.delete, block_id=b["id"])
+                            except Exception as del_err:
+                                print(f"[Save Insight] Lỗi xoá block {b.get('id')}: {del_err}")
+
+                        new_blocks = convert_text_to_blocks(c_content)
+                        for chunk_idx in range(0, len(new_blocks), 10):
+                            batch = new_blocks[chunk_idx:chunk_idx + 10]
+                            try:
+                                call_notion_with_retry(notion.blocks.children.append, block_id=child_id, children=batch)
+                            except Exception as app_err:
+                                print(f"[Save Insight] Lỗi thêm block mới cho {child_id}: {app_err}")
+                except Exception as b_err:
+                    print(f"[Save Insight] Lỗi cập nhật blocks cho {child_id}: {b_err}")
+
+            updated_count += 1
+
+        # Cập nhật trang cha nếu có
+        if parent_page_id:
+            try:
+                p_page = call_notion_with_retry(notion.pages.retrieve, page_id=parent_page_id)
+                p_props = p_page.get("properties", {})
+                p_updates = {}
+                if product_name:
+                    p_title_name = None
+                    for p_n, p_v in p_props.items():
+                        if p_v.get("type") == "title":
+                            p_title_name = p_n
+                            break
+                    if p_title_name:
+                        p_updates[p_title_name] = {"title": [{"type": "text", "text": {"content": product_name}}]}
+
+                if "Biến thể & giá" in p_props and (price_raw or classification or variants):
+                    price_info_text = f"Phân loại: {classification}\nGiá sản phẩm: {price_raw}\nBiến thể / Giá:\n{variants}"
+                    p_updates["Biến thể & giá"] = {"rich_text": build_rich_text_safe(price_info_text)}
+
+                if p_updates:
+                    call_notion_with_retry(notion.pages.update, page_id=parent_page_id, properties=p_updates)
+            except Exception as p_err:
+                print(f"[Save Insight] Lỗi cập nhật trang cha: {p_err}")
+
+        # Cập nhật Master DB nếu có liên kết
+        if price_raw or classification:
+            try:
+                import re
+                price_digits = re.sub(r"\D", "", price_raw)
+                price_num = int(price_digits) if price_digits else None
+                master_db_id = "ca055a7742824b9598abde7a7686d144"
+                db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=master_db_id)
+                ds = db_meta.get("data_sources", [])
+                q_target = ds[0]["id"] if ds else master_db_id
+                res_m = call_notion_with_retry(
+                    notion.data_sources.query if ds else notion.databases.query,
+                    **{"data_source_id" if ds else "database_id": q_target, "filter": {"property": "Insight Library", "relation": {"contains": parent_page_id}}}
+                )
+                if res_m.get("results"):
+                    m_page = res_m["results"][0]
+                    m_updates = {}
+                    if price_num is not None:
+                        m_updates["Giá biến thể 1"] = {"number": price_num}
+                    if classification:
+                        m_updates["Biến thể 1"] = {"rich_text": build_rich_text_safe(classification)}
+                    if m_updates:
+                        call_notion_with_retry(notion.pages.update, page_id=m_page["id"], properties=m_updates)
+            except Exception as m_err:
+                print(f"[Save Insight] Lỗi cập nhật Master DB: {m_err}")
+
+        return jsonify({
+            "success": True,
+            "message": f"Đã lưu thành công {updated_count}/{len(insights)} Insight vào đúng trang Notion!",
+            "updated_count": updated_count
+        })
     except Exception as exc:
         return error_response(exc, 500)
 
@@ -9536,13 +11028,34 @@ def api_list_shopee_excel():
         if not export_dir:
             export_dir = str(Path.home() / "Downloads")
 
-        out_dir = Path(export_dir)
-        if not out_dir.exists():
-            return jsonify([])
+        out_dir = Path(export_dir) if export_dir else Path.home() / "Downloads"
 
+        search_dirs = [out_dir, SHOPEE_SYNC_ROOT / "output"]
+        try:
+            prod_dir = selected_drive_folder()
+            if prod_dir.is_dir():
+                search_dirs.append(prod_dir)
+        except Exception:
+            pass
+
+        seen_names = set()
         excel_files = []
-        for f in out_dir.glob("bigseller_sync_*.xlsx"):
-            excel_files.append(f)
+        for s_dir in search_dirs:
+            if s_dir.exists() and s_dir.is_dir():
+                for f in s_dir.glob("bigseller_sync_*.xlsx"):
+                    if f.name not in seen_names:
+                        seen_names.add(f.name)
+                        excel_files.append(f)
+
+        try:
+            d_root = validate_drive_root(drive_root())
+            if d_root and d_root.exists():
+                for f in d_root.rglob("bigseller_sync_*.xlsx"):
+                    if f.name not in seen_names:
+                        seen_names.add(f.name)
+                        excel_files.append(f)
+        except Exception:
+            pass
 
         excel_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
@@ -9564,26 +11077,75 @@ def api_delete_shopee_excel():
     try:
         data = request.json or {}
         filename = data.get("name", "").strip()
-        if not filename:
+        req_file_path = data.get("file_path", "").strip()
+        if not filename and not req_file_path:
             return jsonify({"success": False, "error": "Thiếu tên file"}), 400
 
-        # Chỉ cho phép xóa file có pattern bigseller_sync_*.xlsx để bảo mật
-        if not (filename.startswith("bigseller_sync_") and filename.endswith(".xlsx")):
+        target_name = filename or Path(req_file_path).name
+        if not (target_name.startswith("bigseller_sync_") and target_name.endswith(".xlsx")):
             return jsonify({"success": False, "error": "Tên file không hợp lệ"}), 400
 
+        deleted = False
+        permission_error_file = None
+
+        # 1. Xóa trực tiếp theo đường dẫn file_path nếu hợp lệ
+        if req_file_path:
+            p = Path(req_file_path)
+            if p.exists() and p.name.startswith("bigseller_sync_") and p.name.endswith(".xlsx"):
+                try:
+                    p.unlink()
+                    deleted = True
+                except PermissionError:
+                    permission_error_file = p.name
+                except Exception as e:
+                    print(f"[Excel Delete] Không xóa được file_path: {e}")
+
+        # 2. Quét xóa ở out_dir, output_dir và selected_drive_folder
         config = load_config()
         export_dir = config.get("openai", {}).get("export_dir", "").strip()
-        if not export_dir:
-            export_dir = str(Path.home() / "Downloads")
+        out_dir = Path(export_dir) if export_dir else Path.home() / "Downloads"
 
-        out_dir = Path(export_dir)
-        file_path = out_dir / filename
+        search_dirs = [out_dir, SHOPEE_SYNC_ROOT / "output"]
+        try:
+            prod_dir = selected_drive_folder()
+            if prod_dir.is_dir():
+                search_dirs.append(prod_dir)
+        except Exception:
+            pass
 
-        if file_path.exists():
-            file_path.unlink()
-            return jsonify({"success": True, "message": f"Đã xóa file {filename}"})
+        for s_dir in search_dirs:
+            if s_dir.exists() and s_dir.is_dir():
+                f_p = s_dir / target_name
+                if f_p.exists():
+                    try:
+                        f_p.unlink()
+                        deleted = True
+                    except PermissionError:
+                        permission_error_file = f_p.name
+                    except Exception:
+                        pass
+
+        # 3. Quét xóa trong toàn bộ Drive root nếu có
+        try:
+            d_root = validate_drive_root(drive_root())
+            if d_root and d_root.exists():
+                for f in d_root.rglob(target_name):
+                    try:
+                        f.unlink()
+                        deleted = True
+                    except PermissionError:
+                        permission_error_file = f.name
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        if deleted:
+            return jsonify({"success": True, "message": f"Đã xóa file {target_name}"})
+        elif permission_error_file:
+            return jsonify({"success": False, "error": f"File '{permission_error_file}' đang được mở bởi ứng dụng khác (ví dụ Microsoft Excel). Vui lòng đóng file Excel trước khi xóa."}), 400
         else:
-            return jsonify({"success": False, "error": "File không tồn tại"}), 404
+            return jsonify({"success": True, "message": "File đã được xóa hoặc không tồn tại."})
     except Exception as exc:
         return error_response(exc, 500)
 
@@ -9593,22 +11155,58 @@ def api_delete_all_shopee_excel():
     try:
         config = load_config()
         export_dir = config.get("openai", {}).get("export_dir", "").strip()
-        if not export_dir:
-            export_dir = str(Path.home() / "Downloads")
+        out_dir = Path(export_dir) if export_dir else Path.home() / "Downloads"
 
-        out_dir = Path(export_dir)
-        if not out_dir.exists():
-            return jsonify({"success": True, "message": "Thư mục không tồn tại, không có file cần xóa."})
+        search_dirs = [out_dir, SHOPEE_SYNC_ROOT / "output"]
+        try:
+            prod_dir = selected_drive_folder()
+            if prod_dir.is_dir():
+                search_dirs.append(prod_dir)
+        except Exception:
+            pass
 
         deleted_count = 0
-        for f in out_dir.glob("bigseller_sync_*.xlsx"):
-            try:
-                f.unlink()
-                deleted_count += 1
-            except Exception as e:
-                print(f"[Excel Delete All] Không xóa được file {f.name}: {e}")
+        seen_deleted = set()
+        locked_files = []
 
-        return jsonify({"success": True, "message": f"Đã xóa thành công {deleted_count} file Excel."})
+        for s_dir in search_dirs:
+            if s_dir.exists() and s_dir.is_dir():
+                for f in s_dir.glob("bigseller_sync_*.xlsx"):
+                    f_str = str(f.resolve())
+                    if f_str not in seen_deleted:
+                        try:
+                            f.unlink()
+                            deleted_count += 1
+                            seen_deleted.add(f_str)
+                        except PermissionError:
+                            locked_files.append(f.name)
+                        except Exception as e:
+                            print(f"[Excel Delete All] Không xóa được file {f.name}: {e}")
+
+        # Quét xóa tất cả bản sao trong Drive
+        try:
+            d_root = validate_drive_root(drive_root())
+            if d_root and d_root.exists():
+                for f in d_root.rglob("bigseller_sync_*.xlsx"):
+                    f_str = str(f.resolve())
+                    if f_str not in seen_deleted:
+                        try:
+                            f.unlink()
+                            deleted_count += 1
+                            seen_deleted.add(f_str)
+                        except PermissionError:
+                            locked_files.append(f.name)
+                        except Exception as e:
+                            print(f"[Excel Delete All] Không xóa được file {f.name} trên Drive: {e}")
+        except Exception:
+            pass
+
+        msg = f"Đã xóa thành công {deleted_count} file Excel."
+        if locked_files:
+            unique_locked = list(set(locked_files))
+            msg += f" Chú ý: Có {len(unique_locked)} file đang mở trong Microsoft Excel nên Windows không cho phép xóa ({', '.join(unique_locked)}). Vui lòng đóng Excel và bấm xóa lại."
+
+        return jsonify({"success": True, "message": msg})
     except Exception as exc:
         return error_response(exc, 500)
 
@@ -10368,6 +11966,11 @@ def api_get_product_details():
         if not page_id:
             return jsonify({"error": "Thiếu page_id"}), 400
 
+        env_file = SHOPEE_SYNC_ROOT / ".env"
+        from dotenv import load_dotenv
+        if env_file.exists():
+            load_dotenv(env_file, override=True)
+
         config = load_config()
         notion_token = config.get("notion", {}).get("token", "").strip() or os.getenv("NOTION_TOKEN", "").strip()
         if not notion_token:
@@ -10376,69 +11979,251 @@ def api_get_product_details():
         from notion_client import Client
         notion = Client(auth=notion_token)
         try:
-            from shopee_sync.src.notion_sync import call_notion_with_retry, get_rich_text_content
+            from shopee_sync.src.notion_sync import call_notion_with_retry, get_rich_text_content, fetch_insight_page_content, find_local_product_folder
+            from shopee_sync.src import convert_zicum
         except ImportError:
-            from src.notion_sync import call_notion_with_retry, get_rich_text_content
+            from src.notion_sync import call_notion_with_retry, get_rich_text_content, fetch_insight_page_content, find_local_product_folder
+            import convert_zicum
 
         page = call_notion_with_retry(notion.pages.retrieve, page_id=page_id)
         properties = page.get("properties", {})
 
-        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-        title = title_list[0].get("plain_text", "").strip() if title_list else ""
-        price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))
-
+        # Kiểm tra xem page này thuộc DB1 (Shopee - Xử lý sản phẩm đăng) hay DB2 (Shopee Insight Library)
+        is_from_product_db = ("Insight Library" in properties) or ("Giá biến thể 1" in properties)
+        
+        rel_insights = []
+        master_page = None
+        master_title = ""
         price = ""
         classification = ""
         variants = ""
+        master_info = {}
+        drive_url = properties.get("Media sản phẩm", {}).get("url") or properties.get("URL", {}).get("url") or ""
+        note = "".join([t.get("plain_text", "") for t in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
+        st_sel = properties.get("Trạng thái", {}).get("select") or {}
+        notion_status = st_sel.get("name", "").strip() if isinstance(st_sel, dict) else ""
 
-        lines = [l.strip() for l in price_variant_text.split("\n") if l.strip()]
-        for line in lines:
-            if line.lower().startswith("giá sản phẩm:"):
-                price = line.split(":", 1)[1].strip()
-            elif line.lower().startswith("phân loại:"):
-                classification = line.split(":", 1)[1].strip()
+        if is_from_product_db:
+            # 1. Page từ DB Xử lý sản phẩm đăng: Lấy trực tiếp thông tin giá, biến thể
+            title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            if not title:
+                for pv in properties.values():
+                    if pv.get("type") == "title":
+                        tl = pv.get("title", [])
+                        if tl:
+                            title = tl[0].get("plain_text", "").strip()
+                        break
 
-        if "biến thể / giá:" in price_variant_text.lower():
-            parts = price_variant_text.lower().split("biến thể / giá:")
-            if len(parts) > 1:
-                variants = price_variant_text[len(parts[0]) + len("biến thể / giá:"):].strip()
+            master_title = title
+            p1 = properties.get("Giá biến thể 1", {}).get("number")
+            v1 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+            p2 = properties.get("Giá biến thể 2", {}).get("number")
+            v2 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
 
-        # Tự động đồng bộ selected_drive_folder trong config.json sang thư mục của sản phẩm này
+            classification = v1 or "Mặc định"
+            price = f"{int(p1):,}đ" if p1 else ""
+            var_lines = []
+            if v1 and p1:
+                var_lines.append(f"{v1}: {int(p1):,}đ")
+            if v2 and p2:
+                var_lines.append(f"{v2}: {int(p2):,}đ")
+            variants = "\n".join(var_lines) if var_lines else (f"{int(p1):,}đ" if p1 else "")
+
+            master_info = {
+                "id": page_id,
+                "title": master_title,
+                "variant_1": v1,
+                "price_1": p1,
+                "variant_2": v2,
+                "price_2": p2,
+                "status": notion_status,
+                "note": note
+            }
+
+            # Trỏ đúng sang Insight Library để lấy danh sách insight con
+            rel_lib = properties.get("Insight Library", {}).get("relation", [])
+            lib_title = ""
+            if rel_lib:
+                lib_id = rel_lib[0].get("id")
+                try:
+                    lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=lib_id)
+                    lib_props = lib_page.get("properties", {})
+                    lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
+                    lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
+                    rel_insights = lib_props.get("Danh sách Insight", {}).get("relation", [])
+                except Exception as lib_err:
+                    print(f"[Product Details] Lỗi truy vấn Insight Library {lib_id}: {lib_err}")
+        else:
+            # 2. Fallback: Page từ Insight Library
+            title_list = properties.get("Tên post Shopee", {}).get("title", []) or properties.get("Tên sản phẩm", {}).get("title", [])
+            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            lib_title = title
+            rel_insights = properties.get("Danh sách Insight", {}).get("relation", [])
+
+            master_db_id = "ca055a7742824b9598abde7a7686d144"
+            try:
+                db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=master_db_id)
+                ds = db_meta.get("data_sources", [])
+                q_target = ds[0]["id"] if ds else master_db_id
+                
+                res_m = call_notion_with_retry(
+                    notion.data_sources.query if ds else notion.databases.query,
+                    **{"data_source_id" if ds else "database_id": q_target, "filter": {"property": "Insight Library", "relation": {"contains": page_id}}}
+                )
+                if res_m.get("results"):
+                    master_page = res_m["results"][0]
+
+                if not master_page:
+                    res_all = call_notion_with_retry(
+                        notion.data_sources.query if ds else notion.databases.query,
+                        **{"data_source_id" if ds else "database_id": q_target, "page_size": 50}
+                    )
+                    clean_t = convert_zicum.clean_name(title)
+                    for mp in res_all.get("results", []):
+                        mp_title = "".join([t.get("plain_text", "") for t in mp.get("properties", {}).get("Tên sản phẩm", {}).get("title", [])])
+                        clean_mp = convert_zicum.clean_name(mp_title)
+                        if clean_t and (clean_t in clean_mp or clean_mp in clean_t):
+                            master_page = mp
+                            break
+            except Exception as m_err:
+                print(f"[Product Details] Lỗi truy vấn Master DB: {m_err}")
+
+            if master_page:
+                mp_props = master_page.get("properties", {})
+                master_title = "".join([t.get("plain_text", "") for t in mp_props.get("Tên sản phẩm", {}).get("title", [])]).strip()
+                v1 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+                p1 = mp_props.get("Giá biến thể 1", {}).get("number")
+                v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+                p2 = mp_props.get("Giá biến thể 2", {}).get("number")
+
+                classification = v1 or "Mặc định"
+                price = f"{int(p1):,}đ" if p1 else ""
+                var_lines = []
+                if v1 and p1:
+                    var_lines.append(f"{v1}: {int(p1):,}đ")
+                if v2 and p2:
+                    var_lines.append(f"{v2}: {int(p2):,}đ")
+                variants = "\n".join(var_lines) if var_lines else (f"{int(p1):,}đ" if p1 else "")
+
+                m_status_sel = (mp_props.get("Trạng thái") or {}).get("select") or {}
+                master_info = {
+                    "id": master_page.get("id"),
+                    "title": master_title,
+                    "variant_1": v1,
+                    "price_1": p1,
+                    "variant_2": v2,
+                    "price_2": p2,
+                    "status": m_status_sel.get("name", "") if isinstance(m_status_sel, dict) else ""
+                }
+
+        # 2. Tìm thư mục cục bộ của sản phẩm trên Drive
         matched_folder_name = ""
         matched_folder_path = ""
+        matched_shop = ""
         try:
             root = validate_drive_root(drive_root())
             if root and root.exists():
-                try:
-                    from shopee_sync.src.notion_sync import find_local_product_folder
-                except ImportError:
-                    from src.notion_sync import find_local_product_folder
                 matched_folder = find_local_product_folder(root, title)
+                if not matched_folder and master_title:
+                    matched_folder = find_local_product_folder(root, master_title)
+                if not matched_folder and lib_title:
+                    matched_folder = find_local_product_folder(root, lib_title)
                 if matched_folder:
                     matched_folder_name = matched_folder.name
-                if not matched_folder_name and title:
-                    new_f = root / title
-                    new_f.mkdir(parents=True, exist_ok=True)
-                    matched_folder_name = new_f.name
-                    
-                if matched_folder_name:
-                    matched_folder_path = str(root / matched_folder_name)
-                    cfg = load_config()
-                    if "paths" not in cfg:
-                        cfg["paths"] = {}
-                    cfg["paths"]["selected_drive_folder"] = matched_folder_name
-                    save_config(cfg)
+                    matched_folder_path = str(matched_folder)
+                    try:
+                        rel = matched_folder.relative_to(root)
+                        if len(rel.parts) > 1:
+                            matched_shop = rel.parts[0]
+                    except Exception:
+                        pass
         except Exception as e:
-            print(f"[Product Details] Lỗi đồng bộ selected_drive_folder: {e}")
+            print(f"[Product Details] Lỗi tìm thư mục local: {e}")
+
+        # 3. Lấy danh sách các Insight con và nội dung chuẩn bị sẵn
+        insights_data = []
+        for idx, rel in enumerate(rel_insights):
+            c_id = rel.get("id")
+            try:
+                c_title, c_desc, c_link = fetch_insight_page_content(notion, c_id)
+                c_page = call_notion_with_retry(notion.pages.retrieve, page_id=c_id)
+                c_props = c_page.get("properties", {})
+
+                angle = ""
+                for k, v in c_props.items():
+                    if k.lower() == "angle":
+                        angle = _notion_property_text(v)
+                        break
+
+                keywords = ""
+                for k, v in c_props.items():
+                    if "từ khóa" in k.lower() or "keyword" in k.lower():
+                        keywords = _notion_property_text(v)
+                        break
+
+                order_val = c_props.get("Thứ tự", {}).get("number") or (idx + 1)
+                clean_folder = re.sub(r'[\\/*?:"<>|]', '-', c_title).strip()
+                clean_folder = re.sub(r'-+', '-', clean_folder).strip()
+
+                # Kiểm tra ảnh trong thư mục con này nếu đã có thư mục local
+                image_files = []
+                if matched_folder_path:
+                    ins_dir = Path(matched_folder_path) / clean_folder
+                    if not ins_dir.exists():
+                        clean_t_ins = convert_zicum.clean_name(clean_folder)
+                        for sub_d in Path(matched_folder_path).iterdir():
+                            if not sub_d.is_dir():
+                                continue
+                            sub_d_clean = convert_zicum.clean_name(sub_d.name)
+                            if (clean_t_ins and (sub_d_clean == clean_t_ins or clean_t_ins in sub_d_clean or sub_d_clean in clean_t_ins)) or \
+                               (clean_folder.lower() in sub_d.name.lower() or sub_d.name.lower() in clean_folder.lower()):
+                                ins_dir = sub_d
+                                break
+                    if ins_dir.exists() and ins_dir.is_dir():
+                        from urllib.parse import quote
+                        for f in ins_dir.iterdir():
+                            if f.is_file() and f.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]:
+                                image_files.append({
+                                    "name": f.name,
+                                    "url": f"/api/automation/images/view?name={f.name}&export_dir={quote(str(ins_dir))}",
+                                    "file_path": str(f),
+                                    "is_video": f.suffix.lower() == ".mp4"
+                                })
+                        image_files.sort(key=lambda x: x["name"])
+
+                insights_data.append({
+                    "id": c_id,
+                    "order": order_val,
+                    "title": c_title,
+                    "folder_name": clean_folder,
+                    "angle": angle,
+                    "keywords": keywords,
+                    "description": c_desc,
+                    "drive_url": c_link or (c_props.get("Link Drive bộ ảnh", {}).get("url") or ""),
+                    "image_count": len(image_files),
+                    "images": image_files
+                })
+            except Exception as c_err:
+                print(f"[Product Details] Lỗi đọc insight con {c_id}: {c_err}")
+
+        insights_data.sort(key=lambda x: x["order"])
 
         return jsonify({
             "id": page_id,
             "title": title,
+            "master_title": master_title or title,
             "price": price,
             "classification": classification,
             "variants": variants,
+            "drive_url": drive_url,
+            "shop": matched_shop,
             "selected_folder": matched_folder_name,
-            "selected_folder_path": matched_folder_path
+            "selected_folder_path": matched_folder_path,
+            "master": master_info,
+            "notion_status": notion_status,
+            "note": note,
+            "insights": insights_data
         })
     except Exception as exc:
         return error_response(exc, 500)
@@ -11285,7 +13070,7 @@ def _product_name_match_score(folder_name: str, product_name: str) -> float:
 
 
 def load_notion_insights_for_product(product_hint: str) -> list[dict]:
-    """Lấy 5 Insight trực tiếp từ Insight Library của trang sản phẩm khớp tên thư mục."""
+    """Lấy danh sách Insight trực tiếp từ Notion (Shopee Insight Library hoặc Product DB) khớp tên sản phẩm/thư mục."""
     from dotenv import load_dotenv
 
     load_dotenv(SHOPEE_SYNC_ROOT / ".env")
@@ -11296,87 +13081,169 @@ def load_notion_insights_for_product(product_hint: str) -> list[dict]:
 
     from notion_client import Client
     from shopee_sync.src.notion_sync import call_notion_with_retry
+    from shopee_sync.src import convert_zicum
 
     notion = Client(auth=notion_token)
+
+    # 1. Ưu tiên tìm trong Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
+    insight_db_id = "88159c9046fb426db3c9a0d79358e76c"
+    try:
+        ins_db = call_notion_with_retry(notion.databases.retrieve, database_id=insight_db_id)
+        ins_data_sources = ins_db.get("data_sources", [])
+        if ins_data_sources:
+            ins_res = call_notion_with_retry(notion.data_sources.query, data_source_id=ins_data_sources[0].get("id"), page_size=100)
+            best_match_page = None
+            best_score = 0.0
+            best_title = ""
+            for p in ins_res.get("results", []):
+                p_props = p.get("properties", {})
+                p_title = _notion_property_text(p_props.get("Tên post Shopee", {}))
+                if not p_title:
+                    for pv in p_props.values():
+                        if pv.get("type") == "title":
+                            tl = pv.get("title", [])
+                            if tl:
+                                p_title = tl[0].get("plain_text", "").strip()
+                            break
+                score = _product_name_match_score(product_hint, p_title)
+                if score > best_score:
+                    best_score = score
+                    best_match_page = p
+                    best_title = p_title
+
+            if best_match_page and best_score >= 0.6:
+                rel_insights = best_match_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
+                if rel_insights:
+                    insights = []
+                    for m_idx, rel in enumerate(rel_insights):
+                        c_id = rel.get("id")
+                        try:
+                            c_page = call_notion_with_retry(notion.pages.retrieve, page_id=c_id)
+                            c_props = c_page.get("properties", {})
+                            order_num = c_props.get("Thứ tự", {}).get("number")
+                            try:
+                                order_num = int(order_num)
+                            except (TypeError, ValueError):
+                                order_num = m_idx + 1
+
+                            post_title = _notion_property_text(c_props.get("Tên post Shopee", {}))
+                            if not post_title:
+                                for cpv in c_props.values():
+                                    if cpv.get("type") == "title":
+                                        ctl = cpv.get("title", [])
+                                        if ctl:
+                                            post_title = ctl[0].get("plain_text", "").strip()
+                                        break
+                            angle = _notion_property_text(c_props.get("Angle", {}))
+                            insight_content = _notion_property_text(c_props.get("Insight", {}))
+                            keywords = _notion_property_text(c_props.get("Từ khóa chính cho insight", {}))
+                            folder_name = re.sub(r'[\\/*?:"<>|]', '-', post_title).strip()
+                            folder_name = re.sub(r'-+', '-', folder_name).strip()
+
+                            insights.append({
+                                "page_id": c_id,
+                                "order_num": order_num,
+                                "display_name": post_title or angle or f"Insight {order_num}",
+                                "post_title": post_title,
+                                "folder_name": folder_name,
+                                "angle": angle,
+                                "notion_description": insight_content,
+                                "keywords": keywords,
+                                "product_title": best_title,
+                            })
+                        except Exception as c_err:
+                            print(f"[load_notion_insights] Lỗi đọc page con {c_id}: {c_err}")
+                    if insights:
+                        insights.sort(key=lambda item: item.get("order_num", 999))
+                        return insights
+    except Exception as exc:
+        print(f"[load_notion_insights] Không đọc được Shopee Insight Library, thử database sản phẩm chính: {exc}")
+
+    # 2. Fallback sang database sản phẩm chính (ca055a7742824b9598abde7a7686d144)
     product_database_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
-    database = call_notion_with_retry(notion.databases.retrieve, database_id=product_database_id)
-    data_sources = database.get("data_sources", [])
-    if not data_sources:
-        return []
+    try:
+        database = call_notion_with_retry(notion.databases.retrieve, database_id=product_database_id)
+        data_sources = database.get("data_sources", [])
+        if not data_sources:
+            return []
 
-    candidates = []
-    cursor = None
-    while True:
-        query_args = {"data_source_id": data_sources[0].get("id"), "page_size": 100}
-        if cursor:
-            query_args["start_cursor"] = cursor
-        response = call_notion_with_retry(notion.data_sources.query, **query_args)
-        for page in response.get("results", []):
+        candidates = []
+        cursor = None
+        while True:
+            query_args = {"data_source_id": data_sources[0].get("id"), "page_size": 100}
+            if cursor:
+                query_args["start_cursor"] = cursor
+            response = call_notion_with_retry(notion.data_sources.query, **query_args)
+            for page in response.get("results", []):
+                properties = page.get("properties", {})
+                title = _notion_property_text(properties.get("Tên sản phẩm", {}))
+                score = _product_name_match_score(product_hint, title)
+                if score > 0:
+                    candidates.append((score, page, title))
+            if not response.get("has_more") or not response.get("next_cursor"):
+                break
+            cursor = response.get("next_cursor")
+
+        if not candidates:
+            return []
+
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        score, product_page, product_title = candidates[0]
+        if score < 0.75:
+            return []
+
+        product_page = call_notion_with_retry(notion.pages.retrieve, page_id=product_page.get("id"))
+        insight_ids = _notion_page_mentions(product_page.get("properties", {}).get("Insight Library", {}))
+        if not insight_ids:
+            return []
+
+        insights = []
+        for mention_index, insight_id in enumerate(insight_ids):
+            page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_id)
             properties = page.get("properties", {})
-            title = _notion_property_text(properties.get("Tên sản phẩm", {}))
-            score = _product_name_match_score(product_hint, title)
-            if score > 0:
-                candidates.append((score, page, title))
-        if not response.get("has_more") or not response.get("next_cursor"):
-            break
-        cursor = response.get("next_cursor")
+            order_num = properties.get("Thứ tự", {}).get("number")
+            try:
+                order_num = int(order_num)
+            except (TypeError, ValueError):
+                order_num = mention_index + 1
 
-    if not candidates:
+            post_title = _notion_property_text(properties.get("Tên post Shopee", {}))
+            angle = _notion_property_text(properties.get("Angle", {}))
+            insight_content = _notion_property_text(properties.get("Insight", {}))
+            keywords = _notion_property_text(properties.get("Từ khóa chính cho insight", {}))
+            insights.append({
+                "page_id": insight_id,
+                "order_num": order_num,
+                "display_name": post_title or angle or f"Insight {order_num}",
+                "post_title": post_title,
+                "angle": angle,
+                "notion_description": insight_content,
+                "keywords": keywords,
+                "product_title": product_title,
+            })
+
+        insights.sort(key=lambda item: item.get("order_num", 999))
+        return insights
+    except Exception as exc:
+        print(f"[load_notion_insights] Lỗi truy vấn database sản phẩm chính: {exc}")
         return []
-
-    candidates.sort(key=lambda item: item[0], reverse=True)
-    score, product_page, product_title = candidates[0]
-    if score < 0.75:
-        return []
-
-    product_page = call_notion_with_retry(notion.pages.retrieve, page_id=product_page.get("id"))
-    insight_ids = _notion_page_mentions(product_page.get("properties", {}).get("Insight Library", {}))
-    if not insight_ids:
-        return []
-
-    insights = []
-    for mention_index, insight_id in enumerate(insight_ids):
-        page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_id)
-        properties = page.get("properties", {})
-        order_num = properties.get("Thứ tự", {}).get("number")
-        try:
-            order_num = int(order_num)
-        except (TypeError, ValueError):
-            order_num = mention_index + 1
-
-        post_title = _notion_property_text(properties.get("Tên post Shopee", {}))
-        angle = _notion_property_text(properties.get("Angle", {}))
-        insight_content = _notion_property_text(properties.get("Insight", {}))
-        keywords = _notion_property_text(properties.get("Từ khóa chính cho insight", {}))
-        insights.append({
-            "page_id": insight_id,
-            "order_num": order_num,
-            "display_name": post_title or angle or f"Insight {order_num}",
-            "post_title": post_title,
-            "angle": angle,
-            "notion_description": insight_content,
-            "keywords": keywords,
-            "product_title": product_title,
-        })
-
-    insights.sort(key=lambda item: item.get("order_num", 999))
-    return insights
 
 
 @app.post("/api/automation/scan-insights")
 def api_scan_insights():
     import base64
+    from shopee_sync.src import convert_zicum
     try:
         data = request.json or {}
         export_dir = data.get("export_dir", "").strip()
         if not export_dir:
             return jsonify({"success": False, "error": "Thiếu đường dẫn thư mục lưu ảnh."}), 400
-        
+
         target_dir = Path(export_dir)
         if not target_dir.exists() or not target_dir.is_dir():
             return jsonify({"success": False, "error": f"Thư mục không tồn tại: {export_dir}"}), 400
-        
-        # 1. Tìm file insights_data.json
+
+        # 1. Tìm file insights_data.json nếu có
         insights_data = {}
         json_file = target_dir / "insights_data.json"
         if json_file.exists() and json_file.is_file():
@@ -11384,107 +13251,140 @@ def api_scan_insights():
                 insights_data = json.loads(json_file.read_text(encoding="utf-8"))
             except Exception as e:
                 print(f"[Scan Insights] Lỗi đọc insights_data.json: {e}")
-                
-        # 2. Ưu tiên dữ liệu live từ Notion; JSON cục bộ là fallback offline.
+
+        # 2. Dữ liệu live từ Notion (Shopee Insight Library hoặc Product DB)
         notion_insights = []
         try:
             notion_insights = load_notion_insights_for_product(target_dir.name)
         except Exception as exc:
             print(f"[Scan Insights] Không lấy được Insight từ Notion, dùng dữ liệu cục bộ: {exc}")
+
         notion_by_order = {
             item.get("order_num"): item
             for item in notion_insights
             if item.get("order_num") is not None
         }
+        notion_by_clean_name = {}
+        for item in notion_insights:
+            for k in [item.get("post_title"), item.get("folder_name"), item.get("display_name")]:
+                if k:
+                    notion_by_clean_name[convert_zicum.clean_name(k)] = item
 
-        # 3. Liệt kê các thư mục Insight *
+        # 3. Liệt kê TẤT CẢ các thư mục con trong target_dir
+        subfolders = [
+            f for f in target_dir.iterdir()
+            if f.is_dir() and not f.name.startswith(".") and f.name.lower() not in ["output", "__pycache__"]
+        ]
+
+        def _get_sort_key(f):
+            m = re.search(r'\d+', f.name)
+            return int(m.group()) if m else 999
+        subfolders.sort(key=_get_sort_key)
+
         insights_list = []
-        for folder in target_dir.iterdir():
-            if folder.is_dir() and folder.name.lower().startswith("insight"):
-                folder_name = folder.name
-                
-                # Quét file media đầu tiên trong thư mục Insight này
-                media_file = None
-                media_path = None
-                media_url = None
-                media_base64 = None
-                is_video = False
-                
-                files = []
-                for f in folder.iterdir():
-                    if f.is_file() and f.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp", ".mp4"]:
-                        files.append(f)
-                
-                if files:
-                    files.sort(key=lambda x: x.name)
-                    first_file = files[0]
-                    media_file = f"{folder_name}/{first_file.name}"
-                    media_path = str(first_file)
-                    media_url = f"/api/automation/images/view?name={folder_name}/{first_file.name}"
-                    is_video = first_file.suffix.lower() == ".mp4"
-                    
-                    try:
-                        file_bytes = first_file.read_bytes()
-                        encoded_body = base64.b64encode(file_bytes).decode("utf-8")
-                        mime_type = "video/mp4" if is_video else f"image/{first_file.suffix.lower().replace('.', '')}"
-                        media_base64 = f"data:{mime_type};base64,{encoded_body}"
-                    except Exception as e:
-                        print(f"[Scan Insights] Lỗi đọc base64 file {first_file.name}: {e}")
-                
-                order_num = None
-                match = re.search(r'\d+', folder_name)
-                if match:
-                    order_num = int(match.group())
-                
-                insight_info = {}
-                if insights_data and "insights" in insights_data and isinstance(insights_data["insights"], list):
-                    idx = (order_num - 1) if order_num is not None else None
-                    if idx is not None and 0 <= idx < len(insights_data["insights"]):
-                        insight_info = insights_data["insights"][idx]
-                
-                notion_info = notion_by_order.get(order_num, {})
-                post_title = (
-                    notion_info.get("post_title", "")
-                    or insight_info.get("postTitle", "")
-                    or insight_info.get("title", "")
-                    or insight_info.get("tieuDe", "")
-                )
-                angle = notion_info.get("angle", "") or insight_info.get("angle", "") or folder_name
-                notion_description = (
-                    notion_info.get("notion_description", "")
-                    or insight_info.get("insightContent", "")
-                    or insight_info.get("content", "")
-                    or insight_info.get("noiDung", "")
-                    or insights_data.get("productDescription", "")
-                )
-                keywords = (
-                    notion_info.get("keywords", "")
-                    or insight_info.get("keywords", "")
-                    or insight_info.get("keyword", "")
-                    or insight_info.get("tuKhoa", "")
-                    or insight_info.get("insight_summary", "")
-                )
-                display_name = notion_info.get("display_name", "") or post_title or angle
-                
-                insights_list.append({
-                    "folder_name": folder_name,
-                    "order_num": order_num or 999,
-                    "media_file": media_file,
-                    "media_path": media_path,
-                    "media_url": media_url,
-                    "media_base64": media_base64,
-                    "media_type": "video" if is_video else "image",
-                    "notion_description": notion_description,
-                    "keywords": keywords,
-                    "angle": angle,
-                    "post_title": post_title,
-                    "display_name": display_name,
-                    "notion_page_id": notion_info.get("page_id", ""),
-                    "data_source": "notion" if notion_info else ("local" if insight_info else "folder")
-                })
-        
+        for idx_folder, folder in enumerate(subfolders):
+            folder_name = folder.name
+
+            # Quét file media đầu tiên trong thư mục này
+            media_file = None
+            media_path = None
+            media_url = None
+            media_base64 = None
+            is_video = False
+
+            files = []
+            for f in folder.iterdir():
+                if f.is_file() and f.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp", ".mp4"]:
+                    files.append(f)
+
+            if files:
+                files.sort(key=lambda x: x.name)
+                first_file = files[0]
+                media_file = f"{folder_name}/{first_file.name}"
+                media_path = str(first_file)
+                media_url = f"/api/automation/images/view?name={folder_name}/{first_file.name}"
+                is_video = first_file.suffix.lower() == ".mp4"
+
+                try:
+                    file_bytes = first_file.read_bytes()
+                    encoded_body = base64.b64encode(file_bytes).decode("utf-8")
+                    mime_type = "video/mp4" if is_video else f"image/{first_file.suffix.lower().replace('.', '')}"
+                    media_base64 = f"data:{mime_type};base64,{encoded_body}"
+                except Exception as e:
+                    print(f"[Scan Insights] Lỗi đọc base64 file {first_file.name}: {e}")
+
+            order_num = None
+            match = re.search(r'\d+', folder_name)
+            if match:
+                order_num = int(match.group())
+
+            # Tìm kiếm dữ liệu Notion khớp nhất cho folder này
+            clean_f_name = convert_zicum.clean_name(folder_name)
+            notion_info = notion_by_clean_name.get(clean_f_name)
+
+            if not notion_info:
+                for k, v in notion_by_clean_name.items():
+                    if k and (k in clean_f_name or clean_f_name in k):
+                        notion_info = v
+                        break
+
+            if not notion_info and order_num is not None:
+                notion_info = notion_by_order.get(order_num)
+
+            if not notion_info and idx_folder < len(notion_insights):
+                notion_info = notion_insights[idx_folder]
+
+            notion_info = notion_info or {}
+
+            insight_info = {}
+            if insights_data and "insights" in insights_data and isinstance(insights_data["insights"], list):
+                idx = (order_num - 1) if order_num is not None else idx_folder
+                if 0 <= idx < len(insights_data["insights"]):
+                    insight_info = insights_data["insights"][idx]
+
+            post_title = (
+                notion_info.get("post_title", "")
+                or insight_info.get("postTitle", "")
+                or insight_info.get("title", "")
+                or insight_info.get("tieuDe", "")
+                or folder_name
+            )
+            angle = notion_info.get("angle", "") or insight_info.get("angle", "") or folder_name
+            notion_description = (
+                notion_info.get("notion_description", "")
+                or insight_info.get("insightContent", "")
+                or insight_info.get("content", "")
+                or insight_info.get("noiDung", "")
+                or insights_data.get("productDescription", "")
+            )
+            keywords = (
+                notion_info.get("keywords", "")
+                or insight_info.get("keywords", "")
+                or insight_info.get("keyword", "")
+                or insight_info.get("tuKhoa", "")
+                or insight_info.get("insight_summary", "")
+            )
+            display_name = notion_info.get("display_name", "") or post_title or angle or folder_name
+
+            insights_list.append({
+                "folder_name": folder_name,
+                "order_num": order_num or (idx_folder + 1),
+                "media_file": media_file,
+                "media_path": media_path,
+                "media_url": media_url,
+                "media_base64": media_base64,
+                "media_type": "video" if is_video else "image",
+                "notion_description": notion_description,
+                "keywords": keywords,
+                "angle": angle,
+                "post_title": post_title,
+                "display_name": display_name,
+                "notion_page_id": notion_info.get("page_id", ""),
+                "data_source": "notion" if notion_info else ("local" if insight_info else "folder")
+            })
+
         insights_list.sort(key=lambda x: x["order_num"])
-        
+
         return jsonify({
             "success": True,
             "insights": insights_list
