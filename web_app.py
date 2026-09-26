@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.55"
+CURRENT_VERSION = "v2.2.56"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1444,43 +1444,45 @@ HTML = r"""
                   Lưu & quét lại
                 </button>
               </div>
-              <div style="display: flex; gap: 12px; align-items: flex-end; margin-bottom: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--panel-border);">
-                <div style="flex: 1;">
-                  <label for="shopSelect" style="font-weight: 700; font-size: 12.5px; margin-bottom: 4px; display: block;">Shop Shopee</label>
-                  <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 38px; font-weight: 600;">
-                    <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-                    <option value="khaihoanpharmacy">khaihoanpharmacy</option>
-                  </select>
-                </div>
-                <div>
-                  <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="min-height: 38px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 10px;">
+                <!-- Cột 1: Shop Shopee & Nguồn Notion -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                  <div>
+                    <label for="shopSelect" style="font-weight: 700; font-size: 12.5px; margin-bottom: 6px; display: block;">Shop Shopee</label>
+                    <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 38px; font-weight: 600;">
+                      <option value="nhathuockh.pharma">nhathuockh.pharma</option>
+                      <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+                    </select>
+                  </div>
+                  <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 38px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                     Quét Notion &amp; Tạo Thư Mục
                   </button>
                 </div>
-              </div>
-              <div class="two">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label for="folderSelect" style="margin: 0;">Chọn thư mục sản phẩm</label>
-                    <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                      Copy đường dẫn
+
+                <!-- Cột 2: Thư mục sản phẩm & Thao tác -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <label for="folderSelect" style="margin: 0; font-weight: 700; font-size: 12.5px;">Thư mục sản phẩm</label>
+                      <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 3px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm (bao gồm shop)">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        Copy đường dẫn
+                      </button>
+                    </div>
+                    <select id="folderSelect" onchange="selectFolder()" style="width: 100%; min-height: 38px; font-weight: 600;"><option value="">-- Chưa chọn thư mục --</option></select>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="secondary" onclick="scanFolders()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                      Quét lại
+                    </button>
+                    <button class="danger" onclick="deleteFolder()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      Xóa thư mục
                     </button>
                   </div>
-                  <select id="folderSelect" onchange="selectFolder()"><option value="">-- Chưa chọn thư mục --</option></select>
                 </div>
-                <div><label for="newFolder">Tạo thư mục sản phẩm mới</label><div class="field-action"><input id="newFolder" placeholder="Ví dụ: Eskar Tears 15ml"><button onclick="createFolder()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Tạo</button></div></div>
-              </div>
-              <div class="buttons">
-                <button class="secondary" onclick="scanFolders()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                  Quét lại thư mục
-                </button>
-                <button class="danger" onclick="deleteFolder()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                  Xóa thư mục đang chọn
-                </button>
               </div>
               <div class="hint">Bắt buộc chọn đúng thư mục sản phẩm trước khi chụp hoặc quay. App không tự phân loại và không tự tạo album Google Photos.</div>
             </div>
@@ -1800,10 +1802,6 @@ HTML = r"""
               <h4 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 15px;">Sản phẩm Notion</h4>
               <button class="ghost" onclick="loadPendingProducts()" style="padding: 4px 10px; font-size: 11px; background: var(--soft); border: 1px solid var(--panel-border); cursor: pointer; border-radius: 6px;" title="Tải lại danh sách từ Notion">🔄 Quét lại</button>
             </div>
-            <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 34px; padding: 0 12px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              Quét Notion &amp; Tạo Thư Mục
-            </button>
             <div style="display: flex; gap: 6px; align-items: center; flex-direction: column;">
               <select id="shopeeShopFilter" onchange="filterShopeeProductsByShop(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text);">
                 <option value="">-- Tất cả Shop --</option>
@@ -1926,10 +1924,6 @@ HTML = r"""
                 <button type="button" id="btnPreviewPosts" class="secondary" onclick="openFullPostsEditorModal()" style="min-height: 36px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   <span>Xem chi tiết bài viết</span>
-                </button>
-                <button type="button" class="secondary" onclick="openCurrentProductFolder()" style="min-height: 36px; padding: 0 12px; font-size: 12px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;" title="Mở thư mục ảnh sản phẩm trên máy tính">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                  Mở Folder máy
                 </button>
                 <button type="button" class="ghost" onclick="refreshCurrentProductImages()" style="min-height: 36px; padding: 0 10px; font-size: 12px; border-radius: 6px; font-weight: 600; border: 1px solid var(--panel-border);" title="Quét lại ảnh trong các thư mục Insight">
                   🔄 Quét lại ảnh
@@ -2548,7 +2542,7 @@ HTML = r"""
   async function togglePreview(){try{const txt=document.getElementById("previewBtnText").textContent;if(txt==="Đóng xem Pixel"){log(await api("/api/close-preview",{}))}else{log(await api("/api/open-preview",{}))}refresh()}catch(e){log(e)}}
   async function saveDriveRoot(){try{log(await api("/api/drive-root",{drive_root:document.getElementById("driveRoot").value}));await refresh()}catch(e){log(e)}}
   async function saveToolPaths(){try{const adb=document.getElementById("adbPathInput").value.trim();const scrcpy=document.getElementById("scrcpyPathInput").value.trim();log(await api("/api/pixel/paths",{adb_path:adb,scrcpy_path:scrcpy}));await refresh()}catch(e){log(e)}}
-  async function createFolder(){try{const d=await api("/api/folders",{name:document.getElementById("newFolder").value});document.getElementById("newFolder").value="";log(d);await refresh()}catch(e){log(e)}}
+  async function createFolder(){try{const el=document.getElementById("newFolder");if(!el)return;const d=await api("/api/folders",{name:el.value});el.value="";log(d);await refresh()}catch(e){log(e)}}
   async function deleteFolder(){const name=selected();if(!name){log({error:"Hãy chọn thư mục cần xóa."});return}if(!confirm(`Xóa thư mục rỗng "${name}"?`))return;try{log(await api("/api/folders/delete",{name}));await refresh()}catch(e){log(e)}}
   async function selectFolder(){try{const d=await api("/api/select-folder",{name:selected()});log(d);await refresh()}catch(e){log(e)}}
   async function openPreview(){try{log(await api("/api/open-preview",{}))}catch(e){log(e)}}
@@ -2576,17 +2570,31 @@ HTML = r"""
     }
   }
 
-  // 1. Sao chép nhanh đường dẫn thư mục sản phẩm ở tab Chụp & Quay
+  // 1. Sao chép nhanh đường dẫn thư mục sản phẩm ở tab Chụp & Quay (đầy đủ thư mục Shop)
   function copyCurrentFolderPath() {
-    const root = document.getElementById("driveRoot").value.trim();
-    const folder = document.getElementById("folderSelect").value.trim();
+    const rootInput = document.getElementById("driveRoot");
+    const root = (rootInput ? rootInput.value : "").trim();
+    const shopSelect = document.getElementById("shopSelect");
+    const shop = (shopSelect ? shopSelect.value : "").trim();
+    const folderSelect = document.getElementById("folderSelect");
+    const folder = (folderSelect ? folderSelect.value : "").trim();
+
     if (!folder) {
       alert("Vui lòng chọn thư mục sản phẩm trước.");
       return;
     }
-    const separator = root.endsWith("\\") ? "" : "\\";
-    const fullPath = root + separator + folder;
-    
+
+    let fullPath = root;
+    if (fullPath && !fullPath.endsWith("\\") && !fullPath.endsWith("/")) {
+      fullPath += "\\";
+    }
+
+    if (shop && !folder.toLowerCase().startsWith(shop.toLowerCase() + "\\") && !folder.toLowerCase().startsWith(shop.toLowerCase() + "/")) {
+      fullPath += shop + "\\";
+    }
+
+    fullPath += folder.replace(/^[/\\]+/, "");
+
     navigator.clipboard.writeText(fullPath).then(() => {
       const btn = document.getElementById("btnCopyFolderPath");
       const originalHTML = btn.innerHTML;
@@ -4977,7 +4985,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.55";
+  const CURRENT_VERSION = "v2.2.56";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {

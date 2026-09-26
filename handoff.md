@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.55`  
+> **Phiên bản hiện tại:** `v2.2.56`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -306,6 +306,10 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 
 ## 📜 11. LỊCH SỬ PHIÊN BẢN & CÁC MỐC NÂNG CẤP CHÍNH (CHANGELOG)
 
+* **`v2.2.56`**:
+  * Tái cấu trúc khu vực "Thư mục Google Drive" tại module Chụp & Quay thành 2 cột đối xứng chuyên nghiệp; gỡ bỏ ô tạo thư mục thủ công dư thừa.
+  * Chuẩn hóa nút "Copy đường dẫn": tự động chèn thư mục Shop tương ứng (`{root}\{shop}\{folder}`).
+  * Tối ưu giao diện module Đồng bộ Shopee: gỡ bỏ nút Quét Notion thừa tại sidebar và nút "Mở Folder máy" tại thanh tiêu đề.
 * **`v2.2.55`**:
   * Trích xuất nguyên vẹn 100% nội dung bài viết và toàn bộ hashtag từ Notion blocks (`fetch_insight_page_content`).
   * Khắc phục lỗi xuất Excel BigSeller: xuất đúng số lượng insight thực tế, đúng giá bán (250,000đ), mô tả chi tiết kèm hashtag và 5 link direct ảnh Drive.
