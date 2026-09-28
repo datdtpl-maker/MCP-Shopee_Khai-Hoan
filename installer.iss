@@ -3,7 +3,7 @@
 
 #define MyAppName "MCP Shopee Khải Hoàn"
 #ifndef MyAppVersion
-#define MyAppVersion "2.2.56"
+#define MyAppVersion "2.2.57"
 #endif
 #define MyAppPublisher "datdtpl-maker"
 #define MyAppURL "https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan"

@@ -1,7 +1,7 @@
 # TÀI LIỆU BÀN GIAO TOÀN DIỆN DỰ ÁN MCP SHOPEE KHẢI HOÀN (HANDOFF DOCUMENT)
 
 > **Dành cho Codex / AI Assistant tiếp nối phát triển hệ thống**  
-> **Phiên bản hiện tại:** `v2.2.56`  
+> **Phiên bản hiện tại:** `v2.2.57`  
 > **Thư mục làm việc chính thức:** `D:\Project Anti\MCP Shopee`  
 > **Repository GitHub:** `https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan.git`  
 > **Cổng Web App cục bộ:** `http://127.0.0.1:8765`
@@ -306,6 +306,13 @@ Dưới đây là danh mục toàn bộ các Endpoint đang hoạt động trong
 
 ## 📜 11. LỊCH SỬ PHIÊN BẢN & CÁC MỐC NÂNG CẤP CHÍNH (CHANGELOG)
 
+* **`v2.2.57`**:
+  * Tích hợp lớp nhận diện ảnh và Completion Guard cho ChatGPT DALL-E (`chatgpt_capture.py`) theo chuẩn Notion Product Creator v1.2.23.
+  * Hỗ trợ layout mới `data-content-search-turn-key`, `display: contents` và ranh giới `h4` ngăn cách vai trò.
+  * Chặn triệt để hiện tượng lưu sớm khi đang tạo ảnh (loại trừ canvas loading, kiểm tra nút Stop/Dừng và trạng thái "Creating image").
+  * Ràng buộc bằng chứng hoàn tất trên thẻ ảnh: đồng thời có nút Edit/Chỉnh sửa VÀ nút Share/Download/Tải xuống.
+  * Tự động nhận diện ô soạn thảo (`fill_chatgpt_prompt`) đa dạng (`#prompt-textarea`, `[data-testid="composer-text-input"]`, `form .ProseMirror`, `div[contenteditable="true"]`) khắc phục triệt để lỗi timeout 30s sau khi tải ảnh lên.
+  * Xuất ảnh qua canvas in-memory, kiểm tra non-transparent pixel và ghi file atomic (`.part` -> replace).
 * **`v2.2.56`**:
   * Tái cấu trúc khu vực "Thư mục Google Drive" tại module Chụp & Quay thành 2 cột đối xứng chuyên nghiệp; gỡ bỏ ô tạo thư mục thủ công dư thừa.
   * Chuẩn hóa nút "Copy đường dẫn": tự động chèn thư mục Shop tương ứng (`{root}\{shop}\{folder}`).

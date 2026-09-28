@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.56"
+CURRENT_VERSION = "v2.2.57"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4985,7 +4985,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.56";
+  const CURRENT_VERSION = "v2.2.57";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -8543,6 +8543,13 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
     import base64
     from datetime import datetime
     import time
+    from shopee_sync.src.chatgpt_capture import (
+        find_chatgpt_editor,
+        fill_chatgpt_prompt,
+        init_chatgpt_image_tracker,
+        poll_chatgpt_image,
+        save_chatgpt_image_atomic,
+    )
 
     add_event({"step": "chatgpt_automation", "message": "Bắt đầu tiến trình tự động hóa ChatGPT..."})
 
@@ -8573,10 +8580,19 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
 
             # Đợi ô nhập text sẵn sàng
             try:
-                page.wait_for_selector("#prompt-textarea", timeout=15000)
-            except Exception:
-                add_event({"step": "error", "message": "Không tìm thấy ô nhập liệu '#prompt-textarea'. Vui lòng kiểm tra lại trang web ChatGPT."})
+                editor_el = find_chatgpt_editor(page)
+                if not editor_el:
+                    page.wait_for_selector("#prompt-textarea", timeout=15000)
+                    editor_el = find_chatgpt_editor(page)
+                if not editor_el:
+                    add_event({"step": "error", "message": "Không tìm thấy ô nhập liệu '#prompt-textarea'. Vui lòng kiểm tra lại trang web ChatGPT."})
+                    return
+            except Exception as e_editor:
+                add_event({"step": "error", "message": f"Lỗi ô nhập liệu ChatGPT hoặc trang bị khóa: {e_editor}"})
                 return
+
+            # Thiết lập baseline tracker để khóa danh tính phiên và đếm prompt
+            tracker = init_chatgpt_image_tracker(page, prompt_text)
 
             # Các selectors của nút gửi
             send_selectors = [
@@ -8629,55 +8645,14 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
             # Điền prompt
             add_event({"step": "chatgpt_automation", "message": "Đang nhập prompt..."})
             try:
-                page.focus("#prompt-textarea")
-                page.click("#prompt-textarea")
-                # Điền nội dung prompt bằng innerHTML và phát sự kiện input để kích hoạt React state của ChatGPT
-                page.evaluate("""(text) => {
-                    const el = document.getElementById("prompt-textarea");
-                    if (el) {
-                        el.innerHTML = `<p>${text}</p>`;
-                        el.dispatchEvent(new Event("input", { bubbles: true }));
-                    }
-                }""", prompt_text)
-                time.sleep(0.5)
-                # Nhấn Space và Backspace để React chắc chắn nhận diện thay đổi state
-                page.keyboard.press("Space")
-                page.keyboard.press("Backspace")
-                time.sleep(1.5)
+                editor = fill_chatgpt_prompt(page, prompt_text)
+                time.sleep(1.0)
             except Exception as e_fill:
-                print(f"[ChatGPT Auto] Lỗi điền prompt bằng evaluate: {e_fill}")
-                page.fill("#prompt-textarea", prompt_text)
-                time.sleep(1.5)
+                print(f"[ChatGPT Auto] Lỗi điền prompt: {e_fill}")
+                add_event({"step": "error", "message": f"Không thể nhập prompt vào ChatGPT: {e_fill}"})
+                return
 
-            # Đếm số ảnh lớn của Assistant hiện có trước khi gửi prompt mới
-            initial_img_count = 0
-            try:
-                initial_img_count = page.evaluate("""() => {
-                    const imgs = Array.from(document.querySelectorAll('img'));
-                    const assistantImgs = imgs.filter(img => {
-                        const w = img.naturalWidth || img.width;
-                        const h = img.naturalHeight || img.height;
-                        if (w < 200 || h < 200) return false;
-                        if (img.src.startsWith('data:image/svg')) return false;
-
-                        const userMsg = img.closest('[data-testid="user-message"]');
-                        if (userMsg) return false;
-
-                        const userArticle = img.closest('article');
-                        if (userArticle && userArticle.querySelector('[data-testid="user-message"]')) {
-                            return false;
-                        }
-
-                        if (img.closest('.attachment') || img.closest('[data-testid="user-attachment"]') || img.closest('.bg-token-main-surface-secondary')) {
-                            return false;
-                        }
-                        return true;
-                    });
-                    return assistantImgs.length;
-                }""")
-                print(f"[ChatGPT Auto] So luong anh lon Assistant ban dau: {initial_img_count}")
-            except Exception as e_count:
-                print(f"[ChatGPT Auto] Loi dem anh ban dau: {e_count}")
+            print(f"[ChatGPT Auto] Baseline tracker: {len(tracker.get('baselineSources', []))} anh nguon, {tracker.get('previousMatchingPrompts', 0)} prompt cu khop.")
 
             # Vòng lặp thử gửi tin nhắn (Tối đa 5 lần thử, mỗi lần cách nhau 2 giây)
             sent_successfully = False
@@ -8698,29 +8673,24 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
                     except Exception:
                         continue
 
-                # Nếu không click được, thử nhấn Enter
-                if not clicked:
+                # Nếu không click được bằng nút, thử nhấn Enter trên editor
+                if not clicked and editor:
                     try:
-                        page.focus("#prompt-textarea")
-                        page.click("#prompt-textarea")
+                        editor.focus()
                         page.keyboard.press("Enter")
                         add_event({"step": "chatgpt_automation", "message": f"[Lần {attempt}] Đã gửi lệnh phím Enter."})
                         clicked = True
                     except Exception as press_ex:
                         print(f"[ChatGPT Auto] Lỗi phím Enter: {press_ex}")
-                        try:
-                            page.press("#prompt-textarea", "Enter", timeout=1500)
-                            clicked = True
-                        except Exception:
-                            pass
 
                 # Đợi 2 giây để kiểm tra xem tin nhắn đã gửi đi chưa (ô chat trống)
                 time.sleep(2.0)
 
                 # Kiểm tra xem ô chat có trống rỗng không
                 try:
-                    textarea_val = page.evaluate('document.getElementById("prompt-textarea") ? document.getElementById("prompt-textarea").innerText.trim() : ""')
-                    # Nếu ô chat trống trơn, tức là đã gửi đi thành công!
+                    textarea_val = ""
+                    if editor:
+                        textarea_val = editor.evaluate("e => ((e.tagName === 'TEXTAREA' || e.tagName === 'INPUT') ? e.value : (e.innerText || e.textContent)).trim()")
                     if not textarea_val:
                         sent_successfully = True
                         add_event({"step": "chatgpt_automation", "message": "Gửi prompt thành công! Ô chat đã trống."})
@@ -8736,101 +8706,59 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
             time.sleep(1.0)
             add_event({"step": "chatgpt_automation", "message": "Đã gửi prompt thành công. Đang chờ ChatGPT / DALL-E sinh ảnh mới..."})
 
-            # Quét định kỳ để phát hiện ảnh mới
+            # Quét định kỳ để phát hiện ảnh hoàn chỉnh từ ChatGPT
             start_time = time.time()
             found_image = False
-            image_base64_data = None
+            image_data_url = None
+            last_reason = ""
 
-            while time.time() - start_time < 240: # Tăng timeout lên 240 giây (4 phút)
-                time.sleep(3.0)
+            while time.time() - start_time < 240:  # Timeout 240 giây (4 phút)
+                time.sleep(2.5)
                 try:
-                    res = page.evaluate("""async (prevCount) => {
-                        const imgs = Array.from(document.querySelectorAll('img'));
-                        const assistantImgs = imgs.filter(img => {
-                            const w = img.naturalWidth || img.width;
-                            const h = img.naturalHeight || img.height;
-                            if (w < 200 || h < 200) return false;
-                            if (img.src.startsWith('data:image/svg')) return false;
+                    poll_res = poll_chatgpt_image(page, tracker, prompt_text)
+                    phase = poll_res.get("phase")
 
-                            const userMsg = img.closest('[data-testid="user-message"]');
-                            if (userMsg) return false;
-
-                            const userArticle = img.closest('article');
-                            if (userArticle && userArticle.querySelector('[data-testid="user-message"]')) {
-                                return false;
-                            }
-
-                            if (img.closest('.attachment') || img.closest('[data-testid="user-attachment"]') || img.closest('.bg-token-main-surface-secondary')) {
-                                return false;
-                            }
-                            return true;
-                        });
-
-                        if (assistantImgs.length <= prevCount) {
-                            return "waiting";
-                        }
-
-                        const lastImg = assistantImgs[assistantImgs.length - 1];
-                        if (!lastImg.complete || lastImg.naturalWidth === 0) {
-                            return "loading";
-                        }
-
-                        try {
-                            const response = await fetch(lastImg.src);
-                            const blob = await response.blob();
-                            return await new Promise((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => resolve(reader.result);
-                                reader.onerror = () => reject(new Error('FileReader error'));
-                                reader.readAsDataURL(blob);
-                            });
-                        } catch (err) {
-                            try {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = lastImg.naturalWidth || lastImg.width;
-                                canvas.height = lastImg.naturalHeight || lastImg.height;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(lastImg, 0, 0);
-                                return canvas.toDataURL('image/png');
-                            } catch (canvasErr) {
-                                return 'error: ' + err.message + ' | canvas: ' + canvasErr.message;
-                            }
-                        }
-                    }""", initial_img_count)
-
-                    if res == "waiting" or res == "loading":
+                    if phase == "error":
+                        err_msg = poll_res.get("error", "Lỗi nhận diện giao diện ChatGPT")
+                        print(f"[ChatGPT Auto] Polling error: {err_msg}")
+                        if "tải lại" in err_msg or "Có prompt khác" in err_msg:
+                            add_event({"step": "chatgpt_automation", "message": f"Cảnh báo ChatGPT: {err_msg}"})
+                            break
                         continue
-                    elif res and res.startswith("error:"):
-                        continue
-                    elif res and res.startswith("data:image/"):
-                        image_base64_data = res
+
+                    if phase == "image-ready":
+                        image_data_url = poll_res.get("dataUrl")
                         found_image = True
                         break
-                except Exception:
+
+                    # Các phase chờ: "awaiting-request", "awaiting-assistant", "awaiting-image"
+                    reason = poll_res.get("reason", "")
+                    if reason and reason != last_reason and poll_res.get("busy"):
+                        last_reason = reason
+                        print(f"[ChatGPT Auto] {reason}")
+                except Exception as e_poll:
+                    print(f"[ChatGPT Auto] Ngoại lệ khi quét ảnh: {e_poll}")
                     continue
 
-            if found_image and image_base64_data:
-                add_event({"step": "chatgpt_automation", "message": "Đã phát hiện ảnh kết quả mới từ ChatGPT. Đang tải về..."})
-
-                header, encoded = image_base64_data.split(",", 1)
-                img_data = base64.b64decode(encoded)
+            if found_image and image_data_url:
+                add_event({"step": "chatgpt_automation", "message": "Đã phát hiện ảnh kết quả mới từ ChatGPT. Đang kiểm tra và lưu an toàn..."})
 
                 num = get_image_number_from_title(prompt_title)
                 filename = f"{num}.png"
 
                 out_dir = Path(export_dir)
-                if not out_dir.exists():
-                    out_dir.mkdir(parents=True, exist_ok=True)
-
                 dest_path = out_dir / filename
-                dest_path.write_bytes(img_data)
 
-                add_event({
-                    "step": "chatgpt_done",
-                    "message": f"Tải ảnh thành công! Đã lưu file: {filename}",
-                    "file_path": str(dest_path),
-                    "filename": filename
-                })
+                try:
+                    save_chatgpt_image_atomic(image_data_url, dest_path)
+                    add_event({
+                        "step": "chatgpt_done",
+                        "message": f"Tải ảnh thành công! Đã lưu file: {filename}",
+                        "file_path": str(dest_path),
+                        "filename": filename
+                    })
+                except Exception as save_err:
+                    add_event({"step": "error", "message": f"Lỗi kiểm tra hoặc lưu file ảnh: {save_err}"})
             else:
                 add_event({"step": "error", "message": "Quá thời gian chờ hoặc không phát hiện ảnh mới từ ChatGPT."})
 
