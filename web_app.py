@@ -8392,6 +8392,17 @@ def run_update_in_background(download_url):
         if sub_dir.exists() and sub_dir.is_dir():
             extract_source = sub_dir
 
+        # Kiểm tra tính hợp lệ của gói cập nhật (bắt buộc phải có MCPShopee.exe)
+        target_exe_in_update = extract_source / "MCPShopee.exe"
+        if not target_exe_in_update.exists():
+            found_exes = list(extract_dir.glob("**/MCPShopee.exe"))
+            if found_exes:
+                extract_source = found_exes[0].parent
+            else:
+                set_update_status("failed", 0, "Gói cập nhật không chứa file thực thi MCPShopee.exe!")
+                add_event({"step": "app_update", "message": "Lỗi: Không tìm thấy MCPShopee.exe trong gói giải nén. Đã hủy cập nhật để bảo vệ phần mềm."})
+                return
+
         exe_path = ROOT / "MCPShopee.exe"
         bat_path = ROOT / "updater.bat"
 
@@ -8451,6 +8462,15 @@ echo Dang sao chep cac tep tin moi...
 robocopy "{extract_source_str}" "{root_str}" /E /IS /IT /XF config.json config.example.json updater.bat /R:5 /W:1
 
 if %errorlevel% LSS 8 (
+    :: Kiem tra neu MCPShopee.exe khong ton tai sau khi copy, rollback ngay
+    if not exist "{exe_path_str}" (
+        if exist "{exe_path_str}.old" ren "{exe_path_str}.old" "MCPShopee.exe"
+        if exist "{root_internal}.old" ren "{root_internal}.old" "_internal"
+        echo LOI: Khong tim thay MCPShopee.exe moi! Da khoi phuc phien ban cu an toan.
+        pause
+        exit /b 1
+    )
+
     echo Dang don dep cac tep tin tam...
     :: Chi xoa khi copy thanh cong
     if exist "{temp_update_dir_str}" rd /s /q "{temp_update_dir_str}" >nul 2>&1
@@ -8523,8 +8543,9 @@ def api_check_update():
                 download_url = asset.get("browser_download_url", "")
                 break
 
+        # Chỉ sử dụng các file nén binary .zip đính kèm trên Release (không dùng zipball_url nguồn thô)
         if not download_url:
-            download_url = release_data.get("zipball_url", "")
+            download_url = ""
 
         has_update = False
         if latest_version:
