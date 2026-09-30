@@ -111,6 +111,33 @@ def parse_price_and_variants(price_variant_text: str) -> List[Dict[str, Any]]:
                 
     return variants
 
+def extract_property_url(prop: Any) -> str:
+    """
+    Trích xuất link URL an toàn từ thuộc tính Notion bất kể thuộc tính đó là:
+    - url: {'url': 'https://...'}
+    - rollup: {'type': 'rollup', 'rollup': {'type': 'array', 'array': [{'type': 'url', 'url': 'https://...'}]}}
+    - rich_text: {'rich_text': [{'plain_text': 'https://...'}]}
+    """
+    if not prop or not isinstance(prop, dict):
+        return ""
+    p_type = prop.get("type")
+    if p_type == "url":
+        return prop.get("url") or ""
+    if p_type == "rollup":
+        arr = prop.get("rollup", {}).get("array", [])
+        for item in arr:
+            if isinstance(item, dict):
+                if item.get("type") == "url" and item.get("url"):
+                    return item["url"]
+                if item.get("type") == "rich_text":
+                    txt = "".join([t.get("plain_text", "") for t in item.get("rich_text", [])]).strip()
+                    if txt:
+                        return txt
+    if p_type == "rich_text":
+        return "".join([t.get("plain_text", "") for t in prop.get("rich_text", [])]).strip()
+    return prop.get("url", "") or ""
+
+
 def parse_insight_mentions(rich_text_list: list) -> List[Dict[str, str]]:
     """
     Trích xuất tên insight và Page ID từ ô Insight Library dạng text mention.
@@ -337,13 +364,7 @@ def select_products_for_export(
             status_name = status_select.get("name", "").strip()
 
         if target_drive_folder_id:
-            media_url = properties.get("Media sản phẩm", {}).get("url", "") or ""
-            if not media_url:
-                media_prop = properties.get("Media sản phẩm", {})
-                if media_prop.get("type") == "rich_text":
-                    media_url = "".join(
-                        item.get("plain_text", "") for item in media_prop.get("rich_text", [])
-                    ).strip()
+            media_url = extract_property_url(properties.get("Media sản phẩm"))
             page_folder_match = re.search(r"/folders/([a-zA-Z0-9_-]+)", media_url)
             if page_folder_match and page_folder_match.group(1) != target_drive_folder_id:
                 continue
@@ -615,9 +636,9 @@ def adapt_insight_library_product(
                     break
 
         drive_url = override_drive_url if override_drive_url else (
-            props.get("URL", {}).get("url", "") or
-            props.get("Link Drive bộ ảnh", {}).get("url", "") or
-            props.get("Media sản phẩm", {}).get("url", "") or ""
+            extract_property_url(props.get("URL")) or
+            extract_property_url(props.get("Link Drive bộ ảnh")) or
+            extract_property_url(props.get("Media sản phẩm")) or ""
         )
 
         # 2. Tìm bản ghi tương ứng trong Master DB ca055a7742824b9598abde7a7686d144 để lấy giá và biến thể
@@ -822,12 +843,11 @@ def sync_notion_to_bigseller_excel(
         title_list = properties.get("Tên sản phẩm", {}).get("title", [])
         title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
         
-        # Lấy link Drive hình ảnh (Sử dụng link override nếu được nhập từ UI của Web App)
-        drive_url = override_drive_url if override_drive_url else (properties.get("Media sản phẩm", {}).get("url", "") or "")
-        if not drive_url:
-            prop_ms = properties.get("Media sản phẩm", {})
-            if prop_ms.get("type") == "rich_text":
-                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+        drive_url = override_drive_url if override_drive_url else (
+            extract_property_url(properties.get("Media sản phẩm")) or
+            extract_property_url(properties.get("URL")) or
+            extract_property_url(properties.get("Link Drive bộ ảnh"))
+        )
         
         # Lấy giá và biến thể từ properties của Notion DB1
         p1 = properties.get("Giá biến thể 1", {}).get("number")
@@ -1540,11 +1560,11 @@ def sync_only_image_links_to_notion(
         title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
         
         # Lấy link Drive hình ảnh
-        drive_url = override_drive_url if override_drive_url else (properties.get("Media sản phẩm", {}).get("url", "") or "")
-        if not drive_url:
-            prop_ms = properties.get("Media sản phẩm", {})
-            if prop_ms.get("type") == "rich_text":
-                drive_url = "".join([t.get("plain_text", "") for t in prop_ms.get("rich_text", [])]).strip()
+        drive_url = override_drive_url if override_drive_url else (
+            extract_property_url(properties.get("Media sản phẩm")) or
+            extract_property_url(properties.get("URL")) or
+            extract_property_url(properties.get("Link Drive bộ ảnh"))
+        )
                 
         logger.info(f"Đang xử lý sản phẩm: {title} (Drive URL: {drive_url})")
         

@@ -6721,6 +6721,30 @@ def api_create_folder():
         return error_response(exc, 400)
 
 
+def extract_property_url(prop: Any) -> str:
+    """
+    Trích xuất link URL an toàn từ thuộc tính Notion bất kể thuộc tính đó là url, rollup, hay rich_text.
+    """
+    if not prop or not isinstance(prop, dict):
+        return ""
+    p_type = prop.get("type")
+    if p_type == "url":
+        return prop.get("url") or ""
+    if p_type == "rollup":
+        arr = prop.get("rollup", {}).get("array", [])
+        for item in arr:
+            if isinstance(item, dict):
+                if item.get("type") == "url" and item.get("url"):
+                    return item["url"]
+                if item.get("type") == "rich_text":
+                    txt = "".join([t.get("plain_text", "") for t in item.get("rich_text", [])]).strip()
+                    if txt:
+                        return txt
+    if p_type == "rich_text":
+        return "".join([t.get("plain_text", "") for t in prop.get("rich_text", [])]).strip()
+    return prop.get("url", "") or ""
+
+
 def get_notion_insight_ds_for_shop(notion_client, shop_name: str) -> str:
     """
     Tìm Data Source ID của Shopee Insight Library cho shop chỉ định.
@@ -6840,16 +6864,18 @@ def api_get_notion_insight_products():
 
                 drive_url = ""
                 for url_key in ["URL", "Link Drive bộ ảnh", "Link Drive", "Media sản phẩm"]:
-                    if url_key in props and props[url_key].get("url"):
-                        drive_url = props[url_key]["url"]
-                        break
+                    if url_key in props:
+                        u = extract_property_url(props[url_key])
+                        if u:
+                            drive_url = u
+                            break
                 if not drive_url:
                     cw_rel = props.get("Công việc Shopee", {}).get("relation", [])
                     if cw_rel:
                         try:
                             cw_page = call_notion_with_retry(notion.pages.retrieve, page_id=cw_rel[0]["id"])
                             cw_props = cw_page.get("properties", {})
-                            drive_url = cw_props.get("Media sản phẩm", {}).get("url") or cw_props.get("URL", {}).get("url") or ""
+                            drive_url = extract_property_url(cw_props.get("Media sản phẩm")) or extract_property_url(cw_props.get("URL"))
                         except Exception:
                             pass
 
@@ -7103,9 +7129,9 @@ def api_create_notion_product_folders():
                     cw_props = cw_page.get("properties", {})
                     cw_update = {}
                     if drive_url:
-                        if "Media sản phẩm" in cw_props:
+                        if "Media sản phẩm" in cw_props and cw_props["Media sản phẩm"].get("type") == "url":
                             cw_update["Media sản phẩm"] = {"url": drive_url}
-                        elif "URL" in cw_props:
+                        elif "URL" in cw_props and cw_props["URL"].get("type") == "url":
                             cw_update["URL"] = {"url": drive_url}
                     if "Trạng thái" in cw_props and cw_props["Trạng thái"].get("select") is None:
                         cw_update["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
@@ -10872,7 +10898,7 @@ def api_get_pending_products():
                     v1 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
                     p2 = properties.get("Giá biến thể 2", {}).get("number")
                     v2 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
-                    media_url = properties.get("Media sản phẩm", {}).get("url") or ""
+                    media_url = extract_property_url(properties.get("Media sản phẩm")) or extract_property_url(properties.get("URL"))
                     note = "".join([x.get("plain_text", "") for x in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
 
                     # Relation trỏ sang database Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
@@ -12380,8 +12406,11 @@ def api_get_product_details():
         price = ""
         classification = ""
         variants = ""
-        master_info = {}
-        drive_url = properties.get("Media sản phẩm", {}).get("url") or properties.get("URL", {}).get("url") or ""
+        drive_url = (
+            extract_property_url(properties.get("Media sản phẩm")) or
+            extract_property_url(properties.get("URL")) or
+            extract_property_url(properties.get("Link Drive bộ ảnh"))
+        )
         note = "".join([t.get("plain_text", "") for t in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
         st_sel = properties.get("Trạng thái", {}).get("select") or {}
         notion_status = st_sel.get("name", "").strip() if isinstance(st_sel, dict) else ""
@@ -13100,7 +13129,11 @@ def api_review_save_shopee():
         if not drive_url and saved_product_page_id:
             try:
                 product_page = notion.pages.retrieve(page_id=saved_product_page_id)
-                drive_url = product_page.get("properties", {}).get("Media sản phẩm", {}).get("url", "") or ""
+                drive_url = (
+                    extract_property_url(product_page.get("properties", {}).get("Media sản phẩm")) or
+                    extract_property_url(product_page.get("properties", {}).get("URL")) or
+                    extract_property_url(product_page.get("properties", {}).get("Link Drive bộ ảnh"))
+                )
             except Exception:
                 pass
 
