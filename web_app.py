@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.57"
+CURRENT_VERSION = "v2.2.58"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -1736,6 +1736,12 @@ HTML = r"""
                   Gửi Lên Gemini
                 </button>
               </div>
+
+              <!-- Nút lấy ảnh thủ công từ tab ChatGPT khi cần -->
+              <button class="secondary" id="btnCaptureCurrentChatGPT" onclick="captureCurrentChatGPTImage()" style="margin-top: 6px; width: 100%; font-size: 12.5px; padding: 8px 14px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); cursor: pointer;" title="Lấy ngay ảnh DALL-E đang hiển thị trên tab ChatGPT lưu vào đúng thư mục máy tính">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                📸 Lấy ảnh từ tab ChatGPT về máy (Lưu file)
+              </button>
             </div>
           </div>
         </main>
@@ -2091,7 +2097,7 @@ HTML = r"""
       <div style="padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <label style="font-size: 12.5px; font-weight: 700; margin: 0; white-space: nowrap; color: #f3f4f6;">Shop lưu ảnh trên Drive:</label>
-          <select id="modalShopSelect" style="padding: 6px 12px; border-radius: 6px; font-size: 12.5px; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #ffffff;">
+          <select id="modalShopSelect" onchange="loadNotionInsightProducts()" style="padding: 6px 12px; border-radius: 6px; font-size: 12.5px; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #ffffff;">
             <option value="nhathuockh.pharma">nhathuockh.pharma</option>
             <option value="khaihoanpharmacy">khaihoanpharmacy</option>
           </select>
@@ -2422,8 +2428,9 @@ HTML = r"""
     if (tableBody) {
       tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--muted);"><div class="spinner" style="margin: 0 auto 10px;"></div>Đang quét dữ liệu từ Shopee Insight Library trên Notion...</td></tr>';
     }
+    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
     try {
-      const res = await fetch("/api/notion/insight-products");
+      const res = await fetch("/api/notion/insight-products?shop=" + encodeURIComponent(shop));
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Lỗi tải dữ liệu");
       notionInsightProducts = data.products || [];
@@ -4985,7 +4992,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.57";
+  const CURRENT_VERSION = "v2.2.58";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -5540,6 +5547,64 @@ HTML = r"""
   }
 
 
+  async function captureCurrentChatGPTImage() {
+    const exportDirInput = document.getElementById("posterExportDir").value.trim();
+    const insightSelect = document.getElementById("insightFolderSelect");
+    let exportDir = exportDirInput;
+    if (insightSelect && insightSelect.value !== "") {
+      const idx = parseInt(insightSelect.value, 10);
+      const insight = state.scannedInsights[idx];
+      if (insight && insight.folder_name) {
+        const separator = exportDirInput.endsWith("\\") ? "" : "\\";
+        exportDir = exportDirInput + separator + insight.folder_name;
+      }
+    }
+    if (!exportDir) {
+      alert("Vui lòng chọn hoặc cấu hình thư mục lưu ảnh trước!");
+      return;
+    }
+
+    let num = 1;
+    if (selectedPromptTitle) {
+      const match = selectedPromptTitle.match(/(?:ảnh|hình|prompt)\s*(\d+)/i);
+      if (match) num = parseInt(match[1], 10);
+    }
+
+    const btn = document.getElementById("btnCaptureCurrentChatGPT");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner" style="width:14px;height:14px;margin:0 4px 0 0;display:inline-block;vertical-align:middle;"></span> Đang lấy ảnh từ ChatGPT...`;
+    }
+
+    appendAutomationLog(`Đang kết nối tới tab ChatGPT để lưu ảnh thành ${num}.png...`);
+
+    try {
+      const res = await fetch("/api/automation/chatgpt/capture-current", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ export_dir: exportDir, prompt_number: num })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Không lấy được ảnh");
+      }
+      appendAutomationLog(`✅ Thành công! ${data.message} (${data.filename})`);
+      alert(`Đã lưu ảnh thành công: ${data.filename}\nTại: ${data.file_path}`);
+      if (typeof loadDownloadedImages === "function") {
+        await loadDownloadedImages();
+      }
+    } catch (err) {
+      appendAutomationLog(`❌ Lỗi: ${err.message}`);
+      alert(`Lỗi lấy ảnh từ ChatGPT: ${err.message}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> 📸 Lấy ảnh từ tab ChatGPT về máy (Lưu file)`;
+      }
+    }
+  }
+
+
   async function sendToChatGPT() {
     const prompt = document.getElementById("contentEditorPrompt").value.trim();
     if (!prompt) {
@@ -5778,6 +5843,10 @@ HTML = r"""
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>
             📂 ${folderName}
           </button>
+          <a href="/api/images/download?path=${encodeURIComponent(img.file_path)}" download="${fileName}" onclick="event.stopPropagation();" style="min-height: 24px; font-size: 10px; padding: 2px 8px; font-weight: 700; border-radius: 6px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; width: 100%; margin-top: 4px; transition: all 0.2s;" title="Tải ảnh này về máy tính">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            ⬇ Tải về máy
+          </a>
         </div>
       `;
 
@@ -6168,15 +6237,39 @@ def validate_drive_root(path: Path) -> Path:
     return path.resolve()
 
 
+_NOTION_DS_CACHE = {
+    "insight": {
+        "nhathuockh.pharma": "6d20cd08-5a5a-41b9-b7f9-966b708a8241",
+        "khaihoanpharmacy": "2672b9c4-69e7-4477-bd83-3ca15f015434",
+    },
+    "master": {
+        "nhathuockh.pharma": "839708fb-4e87-4df8-9fe8-6a66c9f5bddd",
+        "khaihoanpharmacy": "15893870-8887-4252-9d62-201001ffa6fb",
+    }
+}
+
+
+def clean_shop_name(s: str) -> str:
+    if not s:
+        return ""
+    import unicodedata
+    s = s.lower().strip()
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('utf-8')
+    return re.sub(r'[^a-z0-9]', '', s)
+
+
 def list_shop_names() -> list[str]:
     try:
         root = validate_drive_root(drive_root())
-        shops = []
-        for path in root.iterdir():
-            if path.is_dir() and not path.name.startswith("."):
-                shops.append(path.name)
+        shops = set()
+        if root and root.is_dir():
+            for path in root.iterdir():
+                if path.is_dir() and not path.name.startswith("."):
+                    shops.add(path.name)
+        for s in _NOTION_DS_CACHE.get("insight", {}).keys():
+            shops.add(s)
         preferred = ["nhathuockh.pharma", "khaihoanpharmacy"]
-        return sorted(shops, key=lambda s: (preferred.index(s) if s in preferred else 99, s.lower()))
+        return sorted(list(shops), key=lambda s: (preferred.index(s) if s in preferred else 99, s.lower()))
     except Exception:
         return ["nhathuockh.pharma", "khaihoanpharmacy"]
 
@@ -6623,7 +6716,71 @@ def api_create_folder():
         return error_response(exc, 400)
 
 
-NOTION_INSIGHT_DB_ID = "88159c9046fb426db3c9a0d79358e76c"
+def get_notion_insight_ds_for_shop(notion_client, shop_name: str) -> str:
+    """
+    Tìm Data Source ID của Shopee Insight Library cho shop chỉ định.
+    Tự động hỗ trợ nhathuockh.pharma, khaihoanpharmacy và mọi shop mới trong tương lai.
+    """
+    clean_target = clean_shop_name(shop_name)
+    for s_name, ds_id in _NOTION_DS_CACHE.get("insight", {}).items():
+        if clean_shop_name(s_name) == clean_target:
+            return ds_id
+
+    try:
+        from shopee_sync.src.notion_sync import call_notion_with_retry
+        search_res = call_notion_with_retry(notion_client.search, filter={"value": "data_source", "property": "object"})
+        for ds in search_res.get("results", []):
+            title = "".join([t.get("plain_text", "") for t in ds.get("title", [])]).strip()
+            clean_title = clean_shop_name(title)
+            ds_id = ds.get("id")
+            if "insight" in clean_title:
+                if clean_target and clean_target in clean_title:
+                    _NOTION_DS_CACHE["insight"][shop_name] = ds_id
+                    return ds_id
+                if "|" in title:
+                    shop_part = title.split("|")[-1].strip()
+                    _NOTION_DS_CACHE["insight"][shop_part] = ds_id
+                elif "shopee insight library" in title.lower():
+                    _NOTION_DS_CACHE["insight"]["nhathuockh.pharma"] = ds_id
+    except Exception as exc:
+        print(f"[Notion DS Resolver] Lỗi tìm kiếm data source: {exc}")
+
+    if clean_target in ["khaihoanpharmacy", "khaihoan"]:
+        return "2672b9c4-69e7-4477-bd83-3ca15f015434"
+    return "6d20cd08-5a5a-41b9-b7f9-966b708a8241"
+
+
+def get_notion_master_ds_for_shop(notion_client, shop_name: str) -> str:
+    """
+    Tìm Data Source ID của Master DB (Shopee - Xử lý sản phẩm đăng) cho shop chỉ định.
+    """
+    clean_target = clean_shop_name(shop_name)
+    for s_name, ds_id in _NOTION_DS_CACHE.get("master", {}).items():
+        if clean_shop_name(s_name) == clean_target:
+            return ds_id
+
+    try:
+        from shopee_sync.src.notion_sync import call_notion_with_retry
+        search_res = call_notion_with_retry(notion_client.search, filter={"value": "data_source", "property": "object"})
+        for ds in search_res.get("results", []):
+            title = "".join([t.get("plain_text", "") for t in ds.get("title", [])]).strip()
+            clean_title = clean_shop_name(title)
+            ds_id = ds.get("id")
+            if "xử lý sản phẩm đăng" in title.lower() or "xu ly san pham dang" in clean_title:
+                if clean_target and clean_target in clean_title:
+                    _NOTION_DS_CACHE["master"][shop_name] = ds_id
+                    return ds_id
+                if "|" in title:
+                    shop_part = title.split("|")[-1].strip()
+                    _NOTION_DS_CACHE["master"][shop_part] = ds_id
+                else:
+                    _NOTION_DS_CACHE["master"]["nhathuockh.pharma"] = ds_id
+    except Exception as exc:
+        print(f"[Notion Master DS Resolver] Lỗi tìm kiếm data source: {exc}")
+
+    if clean_target in ["khaihoanpharmacy", "khaihoan"]:
+        return "15893870-8887-4252-9d62-201001ffa6fb"
+    return "839708fb-4e87-4df8-9fe8-6a66c9f5bddd"
 
 
 @app.get("/api/notion/insight-products")
@@ -6641,12 +6798,8 @@ def api_get_notion_insight_products():
             raise ValueError("Chưa cấu hình NOTION_TOKEN trong file .env")
 
         notion = Client(auth=token)
-        db = call_notion_with_retry(notion.databases.retrieve, database_id=NOTION_INSIGHT_DB_ID)
-        data_sources = db.get("data_sources", [])
-        if not data_sources:
-            raise ValueError("Không tìm thấy data source cho Shopee Insight Library.")
-
-        ds_id = data_sources[0].get("id")
+        target_shop = request.args.get("shop", "").strip() or selected_shop_name()
+        ds_id = get_notion_insight_ds_for_shop(notion, target_shop)
         res = call_notion_with_retry(notion.data_sources.query, data_source_id=ds_id, page_size=100)
 
         # Lấy danh sách subfolder đã có trên local Drive
@@ -6673,14 +6826,27 @@ def api_get_notion_insight_products():
                             title = tl[0].get("plain_text", "").strip()
                         break
 
+            if not title or not title.strip():
+                continue
+
             if loai_name == "Nhóm Insight" or title.startswith("Insight "):
                 num_prop = props.get("Số Insight", {}).get("rollup", {})
                 insight_count = int(num_prop.get("number") or 0)
 
-                status_sel = props.get("Trạng thái", {}).get("select") or {}
-                status_name = status_sel.get("name", "")
-
-                drive_url = props.get("URL", {}).get("url") or ""
+                drive_url = ""
+                for url_key in ["URL", "Link Drive bộ ảnh", "Link Drive", "Media sản phẩm"]:
+                    if url_key in props and props[url_key].get("url"):
+                        drive_url = props[url_key]["url"]
+                        break
+                if not drive_url:
+                    cw_rel = props.get("Công việc Shopee", {}).get("relation", [])
+                    if cw_rel:
+                        try:
+                            cw_page = call_notion_with_retry(notion.pages.retrieve, page_id=cw_rel[0]["id"])
+                            cw_props = cw_page.get("properties", {})
+                            drive_url = cw_props.get("Media sản phẩm", {}).get("url") or cw_props.get("URL", {}).get("url") or ""
+                        except Exception:
+                            pass
 
                 rel_insights = props.get("Danh sách Insight", {}).get("relation", [])
                 if not insight_count:
@@ -6702,12 +6868,13 @@ def api_get_notion_insight_products():
                         clean_child = re.sub(r'[\\/*?:"<>|]', '-', c_title).strip()
                         clean_child = re.sub(r'-+', '-', clean_child).strip()
                         order_val = c_props.get("Thứ tự", {}).get("number")
+                        c_drive_url = c_props.get("Link Drive bộ ảnh", {}).get("url") or c_props.get("URL", {}).get("url") or ""
                         child_insights.append({
                             "id": child_id,
                             "title": c_title,
                             "folder_name": clean_child,
                             "order": order_val or (len(child_insights) + 1),
-                            "drive_url": c_props.get("Link Drive bộ ảnh", {}).get("url") or ""
+                            "drive_url": c_drive_url
                         })
                     except Exception as e:
                         print(f"Lỗi đọc insight con {child_id}: {e}")
@@ -6716,16 +6883,22 @@ def api_get_notion_insight_products():
 
                 existing_shop = None
                 if root and root.is_dir():
-                    matched = find_local_product_folder(root, title)
-                    if matched and matched.is_dir():
-                        try:
-                            rel = matched.relative_to(root)
-                            if len(rel.parts) > 1:
-                                existing_shop = rel.parts[0]
-                            else:
-                                existing_shop = matched.name
-                        except Exception:
-                            existing_shop = "Drive"
+                    if target_shop:
+                        target_shop_dir = root / target_shop
+                        matched = find_local_product_folder(target_shop_dir, title) if target_shop_dir.is_dir() else None
+                        if matched and matched.is_dir():
+                            existing_shop = target_shop
+                    else:
+                        matched = find_local_product_folder(root, title)
+                        if matched and matched.is_dir():
+                            try:
+                                rel = matched.relative_to(root)
+                                if len(rel.parts) > 1:
+                                    existing_shop = rel.parts[0]
+                                else:
+                                    existing_shop = matched.name
+                            except Exception:
+                                existing_shop = "Drive"
 
                 # Logic trạng thái chuẩn xác tuyệt đối:
                 # 1. Nếu số insight = 0: Luôn luôn là "Chưa có insight", dù trước đó đã tạo thư mục hay có link Drive
@@ -6749,7 +6922,7 @@ def api_get_notion_insight_products():
 
         order_map = {"Có insight": 0, "Chưa có insight": 1, "Hoàn thành": 2}
         products.sort(key=lambda x: (order_map.get(x["status"], 9), x["title"]))
-        return jsonify({"success": True, "products": products})
+        return jsonify({"success": True, "products": products, "shop": target_shop, "data_source_id": ds_id})
     except Exception as exc:
         return error_response(exc, 400)
 
@@ -6821,18 +6994,29 @@ def api_create_notion_product_folders():
                     "page_id": child_id,
                     "title": c_title,
                     "folder_name": clean_child,
-                    "path": str(child_dir)
+                    "path": str(child_dir),
+                    "drive_url": ""
                 })
             except Exception as e:
                 print(f"Lỗi tạo thư mục insight con {child_id}: {e}")
 
         # Thử lấy link Drive online từ Google Drive web crawler nếu có
-        drive_url = props.get("URL", {}).get("url") or ""
+        drive_url = ""
+        for url_key in ["URL", "Link Drive bộ ảnh", "Media sản phẩm"]:
+            if url_key in props and props[url_key].get("url"):
+                drive_url = props[url_key]["url"]
+                break
+
         try:
             root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ")
             shop_subfolders = convert_zicum.get_subfolders_of_drive_folder(root_folder_id)
             shop_key = convert_zicum.clean_name(shop_name)
             shop_folder_id = shop_subfolders.get(shop_key)
+            if not shop_folder_id:
+                for k, fid in shop_subfolders.items():
+                    if k in shop_key or shop_key in k:
+                        shop_folder_id = fid
+                        break
 
             if shop_folder_id:
                 prod_subfolders = convert_zicum.get_subfolders_of_drive_folder(shop_folder_id)
@@ -6851,28 +7035,69 @@ def api_create_notion_product_folders():
                     for ci in created_insights:
                         c_key = convert_zicum.clean_name(ci["folder_name"])
                         c_fid = child_subfolders.get(c_key)
+                        if not c_fid:
+                            for ck, cfid in child_subfolders.items():
+                                if ck in c_key or c_key in ck:
+                                    c_fid = cfid
+                                    break
                         if c_fid:
                             c_link = f"https://drive.google.com/drive/folders/{c_fid}"
+                            ci["drive_url"] = c_link
                             try:
-                                update_notion_page_safe(notion, page_id=ci["page_id"], properties={
-                                    "Link Drive bộ ảnh": {"url": c_link}
-                                })
-                            except Exception:
-                                pass
+                                c_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=ci["page_id"])
+                                c_props_map = c_page_obj.get("properties", {})
+                                c_up = {}
+                                if "Link Drive bộ ảnh" in c_props_map:
+                                    c_up["Link Drive bộ ảnh"] = {"url": c_link}
+                                elif "URL" in c_props_map:
+                                    c_up["URL"] = {"url": c_link}
+                                if "Trạng thái tạo hình" in c_props_map:
+                                    c_up["Trạng thái tạo hình"] = {"select": {"name": "Đã tạo hình"}}
+                                if c_up:
+                                    update_notion_page_safe(notion, page_id=ci["page_id"], properties=c_up)
+                            except Exception as c_err:
+                                print(f"Lỗi cập nhật insight con Notion {ci['page_id']}: {c_err}")
         except Exception as e:
             print(f"Lỗi quét Drive link: {e}")
 
-        # Cập nhật Notion: Trạng thái = "Hoàn thành", URL = drive_url
-        update_props = {
-            "Trạng thái": {"select": {"name": "Hoàn thành"}}
-        }
+        # Cập nhật Notion cho Nhóm Insight: Trạng thái & URL (hỗ trợ cả cột URL và Link Drive bộ ảnh)
+        update_props = {}
+        if "Trạng thái" in props:
+            update_props["Trạng thái"] = {"select": {"name": "Hoàn thành"}}
+        if "Trạng thái tạo hình" in props:
+            update_props["Trạng thái tạo hình"] = {"select": {"name": "Đã tạo hình"}}
         if drive_url:
-            update_props["URL"] = {"url": drive_url}
+            if "URL" in props:
+                update_props["URL"] = {"url": drive_url}
+            if "Link Drive bộ ảnh" in props:
+                update_props["Link Drive bộ ảnh"] = {"url": drive_url}
 
-        try:
-            update_notion_page_safe(notion, page_id=page_id, properties=update_props)
-        except Exception as e:
-            print(f"Lỗi cập nhật Notion page {page_id}: {e}")
+        if update_props:
+            try:
+                update_notion_page_safe(notion, page_id=page_id, properties=update_props)
+            except Exception as e:
+                print(f"Lỗi cập nhật Notion page {page_id}: {e}")
+
+        # Cập nhật cả bản ghi liên kết trong Master DB (Công việc Shopee) nếu có
+        cw_rel = props.get("Công việc Shopee", {}).get("relation", [])
+        for cw in cw_rel:
+            cw_id = cw.get("id")
+            if cw_id:
+                try:
+                    cw_page = call_notion_with_retry(notion.pages.retrieve, page_id=cw_id)
+                    cw_props = cw_page.get("properties", {})
+                    cw_update = {}
+                    if drive_url:
+                        if "Media sản phẩm" in cw_props:
+                            cw_update["Media sản phẩm"] = {"url": drive_url}
+                        elif "URL" in cw_props:
+                            cw_update["URL"] = {"url": drive_url}
+                    if "Trạng thái" in cw_props and cw_props["Trạng thái"].get("select") is None:
+                        cw_update["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
+                    if cw_update:
+                        update_notion_page_safe(notion, page_id=cw_id, properties=cw_update)
+                except Exception as cw_err:
+                    print(f"Lỗi cập nhật Master DB liên kết {cw_id}: {cw_err}")
 
         # Ghi nhận trạng thái chọn folder hiện tại
         save_path_setting("selected_shop", shop_name)
@@ -6888,7 +7113,6 @@ def api_create_notion_product_folders():
             "created_insights": created_insights
         })
     except Exception as exc:
-        return error_response(exc, 400)
         return error_response(exc, 400)
 
 
@@ -8728,8 +8952,42 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
 
                     if phase == "image-ready":
                         image_data_url = poll_res.get("dataUrl")
-                        found_image = True
-                        break
+                        image_src = poll_res.get("src")
+                        if not image_data_url and image_src:
+                            # Thử fetch blob sang base64 dataUrl trong page context
+                            try:
+                                fetch_js = """async (src) => {
+                                    try {
+                                        const resp = await fetch(src, { credentials: 'include' });
+                                        if (!resp.ok) return null;
+                                        const blob = await resp.blob();
+                                        return new Promise((resolve) => {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => resolve(reader.result);
+                                            reader.onerror = () => resolve(null);
+                                            reader.readAsDataURL(blob);
+                                        });
+                                    } catch (e) {
+                                        return null;
+                                    }
+                                }"""
+                                image_data_url = page.evaluate(fetch_js, image_src)
+                            except Exception as e_fetch:
+                                print(f"[ChatGPT Auto] Fetch blob thất bại: {e_fetch}")
+
+                        if not image_data_url and image_src:
+                            # Fallback cuối: Playwright element screenshot
+                            try:
+                                locator = page.locator(f"img[src='{image_src}']").last
+                                if locator.count() > 0:
+                                    scr_bytes = locator.screenshot(type="png")
+                                    image_data_url = "data:image/png;base64," + base64.b64encode(scr_bytes).decode("ascii")
+                            except Exception as e_scr:
+                                print(f"[ChatGPT Auto] Screenshot fallback thất bại: {e_scr}")
+
+                        if image_data_url:
+                            found_image = True
+                            break
 
                     # Các phase chờ: "awaiting-request", "awaiting-assistant", "awaiting-image"
                     reason = poll_res.get("reason", "")
@@ -8852,6 +9110,129 @@ def api_chatgpt_send():
         return jsonify({"status": "Tiến trình gửi lên ChatGPT đã được bắt đầu."})
     except Exception as exc:
         return error_response(exc, 400)
+
+
+@app.post("/api/automation/chatgpt/capture-current")
+def api_chatgpt_capture_current():
+    """Lấy ảnh DALL-E trực tiếp từ tab ChatGPT đang mở lưu vào thư mục máy tính."""
+    try:
+        from playwright.sync_api import sync_playwright
+        from shopee_sync.src.chatgpt_capture import save_chatgpt_image_atomic
+        import base64
+
+        data = request.json or {}
+        export_dir = str(data.get("export_dir", "")).strip()
+        prompt_number = data.get("prompt_number", 1)
+        if not export_dir:
+            raise ValueError("Thiếu thư mục lưu ảnh (export_dir).")
+
+        with sync_playwright() as p:
+            try:
+                browser = p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+            except Exception as e:
+                return jsonify({"success": False, "error": f"Không thể kết nối Chrome Debug (cổng 9222): {e}"}), 400
+
+            chat_page = None
+            for ctx in browser.contexts:
+                for pg in ctx.pages:
+                    if "chatgpt.com" in pg.url or "chat.openai.com" in pg.url:
+                        chat_page = pg
+                        break
+                if chat_page:
+                    break
+
+            if not chat_page:
+                return jsonify({"success": False, "error": "Không tìm thấy tab ChatGPT đang mở trong Chrome."}), 404
+
+            extract_js = """() => {
+                const imgs = Array.from(document.querySelectorAll('img')).filter(img => {
+                    const w = img.naturalWidth || img.width || 0;
+                    const h = img.naturalHeight || img.height || 0;
+                    const src = img.currentSrc || img.src || '';
+                    if (!src || src.startsWith('data:image/svg')) return false;
+                    if (img.closest('.attachment, [data-testid="user-attachment"], [data-user-message-bubble]')) return false;
+                    return (w >= 256 && h >= 256) || src.includes('files.oaiusercontent.com') || src.includes('oaistatic');
+                });
+                if (imgs.length === 0) return null;
+                const lastImg = imgs[imgs.length - 1];
+                return {
+                    src: lastImg.currentSrc || lastImg.src,
+                    width: lastImg.naturalWidth || lastImg.width,
+                    height: lastImg.naturalHeight || lastImg.height
+                };
+            }"""
+            img_info = chat_page.evaluate(extract_js)
+            if not img_info:
+                return jsonify({"success": False, "error": "Không tìm thấy ảnh DALL-E nào trên tab ChatGPT."}), 404
+
+            src = img_info.get("src")
+            image_data_url = None
+
+            # Cách 1: Fetch blob trong page context
+            fetch_js = """async (src) => {
+                try {
+                    const resp = await fetch(src, { credentials: 'include' });
+                    if (!resp.ok) return null;
+                    const blob = await resp.blob();
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = () => resolve(null);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (e) {
+                    return null;
+                }
+            }"""
+            try:
+                image_data_url = chat_page.evaluate(fetch_js, src)
+            except Exception:
+                pass
+
+            # Cách 2: Screenshot element
+            if not image_data_url:
+                try:
+                    locator = chat_page.locator(f"img[src='{src}']").last
+                    if locator.count() > 0:
+                        scr_bytes = locator.screenshot(type="png")
+                        image_data_url = "data:image/png;base64," + base64.b64encode(scr_bytes).decode("ascii")
+                except Exception:
+                    pass
+
+            if not image_data_url:
+                return jsonify({"success": False, "error": "Không thể trích xuất dữ liệu ảnh từ tab ChatGPT."}), 500
+
+            out_dir = Path(export_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            filename = f"{prompt_number}.png"
+            dest_path = out_dir / filename
+
+            saved_path = save_chatgpt_image_atomic(image_data_url, dest_path)
+
+            return jsonify({
+                "success": True,
+                "filename": filename,
+                "file_path": saved_path,
+                "message": f"Đã lưu thành công file {filename} vào thư mục!"
+            })
+    except Exception as exc:
+        return error_response(exc, 500)
+
+
+@app.get("/api/images/download")
+def api_download_image():
+    """Tải file ảnh trực tiếp về máy tính người dùng qua trình duyệt."""
+    try:
+        from flask import send_file
+        file_path = request.args.get("path", "").strip()
+        if not file_path:
+            return jsonify({"error": "Thiếu đường dẫn file"}), 400
+        p = Path(file_path)
+        if not p.is_file():
+            return jsonify({"error": f"Không tìm thấy file: {p.name}"}), 404
+        return send_file(str(p), as_attachment=True, download_name=p.name)
+    except Exception as exc:
+        return error_response(exc, 500)
 
 
 def run_gemini_automation_thread(media_path: str | None, prompt_text: str, export_dir: str, media_type: str, prompt_title: str | None = None):
@@ -10404,121 +10785,144 @@ def api_get_pending_products():
 
         root = validate_drive_root(drive_root())
 
-        # 1. Quét từ Database chính: Shopee - Xử lý sản phẩm đăng (ca055a7742824b9598abde7a7686d144)
-        db_main_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+        # Quét từ cả 2 Database chính của 2 Shop: nhathuockh.pharma và khaihoanpharmacy
+        SHOP_DATABASES = [
+            ("nhathuockh.pharma", os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"),
+            ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "a1daa38950504cb5849bbdfde6e547ff")
+        ]
+
+        target_shop = request.args.get("shop", "").strip()
+        if target_shop and target_shop.lower() != "all":
+            active_dbs = [item for item in SHOP_DATABASES if item[0].lower() == target_shop.lower()]
+            if not active_dbs:
+                active_dbs = [(target_shop, SHOP_DATABASES[0][1])]
+        else:
+            active_dbs = SHOP_DATABASES
+
         pending_items = []
 
-        try:
-            db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=db_main_id)
-            data_sources = db_meta.get("data_sources", [])
-            q_target = data_sources[0]["id"] if data_sources else db_main_id
-            res = call_notion_with_retry(
-                notion.data_sources.query if data_sources else notion.databases.query,
-                **{"data_source_id" if data_sources else "database_id": q_target, "page_size": 100}
-            )
-            records = res.get("results", [])
+        for current_shop_name, db_main_id in active_dbs:
+            try:
+                db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=db_main_id)
+                data_sources = db_meta.get("data_sources", [])
+                q_target = data_sources[0]["id"] if data_sources else db_main_id
+                res = call_notion_with_retry(
+                    notion.data_sources.query if data_sources else notion.databases.query,
+                    **{"data_source_id" if data_sources else "database_id": q_target, "page_size": 100}
+                )
+                records = res.get("results", [])
 
-            for page in records:
-                properties = page.get("properties", {})
-                title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-                title = title_list[0].get("plain_text", "").strip() if title_list else ""
-                if not title:
-                    continue
+                for page in records:
+                    properties = page.get("properties", {})
+                    title_list = properties.get("Tên sản phẩm", {}).get("title", [])
+                    title = title_list[0].get("plain_text", "").strip() if title_list else ""
+                    if not title:
+                        continue
 
-                # Trạng thái Notion (select): Chờ đăng, Đã đăng, Lên đơn, Nội dung, Hủy...
-                st_sel = properties.get("Trạng thái", {}).get("select") or {}
-                notion_status = st_sel.get("name", "").strip() if isinstance(st_sel, dict) else ""
-                if not notion_status:
-                    notion_status = "Chưa đặt"
+                    # Trạng thái Notion (select): Chờ đăng, Đã đăng, Lên đơn, Nội dung, Hủy...
+                    st_sel = properties.get("Trạng thái", {}).get("select") or {}
+                    notion_status = st_sel.get("name", "").strip() if isinstance(st_sel, dict) else ""
+                    if not notion_status:
+                        notion_status = "Chưa đặt"
 
-                p1 = properties.get("Giá biến thể 1", {}).get("number")
-                v1 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
-                p2 = properties.get("Giá biến thể 2", {}).get("number")
-                v2 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
-                media_url = properties.get("Media sản phẩm", {}).get("url") or ""
-                note = "".join([x.get("plain_text", "") for x in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
+                    p1 = properties.get("Giá biến thể 1", {}).get("number")
+                    v1 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+                    p2 = properties.get("Giá biến thể 2", {}).get("number")
+                    v2 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+                    media_url = properties.get("Media sản phẩm", {}).get("url") or ""
+                    note = "".join([x.get("plain_text", "") for x in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
 
-                # Relation trỏ sang database Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
-                rel_lib = properties.get("Insight Library", {}).get("relation", [])
-                insight_lib_id = rel_lib[0].get("id") if rel_lib else None
+                    # Relation trỏ sang database Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
+                    rel_lib = properties.get("Insight Library", {}).get("relation", [])
+                    insight_lib_id = rel_lib[0].get("id") if rel_lib else None
 
-                # Lấy số insight từ Insight Library nếu có
-                insight_count = 0
-                rel_insight_ids = []
-                lib_title = ""
-                if insight_lib_id:
-                    try:
-                        lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_lib_id)
-                        lib_props = lib_page.get("properties", {})
-                        lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
-                        lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
-                        rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
-                        rel_insight_ids = [r.get("id") for r in rel_ins]
-                        num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
-                        insight_count = int(num_prop.get("number") or len(rel_insight_ids))
-                    except Exception as err:
-                        print(f"[Pending Products] Lỗi đọc Insight Lib {insight_lib_id}: {err}")
-
-                # Tìm thư mục local/Drive
-                existing_shop = None
-                matched_folder_name = ""
-                matched_folder_path = None
-                if root and root.is_dir():
-                    matched = find_local_product_folder(root, title)
-                    if not matched and lib_title:
-                        matched = find_local_product_folder(root, lib_title)
-                    if matched and matched.is_dir():
-                        matched_folder_name = matched.name
-                        matched_folder_path = matched
+                    # Lấy số insight từ Insight Library nếu có
+                    insight_count = 0
+                    rel_insight_ids = []
+                    lib_title = ""
+                    if insight_lib_id:
                         try:
-                            rel = matched.relative_to(root)
-                            if len(rel.parts) > 1:
-                                existing_shop = rel.parts[0]
-                            else:
-                                existing_shop = matched.name
-                        except Exception:
-                            existing_shop = "Drive"
+                            lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_lib_id)
+                            lib_props = lib_page.get("properties", {})
+                            lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
+                            lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
+                            rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
+                            rel_insight_ids = [r.get("id") for r in rel_ins]
+                            num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
+                            insight_count = int(num_prop.get("number") or len(rel_insight_ids))
+                        except Exception as err:
+                            print(f"[Pending Products] Lỗi đọc Insight Lib {insight_lib_id}: {err}")
 
-                # Đánh giá tình trạng hoàn thành bài viết & hình ảnh
-                has_images_count = 0
-                if matched_folder_path and matched_folder_path.is_dir():
-                    for sub in matched_folder_path.iterdir():
-                        if sub.is_dir():
-                            imgs = [x for x in sub.iterdir() if x.is_file() and x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]]
-                            if imgs:
-                                has_images_count += 1
+                    # Tìm thư mục local/Drive theo đúng Shop
+                    existing_shop = None
+                    matched_folder_name = ""
+                    matched_folder_path = None
+                    if root and root.is_dir():
+                        shop_dir = root / current_shop_name
+                        if shop_dir.is_dir():
+                            matched = find_local_product_folder(shop_dir, title)
+                            if not matched and lib_title:
+                                matched = find_local_product_folder(shop_dir, lib_title)
+                        else:
+                            matched = None
 
-                if insight_count == 0:
-                    ready_status = "Chưa có insight"
-                elif has_images_count >= insight_count and insight_count > 0:
-                    ready_status = "Đủ bài & hình"
-                elif has_images_count > 0:
-                    ready_status = f"Thiếu hình ({has_images_count}/{insight_count})"
-                else:
-                    ready_status = "Thiếu hình"
+                        if not matched:
+                            matched = find_local_product_folder(root, title)
+                            if not matched and lib_title:
+                                matched = find_local_product_folder(root, lib_title)
 
-                # Ghép định dạng giá hiển thị
-                price_display = f"{int(p1):,}đ" if p1 else ""
+                        if matched and matched.is_dir():
+                            matched_folder_name = matched.name
+                            matched_folder_path = matched
+                            try:
+                                rel = matched.relative_to(root)
+                                if len(rel.parts) > 1:
+                                    existing_shop = rel.parts[0]
+                                else:
+                                    existing_shop = matched.name
+                            except Exception:
+                                existing_shop = current_shop_name
 
-                pending_items.append({
-                    "id": page.get("id"),
-                    "title": title,
-                    "insight_count": insight_count,
-                    "status": ready_status,
-                    "notion_status": notion_status,
-                    "price": price_display,
-                    "price_num": p1,
-                    "classification": v1 or "Mặc định",
-                    "variant_2": v2,
-                    "drive_url": media_url,
-                    "note": note,
-                    "insight_lib_id": insight_lib_id,
-                    "lib_title": lib_title,
-                    "shop": existing_shop or "",
-                    "folder_name": matched_folder_name
-                })
-        except Exception as query_err:
-            print(f"[Pending Products] Lỗi query DB chính: {query_err}")
+                    # Đánh giá tình trạng hoàn thành bài viết & hình ảnh
+                    has_images_count = 0
+                    if matched_folder_path and matched_folder_path.is_dir():
+                        for sub in matched_folder_path.iterdir():
+                            if sub.is_dir():
+                                imgs = [x for x in sub.iterdir() if x.is_file() and x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]]
+                                if imgs:
+                                    has_images_count += 1
+
+                    if insight_count == 0:
+                        ready_status = "Chưa có insight"
+                    elif has_images_count >= insight_count and insight_count > 0:
+                        ready_status = "Đủ bài & hình"
+                    elif has_images_count > 0:
+                        ready_status = f"Thiếu hình ({has_images_count}/{insight_count})"
+                    else:
+                        ready_status = "Thiếu hình"
+
+                    # Ghép định dạng giá hiển thị
+                    price_display = f"{int(p1):,}đ" if p1 else ""
+
+                    pending_items.append({
+                        "id": page.get("id"),
+                        "title": title,
+                        "insight_count": insight_count,
+                        "status": ready_status,
+                        "notion_status": notion_status,
+                        "price": price_display,
+                        "price_num": p1,
+                        "classification": v1 or "Mặc định",
+                        "variant_2": v2,
+                        "drive_url": media_url,
+                        "note": note,
+                        "insight_lib_id": insight_lib_id,
+                        "lib_title": lib_title,
+                        "shop": existing_shop or current_shop_name,
+                        "folder_name": matched_folder_name
+                    })
+            except Exception as query_err:
+                print(f"[Pending Products] Lỗi query DB {db_main_id} ({current_shop_name}): {query_err}")
 
         # Sắp xếp ưu tiên:
         # 1. Chờ đăng lên đầu tiên (ưu tiên xử lý)
@@ -13005,7 +13409,7 @@ def _product_name_match_score(folder_name: str, product_name: str) -> float:
     return overlap / max(len(folder_tokens), 1)
 
 
-def load_notion_insights_for_product(product_hint: str) -> list[dict]:
+def load_notion_insights_for_product(product_hint: str, shop_hint: str = "") -> list[dict]:
     """Lấy danh sách Insight trực tiếp từ Notion (Shopee Insight Library hoặc Product DB) khớp tên sản phẩm/thư mục."""
     from dotenv import load_dotenv
 
@@ -13021,77 +13425,75 @@ def load_notion_insights_for_product(product_hint: str) -> list[dict]:
 
     notion = Client(auth=notion_token)
 
-    # 1. Ưu tiên tìm trong Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
-    insight_db_id = "88159c9046fb426db3c9a0d79358e76c"
+    # 1. Ưu tiên tìm trong Shopee Insight Library của shop tương ứng
+    target_shop = shop_hint.strip() or selected_shop_name()
+    ins_ds_id = get_notion_insight_ds_for_shop(notion, target_shop)
     try:
-        ins_db = call_notion_with_retry(notion.databases.retrieve, database_id=insight_db_id)
-        ins_data_sources = ins_db.get("data_sources", [])
-        if ins_data_sources:
-            ins_res = call_notion_with_retry(notion.data_sources.query, data_source_id=ins_data_sources[0].get("id"), page_size=100)
-            best_match_page = None
-            best_score = 0.0
-            best_title = ""
-            for p in ins_res.get("results", []):
-                p_props = p.get("properties", {})
-                p_title = _notion_property_text(p_props.get("Tên post Shopee", {}))
-                if not p_title:
-                    for pv in p_props.values():
-                        if pv.get("type") == "title":
-                            tl = pv.get("title", [])
-                            if tl:
-                                p_title = tl[0].get("plain_text", "").strip()
-                            break
-                score = _product_name_match_score(product_hint, p_title)
-                if score > best_score:
-                    best_score = score
-                    best_match_page = p
-                    best_title = p_title
+        ins_res = call_notion_with_retry(notion.data_sources.query, data_source_id=ins_ds_id, page_size=100)
+        best_match_page = None
+        best_score = 0.0
+        best_title = ""
+        for p in ins_res.get("results", []):
+            p_props = p.get("properties", {})
+            p_title = _notion_property_text(p_props.get("Tên post Shopee", {}))
+            if not p_title:
+                for pv in p_props.values():
+                    if pv.get("type") == "title":
+                        tl = pv.get("title", [])
+                        if tl:
+                            p_title = tl[0].get("plain_text", "").strip()
+                        break
+            score = _product_name_match_score(product_hint, p_title)
+            if score > best_score:
+                best_score = score
+                best_match_page = p
+                best_title = p_title
 
-            if best_match_page and best_score >= 0.6:
-                rel_insights = best_match_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
-                if rel_insights:
-                    insights = []
-                    for m_idx, rel in enumerate(rel_insights):
-                        c_id = rel.get("id")
+        if best_match_page and best_score >= 0.6:
+            rel_insights = best_match_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
+            if rel_insights:
+                insights = []
+                for m_idx, rel in enumerate(rel_insights):
+                    c_id = rel.get("id")
+                    try:
+                        c_page = call_notion_with_retry(notion.pages.retrieve, page_id=c_id)
+                        c_props = c_page.get("properties", {})
+                        order_num = c_props.get("Thứ tự", {}).get("number")
                         try:
-                            c_page = call_notion_with_retry(notion.pages.retrieve, page_id=c_id)
-                            c_props = c_page.get("properties", {})
-                            order_num = c_props.get("Thứ tự", {}).get("number")
-                            try:
-                                order_num = int(order_num)
-                            except (TypeError, ValueError):
-                                order_num = m_idx + 1
+                            order_num = int(order_num)
+                        except (TypeError, ValueError):
+                            order_num = m_idx + 1
 
-                            post_title = _notion_property_text(c_props.get("Tên post Shopee", {}))
-                            if not post_title:
-                                for cpv in c_props.values():
-                                    if cpv.get("type") == "title":
-                                        ctl = cpv.get("title", [])
-                                        if ctl:
-                                            post_title = ctl[0].get("plain_text", "").strip()
-                                        break
-                            angle = _notion_property_text(c_props.get("Angle", {}))
-                            insight_content = _notion_property_text(c_props.get("Insight", {}))
-                            keywords = _notion_property_text(c_props.get("Từ khóa chính cho insight", {}))
-                            folder_name = re.sub(r'[\\/*?:"<>|]', '-', post_title).strip()
-                            folder_name = re.sub(r'-+', '-', folder_name).strip()
+                        post_title = _notion_property_text(c_props.get("Tên post Shopee", {}))
+                        if not post_title:
+                            for cpv in c_props.values():
+                                if cpv.get("type") == "title":
+                                    ctl = cpv.get("title", [])
+                                    if ctl:
+                                        post_title = ctl[0].get("plain_text", "").strip()
+                                    break
+                        angle = _notion_property_text(c_props.get("Angle", {}))
+                        insight_content = _notion_property_text(c_props.get("Insight", {}))
+                        keywords = _notion_property_text(c_props.get("Từ khóa chính cho insight", {}))
+                        folder_name = re.sub(r'[\\/*?:"<>|]', '-', post_title).strip()
+                        folder_name = re.sub(r'-+', '-', folder_name).strip()
 
-                            insights.append({
-                                "page_id": c_id,
-                                "order_num": order_num,
-                                "display_name": post_title or angle or f"Insight {order_num}",
-                                "post_title": post_title,
-                                "folder_name": folder_name,
-                                "angle": angle,
-                                "notion_description": insight_content,
-                                "keywords": keywords,
-                                "product_title": best_title,
-                            })
-                        except Exception as c_err:
-                            print(f"[load_notion_insights] Lỗi đọc page con {c_id}: {c_err}")
-                    if insights:
-                        insights.sort(key=lambda item: item.get("order_num", 999))
-                        return insights
+                        insights.append({
+                            "page_id": c_id,
+                            "order_num": order_num,
+                            "display_name": post_title or angle or f"Insight {order_num}",
+                            "post_title": post_title,
+                            "folder_name": folder_name,
+                            "angle": angle,
+                            "notion_description": insight_content,
+                            "keywords": keywords,
+                            "product_title": best_title,
+                        })
+                    except Exception as c_err:
+                        print(f"[load_notion_insights] Lỗi đọc page con {c_id}: {c_err}")
+                if insights:
+                    insights.sort(key=lambda item: item.get("order_num", 999))
+                    return insights
     except Exception as exc:
         print(f"[load_notion_insights] Không đọc được Shopee Insight Library, thử database sản phẩm chính: {exc}")
 
@@ -13188,10 +13590,19 @@ def api_scan_insights():
             except Exception as e:
                 print(f"[Scan Insights] Lỗi đọc insights_data.json: {e}")
 
+        target_shop_hint = ""
+        try:
+            if target_dir.parent and target_dir.parent.name in list_shop_names():
+                target_shop_hint = target_dir.parent.name
+        except Exception:
+            pass
+        if not target_shop_hint:
+            target_shop_hint = selected_shop_name()
+
         # 2. Dữ liệu live từ Notion (Shopee Insight Library hoặc Product DB)
         notion_insights = []
         try:
-            notion_insights = load_notion_insights_for_product(target_dir.name)
+            notion_insights = load_notion_insights_for_product(target_dir.name, shop_hint=target_shop_hint)
         except Exception as exc:
             print(f"[Scan Insights] Không lấy được Insight từ Notion, dùng dữ liệu cục bộ: {exc}")
 

@@ -457,6 +457,67 @@ class TestChatGPTCapture(unittest.TestCase):
         val3 = ed3.evaluate("e => e.value")
         self.assertIn("Prompt test 3: Textarea", val3)
 
+    def test_poll_succeeds_when_edit_on_card_and_share_in_turn_controls(self):
+        """Realistic ChatGPT UI: Thẻ ảnh chỉ có nút Edit (cây bút chì), nút Share nằm ở turn action controls."""
+        prompt = "Thiết kế ảnh feedback thực tế Oximin Gel 25g"
+        png_url = make_png_data_url(512, 512, (20, 150, 220, 255))
+        html = f"""
+        <html>
+        <body>
+          <main>
+            <div data-testid="conversation-turn-2">
+              <h4>You said:</h4>
+              <div data-user-message-bubble="true">{prompt}</div>
+            </div>
+            <div data-testid="conversation-turn-3">
+              <h4>ChatGPT said:</h4>
+              <div>
+                <div class="image-card">
+                  <img src="{png_url}" width="512" height="512" alt="Generated image" />
+                  <button aria-label="Edit image">Chỉnh sửa</button>
+                </div>
+              </div>
+              <div class="turn-actions">
+                <button aria-label="Good response">Like</button>
+                <button aria-label="Bad response">Dislike</button>
+                <button aria-label="Copy">Copy</button>
+                <button aria-label="Share this response">Chia sẻ</button>
+              </div>
+            </div>
+          </main>
+        </body>
+        </html>
+        """
+        self.page.set_content(html)
+        tracker = {"documentId": "doc_real", "baselineSources": [], "previousMatchingPrompts": 0}
+        self.page.evaluate("() => { window.__mcpImageTurnIdentity = { documentId: 'doc_real' }; }")
+
+        res = poll_chatgpt_image(self.page, tracker, prompt)
+        self.assertEqual(res.get("phase"), "image-ready")
+        self.assertEqual(res.get("width"), 512)
+        self.assertEqual(res.get("height"), 512)
+
+    def test_save_chatgpt_image_atomic_converts_webp_and_jpeg_to_png(self):
+        """Ensures that WebP and JPEG images are safely opened and converted to genuine valid PNG files."""
+        import io
+        from PIL import Image
+
+        # Create a sample image in memory
+        img = Image.new("RGBA", (300, 300), color=(100, 150, 200, 255))
+        webp_buf = io.BytesIO()
+        img.save(webp_buf, format="WEBP")
+        webp_base64 = "data:image/webp;base64," + base64.b64encode(webp_buf.getvalue()).decode("ascii")
+
+        with tempfile.TemporaryDirectory() as td:
+            dest = Path(td) / "5.png"
+            saved_file = save_chatgpt_image_atomic(webp_base64, dest)
+            self.assertTrue(dest.exists())
+            self.assertEqual(saved_file, str(dest))
+            # Verify the saved file is genuinely a PNG
+            header = dest.read_bytes()[:8]
+            self.assertEqual(header, b"\x89PNG\r\n\x1a\n")
+
 
 if __name__ == "__main__":
     unittest.main()
+

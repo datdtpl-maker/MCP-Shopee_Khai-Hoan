@@ -19,3 +19,8 @@ logs/
 build/
 dist/
 *.spec
+*.exe
+_internal/
+updater.bat
+chrome_profile_debug/
+.agents/

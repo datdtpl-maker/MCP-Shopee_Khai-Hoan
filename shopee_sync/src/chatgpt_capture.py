@@ -259,17 +259,32 @@ POLL_CHATGPT_IMAGE_JS = """(args) => {
         );
     };
 
-    // 5. Card completion proof check (Edit AND Share/Download must exist on card)
-    const checkCardCompletion = (element) => {
+    // 5. Card completion proof check
+    const checkCardCompletion = (element, turnElement) => {
+        let hasEdit = false;
+        let hasShareOrDownloadOnCard = false;
         for (let card = element.parentElement, depth = 0; card && depth < 6; card = card.parentElement, depth++) {
             if (card.matches && card.matches('main, body, [data-message-author-role="user"], [data-turn="user"], [data-user-message-bubble]')) break;
             const buttons = Array.from(card.querySelectorAll('button, [role="button"], a[download]'));
             const labels = buttons.flatMap(b => [b.getAttribute('aria-label'), b.getAttribute('title'), b.textContent].filter(Boolean).map(l => l.trim()));
-            const hasEdit = labels.some(l => /^(edit|chỉnh sửa)(\\s+((generated )?(hình\\s+)?ảnh|image)(\\s+\\d+)?)?$/i.test(l));
-            const hasShareOrDownload = labels.some(l => /download|tải xuống|tải về|share|chia sẻ/i.test(l));
-            if (hasEdit && hasShareOrDownload) return true;
+            if (labels.some(l => /^(edit|chỉnh sửa)(\\s+((generated )?(hình\\s+)?ảnh|image)(\\s+\\d+)?)?$/i.test(l))) {
+                hasEdit = true;
+            }
+            if (labels.some(l => /download|tải xuống|tải về|share|chia sẻ/i.test(l))) {
+                hasShareOrDownloadOnCard = true;
+            }
+            if (hasEdit && hasShareOrDownloadOnCard) return true;
             if ((card.matches && card.matches('article, [data-message-author-role], [data-turn]')) || card.querySelector('h4, h5, h6')) break;
         }
+
+        // If card has Edit button, check if turn has Share / Download action button
+        if (hasEdit && turnElement) {
+            const turnButtons = Array.from(turnElement.querySelectorAll('button, [role="button"], a[download]'));
+            const turnLabels = turnButtons.flatMap(b => [b.getAttribute('aria-label'), b.getAttribute('title'), b.textContent].filter(Boolean).map(l => l.trim()));
+            const hasTurnShareOrDownload = turnLabels.some(l => /download|tải xuống|tải về|share|chia sẻ/i.test(l));
+            if (hasTurnShareOrDownload) return true;
+        }
+
         return false;
     };
 
@@ -401,8 +416,8 @@ POLL_CHATGPT_IMAGE_JS = """(args) => {
                 continue;
             }
 
-            // Check completion proof on card
-            const completedCard = checkCardCompletion(el);
+            // Check completion proof on card or turn
+            const completedCard = checkCardCompletion(el, aTurn.element);
             if (!completedCard) {
                 continue;
             }
@@ -416,6 +431,7 @@ POLL_CHATGPT_IMAGE_JS = """(args) => {
 
             // Extract image to new memory canvas
             try {
+                let dataUrl = null;
                 const canvas = document.createElement('canvas');
                 canvas.width = w;
                 canvas.height = h;
@@ -423,20 +439,31 @@ POLL_CHATGPT_IMAGE_JS = """(args) => {
                 ctx.drawImage(el, 0, 0);
 
                 // Pixel transparency check
-                const imgData = ctx.getImageData(0, 0, w, h);
-                const pixels = imgData.data;
                 let hasPixels = false;
-                for (let i = 3; i < pixels.length; i += 4) {
-                    if (pixels[i] > 0) {
-                        hasPixels = true;
-                        break;
+                try {
+                    const imgData = ctx.getImageData(0, 0, w, h);
+                    const pixels = imgData.data;
+                    for (let i = 3; i < pixels.length; i += 4) {
+                        if (pixels[i] > 0) {
+                            hasPixels = true;
+                            break;
+                        }
                     }
+                } catch (taintErr) {
+                    // Canvas tainted by CORS, but image is loaded and dimensions >= 256
+                    hasPixels = true;
                 }
+
                 if (!hasPixels) {
                     continue; // Transparent image, not ready
                 }
 
-                const dataUrl = canvas.toDataURL('image/png');
+                try {
+                    dataUrl = canvas.toDataURL('image/png');
+                } catch (toDataUrlErr) {
+                    dataUrl = null;
+                }
+
                 return {
                     phase: "image-ready",
                     dataUrl: dataUrl,
@@ -445,7 +472,13 @@ POLL_CHATGPT_IMAGE_JS = """(args) => {
                     height: h
                 };
             } catch (err) {
-                return { phase: "error", error: "Không đọc được dữ liệu canvas: " + err.message };
+                return {
+                    phase: "image-ready",
+                    dataUrl: null,
+                    src: src,
+                    width: w,
+                    height: h
+                };
             }
         }
 
@@ -470,7 +503,7 @@ def poll_chatgpt_image(page: Any, tracker: dict[str, Any], prompt_text: str) -> 
 
 
 def save_chatgpt_image_atomic(data_url: str, dest_path: Path) -> str:
-    """Decodes data URL, verifies PNG headers and dimensions, and writes atomically."""
+    """Decodes data URL, verifies valid image headers and dimensions, and writes atomically as PNG."""
     if not data_url or not data_url.startswith("data:image/"):
         raise ValueError("Dữ liệu ảnh trả về không hợp lệ.")
 
@@ -480,13 +513,15 @@ def save_chatgpt_image_atomic(data_url: str, dest_path: Path) -> str:
     except Exception as e:
         raise ValueError(f"Không giải mã được base64: {e}")
 
-    # Verify PNG header
-    if len(raw_bytes) < 24 or not raw_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+    try:
+        import io
+        from PIL import Image
+        bio = io.BytesIO(raw_bytes)
+        img = Image.open(bio)
+        width, height = img.size
+    except Exception:
         raise ValueError("Ảnh kết quả không có dữ liệu PNG hợp lệ.")
 
-    # Read dimensions from IHDR (bytes 16..24)
-    width = int.from_bytes(raw_bytes[16:20], "big")
-    height = int.from_bytes(raw_bytes[20:24], "big")
     if width < 256 or height < 256:
         raise ValueError(f"Kích thước ảnh quá nhỏ ({width}x{height}), không đạt chuẩn hoàn chỉnh.")
 
@@ -494,7 +529,9 @@ def save_chatgpt_image_atomic(data_url: str, dest_path: Path) -> str:
     temp_path = dest_path.with_name(f"{dest_path.name}.part")
 
     try:
-        temp_path.write_bytes(raw_bytes)
+        if img.mode not in ("RGB", "RGBA"):
+            img = img.convert("RGBA")
+        img.save(temp_path, format="PNG")
         # Atomic rename
         temp_path.replace(dest_path)
     finally:

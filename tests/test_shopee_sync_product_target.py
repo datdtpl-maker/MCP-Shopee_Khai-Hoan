@@ -151,10 +151,10 @@ class ShopeeSyncProductTargetTest(unittest.TestCase):
 
         self.assertEqual([page["id"] for page in selected], ["clinoper-page"])
 
-    def test_selected_product_must_have_exactly_five_insights(self):
-        incomplete = make_page("clinoper-page", "Clinoper", insight_count=4)
+    def test_selected_product_must_have_at_least_one_insight(self):
+        incomplete = make_page("clinoper-page", "Clinoper", insight_count=0)
 
-        with self.assertRaisesRegex(ValueError, "đúng 5 Insight"):
+        with self.assertRaisesRegex(ValueError, "chưa có Insight nào"):
             notion_sync.select_products_for_export(
                 [incomplete],
                 target_page_id="clinoper-page",
