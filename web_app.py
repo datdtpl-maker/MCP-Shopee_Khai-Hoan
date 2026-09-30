@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.58"
+CURRENT_VERSION = "v2.2.59"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4992,7 +4992,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.58";
+  const CURRENT_VERSION = "v2.2.59";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -5566,8 +5566,13 @@ HTML = r"""
 
     let num = 1;
     if (selectedPromptTitle) {
-      const match = selectedPromptTitle.match(/(?:ảnh|hình|prompt)\s*(\d+)/i);
-      if (match) num = parseInt(match[1], 10);
+      const lower = selectedPromptTitle.toLowerCase();
+      if (lower.includes("cover") || lower.includes("ảnh bìa") || lower.includes("anh bia")) {
+        num = 1;
+      } else {
+        const match = selectedPromptTitle.match(/(?:số|ảnh|hình|prompt)\s*(\d+)/i) || selectedPromptTitle.match(/(\d+)/);
+        if (match) num = parseInt(match[1], 10);
+      }
     }
 
     const btn = document.getElementById("btnCaptureCurrentChatGPT");
@@ -5582,7 +5587,7 @@ HTML = r"""
       const res = await fetch("/api/automation/chatgpt/capture-current", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ export_dir: exportDir, prompt_number: num })
+        body: JSON.stringify({ export_dir: exportDir, prompt_number: num, prompt_title: selectedPromptTitle })
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -9122,7 +9127,14 @@ def api_chatgpt_capture_current():
 
         data = request.json or {}
         export_dir = str(data.get("export_dir", "")).strip()
-        prompt_number = data.get("prompt_number", 1)
+        prompt_title = data.get("prompt_title", "")
+        raw_num = data.get("prompt_number")
+        if raw_num is not None and str(raw_num).isdigit() and int(raw_num) > 1:
+            prompt_number = int(raw_num)
+        elif prompt_title:
+            prompt_number = int(get_image_number_from_title(prompt_title))
+        else:
+            prompt_number = 1
         if not export_dir:
             raise ValueError("Thiếu thư mục lưu ảnh (export_dir).")
 

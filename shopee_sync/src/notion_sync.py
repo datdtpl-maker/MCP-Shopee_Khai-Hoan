@@ -321,10 +321,6 @@ def select_products_for_export(
 
         insight_count = _count_product_insights(properties, notion_client=notion_client)
         if normalized_target_id:
-            if properties.get("Bài viết", {}).get("checkbox", False):
-                raise ValueError(f"Sản phẩm '{title}' vẫn đang tick Bài viết. Hãy bỏ tick trước khi tạo lại Excel.")
-            if not properties.get("Content xong", {}).get("checkbox", False):
-                raise ValueError(f"Sản phẩm '{title}' chưa được đánh dấu Content xong.")
             if insight_count < 1:
                 raise ValueError(
                     f"Sản phẩm '{title}' chưa có Insight nào trước khi xuất Excel."
@@ -653,6 +649,11 @@ def adapt_insight_library_product(
             p1 = mp_props.get("Giá biến thể 1", {}).get("number")
             v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
             p2 = mp_props.get("Giá biến thể 2", {}).get("number")
+            if not p1 and v1:
+                digits = re.sub(r"\D", "", v1)
+                if len(digits) >= 4:
+                    p1 = int(digits)
+                    v1 = "Mặc định"
             if v1 and p1:
                 price_lines.append(f"{v1}: {int(p1)}")
             elif p1:
@@ -667,9 +668,17 @@ def adapt_insight_library_product(
         final_title = master_title if master_title else insight_title
         price_variant_text = "\n".join(price_lines)
 
+        detected_shop = master_page.get("shop", "") if master_page else ""
+        if not detected_shop:
+            if "02441166322448d9b596aea64410bb06" in parent_db or "af2820ea" in parent_db or "a1daa389" in parent_db:
+                detected_shop = "khaihoanpharmacy"
+            else:
+                detected_shop = "nhathuockh.pharma"
+
         adapted_page = {
             "id": target_page_id,
             "original_insight_title": insight_title,
+            "shop": detected_shop,
             "properties": {
                 "Tên sản phẩm": {"type": "title", "title": [{"plain_text": final_title}]},
                 "Biến thể & giá": {"type": "rich_text", "rich_text": [{"plain_text": price_variant_text}]},
@@ -724,23 +733,52 @@ def sync_notion_to_bigseller_excel(
         
     notion = Client(auth=token)
     
-    # 1. Tự động lấy ID Data Source thực tế từ Page ID
-    logger.info(f"Đang đọc cấu trúc trang Page ID: {page_id}")
-    db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=page_id)
-    data_sources = db_meta.get("data_sources", [])
-    if not data_sources:
-        raise ValueError("Không tìm thấy Data Source nào liên kết với trang Notion này.")
-        
-    data_source_id = data_sources[0].get("id")
-    logger.info(f"Đã xác định ID Data Source thực tế để truy vấn: {data_source_id}")
-    
-    # 2. Truy vấn dữ liệu từ Data Source
-    res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
-    records = res.get("results", [])
+    # 1. Tự động lấy danh sách sản phẩm từ các Master DB của các Shop (nhathuockh.pharma & khaihoanpharmacy)
+    master_db_configs = [
+        ("nhathuockh.pharma", page_id),
+        ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "af2820eaa1594d8ca928da36a0f10e48")
+    ]
+    records = []
+    for s_name, m_db_id in master_db_configs:
+        try:
+            logger.info(f"Đang đọc cấu trúc Master DB [{s_name}] ID: {m_db_id}")
+            db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=m_db_id)
+            data_sources = db_meta.get("data_sources", [])
+            if data_sources:
+                for ds in data_sources:
+                    res = call_notion_with_retry(notion.data_sources.query, data_source_id=ds["id"])
+                    for rec in res.get("results", []):
+                        rec["shop"] = s_name
+                        records.append(rec)
+            else:
+                res = call_notion_with_retry(notion.databases.query, database_id=m_db_id)
+                for rec in res.get("results", []):
+                    rec["shop"] = s_name
+                    records.append(rec)
+        except Exception as e:
+            logger.warning(f"Lỗi khi đọc Master DB [{s_name}] ({m_db_id}): {e}")
+
+    if not records:
+        raise ValueError("Không tìm thấy bản ghi sản phẩm nào trong các database Master Notion.")
+    logger.info(f"Tổng số bản ghi Master DB thu thập được: {len(records)}")
     
     # 3. Khóa theo page_id khi người dùng chọn sản phẩm; không suy đoán bằng tên hay link Drive.
     adapted_product = None
     if target_page_id:
+        norm_t_id = _normalize_page_id(target_page_id)
+        if not any(_normalize_page_id(r.get("id")) == norm_t_id for r in records):
+            try:
+                direct_page = call_notion_with_retry(notion.pages.retrieve, page_id=target_page_id)
+                if direct_page:
+                    p_db = direct_page.get("parent", {}).get("database_id", "").replace("-", "")
+                    if "02441166322448d9b596aea64410bb06" in p_db or "af2820ea" in p_db or "a1daa389" in p_db:
+                        direct_page["shop"] = "khaihoanpharmacy"
+                    else:
+                        direct_page["shop"] = "nhathuockh.pharma"
+                    records.append(direct_page)
+            except Exception as e:
+                logger.warning(f"Không thể đọc trực tiếp page ID {target_page_id}: {e}")
+
         adapted_product = adapt_insight_library_product(notion, target_page_id, records, override_drive_url)
 
     if adapted_product:
@@ -793,6 +831,19 @@ def sync_notion_to_bigseller_excel(
         p2 = properties.get("Giá biến thể 2", {}).get("number")
         v2 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
 
+        # Tự động chuẩn hóa nếu người dùng điền giá vào cột Biến thể 1
+        if not p1 and v1:
+            digits = re.sub(r"\D", "", v1)
+            if len(digits) >= 4:
+                p1 = int(digits)
+                v_prop = properties.get("Biến thể", {})
+                v_name = ""
+                if v_prop.get("type") == "select" and v_prop.get("select"):
+                    v_name = v_prop["select"].get("name", "")
+                elif v_prop.get("type") == "multi_select" and v_prop.get("multi_select"):
+                    v_name = v_prop["multi_select"][0].get("name", "")
+                v1 = v_name or ("Tuýp 25g" if "25g" in title else "Mặc định")
+
         # Lấy văn bản biến thể và giá (cột legacy nếu có)
         price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))
         variants = parse_price_and_variants(price_variant_text)
@@ -811,7 +862,7 @@ def sync_notion_to_bigseller_excel(
         root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
         product_folder_id = None
         
-        # Trích xuất shop_hint từ drive_url (nhathuockh.pharma hoặc khaihoanpharmacy)
+        # Trích xuất shop_hint từ drive_url hoặc từ thông tin shop của sản phẩm
         shop_hint = None
         if drive_url:
             low_url = drive_url.lower()
@@ -819,6 +870,16 @@ def sync_notion_to_bigseller_excel(
                 shop_hint = "nhathuockhpharma"
             elif "khaihoan" in low_url or "derma" in low_url:
                 shop_hint = "khaihoanpharmacy"
+
+        if not shop_hint:
+            shop_val = page.get("shop", "")
+            if not shop_val and page.get("master_page"):
+                shop_val = page["master_page"].get("shop", "")
+            if shop_val:
+                if "khaihoan" in shop_val.lower() or "derma" in shop_val.lower():
+                    shop_hint = "khaihoanpharmacy"
+                elif "nhathuockh" in shop_val.lower() or "pharma" in shop_val.lower():
+                    shop_hint = "nhathuockhpharma"
 
         if drive_url:
             if "drive.google.com" in drive_url:
