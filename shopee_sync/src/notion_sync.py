@@ -614,7 +614,11 @@ def adapt_insight_library_product(
                         insight_title = tl[0].get("plain_text", "").strip()
                     break
 
-        drive_url = override_drive_url if override_drive_url else (props.get("URL", {}).get("url", "") or "")
+        drive_url = override_drive_url if override_drive_url else (
+            props.get("URL", {}).get("url", "") or
+            props.get("Link Drive bộ ảnh", {}).get("url", "") or
+            props.get("Media sản phẩm", {}).get("url", "") or ""
+        )
 
         # 2. Tìm bản ghi tương ứng trong Master DB ca055a7742824b9598abde7a7686d144 để lấy giá và biến thể
         norm_target_id = target_page_id.replace("-", "")

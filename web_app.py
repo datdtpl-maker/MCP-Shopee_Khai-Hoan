@@ -7054,7 +7054,7 @@ def api_create_notion_product_folders():
                                 c_up = {}
                                 if "Link Drive bộ ảnh" in c_props_map:
                                     c_up["Link Drive bộ ảnh"] = {"url": c_link}
-                                elif "URL" in c_props_map:
+                                if "URL" in c_props_map:
                                     c_up["URL"] = {"url": c_link}
                                 if "Trạng thái tạo hình" in c_props_map:
                                     c_up["Trạng thái tạo hình"] = {"select": {"name": "Đã tạo hình"}}
@@ -7074,6 +7074,16 @@ def api_create_notion_product_folders():
         if drive_url:
             if "URL" in props:
                 update_props["URL"] = {"url": drive_url}
+            else:
+                # Tự động tạo cột URL nếu database chưa có
+                try:
+                    p_parent = page.get("parent", {})
+                    ds_parent_id = p_parent.get("data_source_id")
+                    if ds_parent_id:
+                        notion.data_sources.update(data_source_id=ds_parent_id, properties={"URL": {"url": {}}})
+                        update_props["URL"] = {"url": drive_url}
+                except Exception:
+                    pass
             if "Link Drive bộ ảnh" in props:
                 update_props["Link Drive bộ ảnh"] = {"url": drive_url}
 
