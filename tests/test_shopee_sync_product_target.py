@@ -161,6 +161,38 @@ class ShopeeSyncProductTargetTest(unittest.TestCase):
                 override_drive_url="",
             )
 
+    def test_find_local_product_folder_does_not_match_nested_insight_folder(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            shop_dir = root / "khaihoanpharmacy"
+            product_dir = shop_dir / "Scabi Gel Permethrin 5% 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Da Ngứa"
+            insight_dir1 = product_dir / "Scabi Gel Permethrin 5% 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Ngứa"
+            insight_dir2 = product_dir / "Scabi Gel 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Da Ngứa"
+            insight_dir1.mkdir(parents=True)
+            insight_dir2.mkdir(parents=True)
+
+            # 1. Quét từ shop_dir với lib_title phải trả về product_dir (không phải insight_dir)
+            matched = notion_sync.find_local_product_folder(
+                shop_dir,
+                "Scabi Gel Permethrin 5% 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Da Ngứa"
+            )
+            self.assertEqual(matched, product_dir)
+
+            # 2. Quét từ shop_dir với tên trùng insight con KHÔNG được trả về insight_dir
+            matched_insight = notion_sync.find_local_product_folder(
+                shop_dir,
+                "Scabi Gel 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Da Ngứa"
+            )
+            self.assertNotEqual(matched_insight, insight_dir2)
+
+            # 3. Quét từ root phải tìm thấy đúng product_dir
+            matched_root = notion_sync.find_local_product_folder(
+                root,
+                "Scabi Gel Permethrin 5% 20g Hỗ Trợ Chăm Sóc Da Gh.ẻ, Da Ngứa"
+            )
+            self.assertEqual(matched_root, product_dir)
+
 
 if __name__ == "__main__":
     unittest.main()
+

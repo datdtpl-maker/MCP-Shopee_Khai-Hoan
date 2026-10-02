@@ -223,14 +223,42 @@ def find_local_product_folder(drive_root_path: Path, product_title: str) -> Opti
 
     prefix_matches = []
     
-    # Quét cả thư mục gốc và các thư mục shop con (nhathuockh.pharma, khaihoanpharmacy, v.v.)
-    search_dirs = [drive_root_path]
-    try:
-        for sub in drive_root_path.iterdir():
-            if sub.is_dir() and not sub.name.startswith("."):
-                search_dirs.append(sub)
-    except Exception:
-        pass
+    # Phân biệt thư mục gốc (chứa các shop) và thư mục shop con (chứa trực tiếp các sản phẩm)
+    KNOWN_SHOPS = {"nhathuockh.pharma", "khaihoanpharmacy", "sản phẩm thay thế", "san pham thay the"}
+    is_shop_dir = (
+        drive_root_path.name.lower() in KNOWN_SHOPS
+        or ".pharma" in drive_root_path.name.lower()
+        or "pharmacy" in drive_root_path.name.lower()
+    )
+    has_shop_children = False
+    if not is_shop_dir:
+        try:
+            for sub in drive_root_path.iterdir():
+                if sub.is_dir() and (
+                    sub.name.lower() in KNOWN_SHOPS
+                    or ".pharma" in sub.name.lower()
+                    or "pharmacy" in sub.name.lower()
+                    or "thay the" in sub.name.lower()
+                ):
+                    has_shop_children = True
+                    break
+        except Exception:
+            pass
+
+    if is_shop_dir or not has_shop_children:
+        # drive_root_path đã là thư mục của 1 shop (hoặc thư mục phẳng chứa sản phẩm):
+        # chỉ quét sản phẩm ở cấp trực tiếp, tuyệt đối không duyệt sâu vào các thư mục insight con!
+        search_dirs = [drive_root_path]
+    else:
+        # drive_root_path là thư mục gốc chứa các shop con:
+        # chỉ duyệt các thư mục shop con và thư mục gốc, không duyệt sâu quá cấp sản phẩm!
+        search_dirs = [drive_root_path]
+        try:
+            for sub in drive_root_path.iterdir():
+                if sub.is_dir() and not sub.name.startswith("."):
+                    search_dirs.append(sub)
+        except Exception:
+            pass
 
     for base in search_dirs:
         try:

@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.60"
+CURRENT_VERSION = "v2.2.61"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4992,7 +4992,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.60";
+  const CURRENT_VERSION = "v2.2.61";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -10912,38 +10912,57 @@ def api_get_pending_products():
                     insight_count = 0
                     rel_insight_ids = []
                     lib_title = ""
+                    lib_image_status = ""
                     if insight_lib_id:
                         try:
                             lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=insight_lib_id)
                             lib_props = lib_page.get("properties", {})
-                            lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
+                            lt_list = (
+                                lib_props.get("Tên post Shopee", {}).get("title", [])
+                                or lib_props.get("Tên thư viện", {}).get("title", [])
+                                or lib_props.get("Tên sản phẩm", {}).get("title", [])
+                            )
                             lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
                             rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
                             rel_insight_ids = [r.get("id") for r in rel_ins]
                             num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
                             insight_count = int(num_prop.get("number") or len(rel_insight_ids))
+                            img_st_sel = lib_props.get("Trạng thái tạo hình", {}).get("select") or {}
+                            lib_image_status = img_st_sel.get("name", "").strip() if isinstance(img_st_sel, dict) else ""
                         except Exception as err:
                             print(f"[Pending Products] Lỗi đọc Insight Lib {insight_lib_id}: {err}")
 
-                    # Tìm thư mục local/Drive theo đúng Shop
+                    # Tìm thư mục local/Drive theo đúng Shop (ưu tiên tiêu đề Insight Library/post Shopee trước)
                     existing_shop = None
                     matched_folder_name = ""
                     matched_folder_path = None
+                    search_titles = [t for t in [lib_title, title] if t]
                     if root and root.is_dir():
                         shop_dir = root / current_shop_name
+                        matched = None
                         if shop_dir.is_dir():
-                            matched = find_local_product_folder(shop_dir, title)
-                            if not matched and lib_title:
-                                matched = find_local_product_folder(shop_dir, lib_title)
-                        else:
-                            matched = None
+                            for st in search_titles:
+                                matched = find_local_product_folder(shop_dir, st)
+                                if matched:
+                                    break
 
                         if not matched:
-                            matched = find_local_product_folder(root, title)
-                            if not matched and lib_title:
-                                matched = find_local_product_folder(root, lib_title)
+                            for st in search_titles:
+                                matched = find_local_product_folder(root, st)
+                                if matched:
+                                    break
 
                         if matched and matched.is_dir():
+                            # Tự điều chỉnh nếu vô tình match trúng thư mục insight con thay vì thư mục sản phẩm cha
+                            sub_dirs = [s for s in matched.iterdir() if s.is_dir() and not s.name.startswith(".")]
+                            has_direct_imgs = any(x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"] for x in matched.iterdir() if x.is_file())
+                            if not sub_dirs and has_direct_imgs:
+                                parent = matched.parent
+                                if parent and parent != shop_dir and parent != root:
+                                    parent_subs = [s for s in parent.iterdir() if s.is_dir() and not s.name.startswith(".")]
+                                    if len(parent_subs) > 1:
+                                        matched = parent
+
                             matched_folder_name = matched.name
                             matched_folder_path = matched
                             try:
@@ -10963,10 +10982,15 @@ def api_get_pending_products():
                                 imgs = [x for x in sub.iterdir() if x.is_file() and x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]]
                                 if imgs:
                                     has_images_count += 1
+                        # Hỗ trợ sản phẩm 1 insight lưu ảnh trực tiếp trong thư mục sản phẩm
+                        if has_images_count == 0:
+                            direct_imgs = [x for x in matched_folder_path.iterdir() if x.is_file() and x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"]]
+                            if direct_imgs:
+                                has_images_count = 1
 
                     if insight_count == 0:
                         ready_status = "Chưa có insight"
-                    elif has_images_count >= insight_count and insight_count > 0:
+                    elif (has_images_count >= insight_count and insight_count > 0) or (has_images_count == 0 and insight_count > 0 and lib_image_status == "Đã tạo hình"):
                         ready_status = "Đủ bài & hình"
                     elif has_images_count > 0:
                         ready_status = f"Thiếu hình ({has_images_count}/{insight_count})"
@@ -12539,12 +12563,23 @@ def api_get_product_details():
         try:
             root = validate_drive_root(drive_root())
             if root and root.exists():
-                matched_folder = find_local_product_folder(root, title)
-                if not matched_folder and master_title:
-                    matched_folder = find_local_product_folder(root, master_title)
-                if not matched_folder and lib_title:
-                    matched_folder = find_local_product_folder(root, lib_title)
+                search_titles = [t for t in [lib_title, master_title, title] if t]
+                matched_folder = None
+                for st in search_titles:
+                    matched_folder = find_local_product_folder(root, st)
+                    if matched_folder:
+                        break
                 if matched_folder:
+                    # Tự điều chỉnh nếu vô tình match trúng thư mục insight con thay vì thư mục sản phẩm cha
+                    sub_dirs = [s for s in matched_folder.iterdir() if s.is_dir() and not s.name.startswith(".")]
+                    has_direct_imgs = any(x.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp", ".mp4"] for x in matched_folder.iterdir() if x.is_file())
+                    if not sub_dirs and has_direct_imgs:
+                        parent = matched_folder.parent
+                        if parent and parent != root:
+                            parent_subs = [s for s in parent.iterdir() if s.is_dir() and not s.name.startswith(".")]
+                            if len(parent_subs) > 1:
+                                matched_folder = parent
+
                     matched_folder_name = matched_folder.name
                     matched_folder_path = str(matched_folder)
                     try:
