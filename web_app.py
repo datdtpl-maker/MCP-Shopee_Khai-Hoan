@@ -40,7 +40,7 @@ else:
     BUNDLE_DIR = ROOT
 
 CONFIG_PATH = ROOT / "config.json"
-CURRENT_VERSION = "v2.2.59"
+CURRENT_VERSION = "v2.2.60"
 
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
@@ -4992,7 +4992,7 @@ HTML = r"""
   // ==========================================
   // CONTENT IMAGE HELPER TOOL JS
   // ==========================================
-  const CURRENT_VERSION = "v2.2.59";
+  const CURRENT_VERSION = "v2.2.60";
   let promptsList = [];
   function addEvent(evt) {
     if (typeof appendAutomationLog === 'function') {
@@ -7135,6 +7135,9 @@ def api_create_notion_product_folders():
                             cw_update["URL"] = {"url": drive_url}
                     if "Trạng thái" in cw_props and cw_props["Trạng thái"].get("select") is None:
                         cw_update["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
+                    cur_rel_ids = [r.get("id") for r in cw_props.get("Insight Library", {}).get("relation", [])]
+                    if page_id not in cur_rel_ids:
+                        cw_update["Insight Library"] = {"relation": [{"id": page_id}]}
                     if cw_update:
                         update_notion_page_safe(notion, page_id=cw_id, properties=cw_update)
                 except Exception as cw_err:

@@ -887,13 +887,14 @@ def sync_notion_to_bigseller_excel(
         product_folder_id = None
         
         # Trích xuất shop_hint từ drive_url hoặc từ thông tin shop của sản phẩm
+        # QUAN TRỌNG: Phải kiểm tra "khaihoan" / "derma" TRƯỚC "pharma" vì tên shop "khaihoanpharmacy" chứa chữ "pharma"!
         shop_hint = None
         if drive_url:
             low_url = drive_url.lower()
-            if "nhathuockh" in low_url or "pharma" in low_url:
-                shop_hint = "nhathuockhpharma"
-            elif "khaihoan" in low_url or "derma" in low_url:
+            if "khaihoan" in low_url or "derma" in low_url:
                 shop_hint = "khaihoanpharmacy"
+            elif "nhathuockh" in low_url or "nhathuoc" in low_url or "pharma" in low_url:
+                shop_hint = "nhathuockhpharma"
 
         if not shop_hint:
             shop_val = page.get("shop", "")
@@ -902,7 +903,7 @@ def sync_notion_to_bigseller_excel(
             if shop_val:
                 if "khaihoan" in shop_val.lower() or "derma" in shop_val.lower():
                     shop_hint = "khaihoanpharmacy"
-                elif "nhathuockh" in shop_val.lower() or "pharma" in shop_val.lower():
+                elif "nhathuockh" in shop_val.lower() or "nhathuoc" in shop_val.lower() or "pharma" in shop_val.lower():
                     shop_hint = "nhathuockhpharma"
 
         if drive_url:
@@ -912,7 +913,7 @@ def sync_notion_to_bigseller_excel(
                     product_folder_id = folder_match.group(1)
                     logger.info(f"Sử dụng thư mục của sản phẩm từ thuộc tính 'Media sản phẩm': ID {product_folder_id}")
             else:
-                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\nhathuockh.pharma\Insight Oximin)
+                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\khaihoanpharmacy\Sinus Spray...)
                 try:
                     local_path = Path(drive_url)
                     folder_name = local_path.name.strip()
@@ -932,7 +933,63 @@ def sync_notion_to_bigseller_excel(
             except Exception as e:
                 logger.error(f"Lỗi khi tìm thư mục sản phẩm '{title}' từ Drive gốc: {e}")
                 
-        if not product_folder_id:
+        if product_folder_id:
+            online_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
+            drive_url = online_drive_url
+            try:
+                # Tự động đồng bộ link Drive online lên trang sản phẩm Notion hiện tại
+                notion_drive_update = {}
+                if "URL" in properties and properties["URL"].get("type") == "url":
+                    notion_drive_update["URL"] = {"url": online_drive_url}
+                if "Link Drive bộ ảnh" in properties and properties["Link Drive bộ ảnh"].get("type") == "url":
+                    notion_drive_update["Link Drive bộ ảnh"] = {"url": online_drive_url}
+                if "Media sản phẩm" in properties and properties["Media sản phẩm"].get("type") == "url":
+                    notion_drive_update["Media sản phẩm"] = {"url": online_drive_url}
+                if notion_drive_update and page_id_str:
+                    update_notion_page_safe(notion, page_id=page_id_str, properties=notion_drive_update)
+                    logger.info(f"Đã cập nhật link Drive online vào Notion ({page_id_str}): {online_drive_url}")
+
+                # Nếu là trang Master DB và có quan hệ Insight Library, cập nhật trang Insight cha để Rollup Media sản phẩm luôn hiển thị đúng
+                ins_lib_rel = properties.get("Insight Library", {}).get("relation", [])
+                for rel in ins_lib_rel:
+                    r_id = rel.get("id")
+                    if r_id:
+                        try:
+                            rel_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=r_id)
+                            r_props = rel_page_obj.get("properties", {})
+                            r_up = {}
+                            if "URL" in r_props and r_props["URL"].get("type") == "url" and not r_props["URL"].get("url"):
+                                r_up["URL"] = {"url": online_drive_url}
+                            if "Link Drive bộ ảnh" in r_props and r_props["Link Drive bộ ảnh"].get("type") == "url" and not r_props["Link Drive bộ ảnh"].get("url"):
+                                r_up["Link Drive bộ ảnh"] = {"url": online_drive_url}
+                            if r_up:
+                                update_notion_page_safe(notion, page_id=r_id, properties=r_up)
+                                logger.info(f"Đã cập nhật link Drive online vào trang Insight liên kết ({r_id}): {online_drive_url}")
+                        except Exception as r_err:
+                            logger.warning(f"Lỗi cập nhật trang Insight liên kết {r_id}: {r_err}")
+
+                # Nếu có master_page liên kết, cập nhật cả master_page
+                m_page_obj = page.get("master_page")
+                if m_page_obj and m_page_obj.get("id"):
+                    mp_id = m_page_obj["id"]
+                    try:
+                        mp_data = call_notion_with_retry(notion.pages.retrieve, page_id=mp_id)
+                        mp_props = mp_data.get("properties", {})
+                        mp_up = {}
+                        if "Media sản phẩm" in mp_props and mp_props["Media sản phẩm"].get("type") == "url":
+                            mp_up["Media sản phẩm"] = {"url": online_drive_url}
+                        if "URL" in mp_props and mp_props["URL"].get("type") == "url":
+                            mp_up["URL"] = {"url": online_drive_url}
+                        cur_rels = [r.get("id") for r in mp_props.get("Insight Library", {}).get("relation", [])]
+                        if page_id_str and page_id_str not in cur_rels:
+                            mp_up["Insight Library"] = {"relation": [{"id": page_id_str}]}
+                        if mp_up:
+                            update_notion_page_safe(notion, page_id=mp_id, properties=mp_up)
+                    except Exception as mp_err:
+                        logger.warning(f"Lỗi cập nhật master page {mp_id}: {mp_err}")
+            except Exception as d_err:
+                logger.warning(f"Lỗi tự động cập nhật URL Drive lên Notion: {d_err}")
+        else:
             if drive_url and "drive.google.com" not in drive_url:
                 logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Để sử dụng đường dẫn local, vui lòng cấu hình DRIVE_ROOT_FOLDER_ID trong file .env hoặc dán trực tiếp link Google Drive trên web của thư mục sản phẩm.")
             else:
@@ -1086,34 +1143,28 @@ def sync_notion_to_bigseller_excel(
                         if target_folder_id:
                             new_link = f"https://drive.google.com/drive/folders/{target_folder_id}"
                             try:
-                                # Kiểm tra kiểu của thuộc tính Link hình / Link Drive bộ ảnh để cập nhật chuẩn xác
                                 ins_page = call_notion_with_retry(notion.pages.retrieve, page_id=ins_page_id)
                                 ins_props = ins_page.get("properties", {})
-                                prop_name_found = None
-                                for k in ins_props.keys():
-                                    if "link drive" in k.lower() or "link hình" in k.lower() or "link hinh" in k.lower() or k.lower() == "url":
-                                        prop_name_found = k
-                                        break
-                                if not prop_name_found:
-                                    prop_name_found = "Link hình"
-
-                                prop_lh = ins_props.get(prop_name_found, {})
-                                prop_type = prop_lh.get("type", "url")
-                                
-                                if prop_type == "url":
-                                    update_props = {prop_name_found: {"url": new_link}}
-                                else:
-                                    update_props = {prop_name_found: {"rich_text": [{"text": {"content": new_link}}]}}
+                                update_props = {}
+                                for cand in ["Link Drive bộ ảnh", "URL", "Link hình"]:
+                                    if cand in ins_props:
+                                        p_type = ins_props[cand].get("type", "url")
+                                        if p_type == "url":
+                                            update_props[cand] = {"url": new_link}
+                                        else:
+                                            update_props[cand] = {"rich_text": [{"text": {"content": new_link}}]}
+                                if not update_props:
+                                    update_props = {"Link hình": {"url": new_link}}
                                     
                                 update_notion_page_safe(
                                     notion,
                                     page_id=ins_page_id,
                                     properties=update_props
                                 )
-                                logger.info(f"Đã cập nhật thuộc tính '{prop_name_found}' cho trang Insight {ins_name}: {new_link}")
+                                logger.info(f"Đã cập nhật link Drive online cho trang Insight {ins_name}: {new_link}")
                                 link_hinh_from_page = new_link
                             except Exception as e:
-                                logger.error(f"Không thể cập nhật thuộc tính '{prop_name_found}' cho trang Insight {ins_name}: {e}")
+                                logger.error(f"Không thể cập nhật link Drive cho trang Insight {ins_name}: {e}")
 
                     # Sử dụng nội dung bài viết đã chuẩn bị sẵn từ Notion, lọc từ cấm cơ bản nếu cần
                     logger.info(f"Sử dụng nội dung bài viết đã chuẩn bị cho Insight '{ins_name}'...")
@@ -1520,33 +1571,58 @@ def sync_only_image_links_to_notion(
         
     notion = Client(auth=token)
     
-    # Tự động lấy ID Data Source thực tế từ Page ID
-    db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=page_id)
-    data_sources = db_meta.get("data_sources", [])
-    if not data_sources:
-        raise ValueError("Không tìm thấy Data Source nào liên kết với trang Notion này.")
-        
-    data_source_id = data_sources[0].get("id")
-    res = call_notion_with_retry(notion.data_sources.query, data_source_id=data_source_id)
-    records = res.get("results", [])
-    
+    # 1. Quét danh sách bản ghi từ Master DB của cả 2 Shop
+    master_db_configs = [
+        ("nhathuockh.pharma", page_id),
+        ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "af2820eaa1594d8ca928da36a0f10e48")
+    ]
+    records = []
+    for s_name, m_db_id in master_db_configs:
+        try:
+            db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=m_db_id)
+            data_sources = db_meta.get("data_sources", [])
+            if data_sources:
+                for ds in data_sources:
+                    res = call_notion_with_retry(notion.data_sources.query, data_source_id=ds["id"])
+                    for rec in res.get("results", []):
+                        rec["shop"] = s_name
+                        records.append(rec)
+            else:
+                res = call_notion_with_retry(notion.databases.query, database_id=m_db_id)
+                for rec in res.get("results", []):
+                    rec["shop"] = s_name
+                    records.append(rec)
+        except Exception as e:
+            logger.warning(f"Lỗi khi đọc Master DB [{s_name}] ({m_db_id}): {e}")
+
     # Khi thao tác từ UI, khóa tuyệt đối vào page_id sản phẩm đang chọn.
     pending_products = []
-    normalized_target_id = _normalize_page_id(target_page_id)
-    for page in records:
-        if normalized_target_id:
+    normalized_target_id = _normalize_page_id(target_page_id) if target_page_id else ""
+    if normalized_target_id:
+        for page in records:
             if _normalize_page_id(page.get("id")) == normalized_target_id:
                 pending_products.append(page)
-            continue
-        properties = page.get("properties", {})
-        it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
-        if not it_status:
-            pending_products.append(page)
+                break
+        if not pending_products:
+            # Thử đọc trực tiếp từ Notion nếu là trang Insight Library
+            try:
+                direct_page = call_notion_with_retry(notion.pages.retrieve, page_id=target_page_id)
+                if direct_page:
+                    adapted = adapt_insight_library_product(notion, target_page_id, records, override_drive_url)
+                    pending_products.append(adapted if adapted else direct_page)
+            except Exception as e:
+                logger.warning(f"Không thể đọc trực tiếp page ID {target_page_id}: {e}")
+    else:
+        for page in records:
+            properties = page.get("properties", {})
+            it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
+            if not it_status:
+                pending_products.append(page)
 
     if normalized_target_id and not pending_products:
         raise ValueError("Không tìm thấy sản phẩm đã chọn để đồng bộ link hình.")
             
-    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm chưa đăng shopee để quét đồng bộ link hình.")
+    logger.info(f"Tìm thấy {len(pending_products)} sản phẩm để quét đồng bộ link hình.")
     
     if not pending_products:
         return []
@@ -1555,6 +1631,7 @@ def sync_only_image_links_to_notion(
     root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
     
     for page in pending_products:
+        page_id_str = page.get("id")
         properties = page.get("properties", {})
         title_list = properties.get("Tên sản phẩm", {}).get("title", [])
         title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
@@ -1567,6 +1644,22 @@ def sync_only_image_links_to_notion(
         )
                 
         logger.info(f"Đang xử lý sản phẩm: {title} (Drive URL: {drive_url})")
+
+        # Xác định shop_hint (khaihoan kiểm tra trước pharma)
+        shop_hint = None
+        if drive_url:
+            low_url = drive_url.lower()
+            if "khaihoan" in low_url or "derma" in low_url:
+                shop_hint = "khaihoanpharmacy"
+            elif "nhathuockh" in low_url or "nhathuoc" in low_url or "pharma" in low_url:
+                shop_hint = "nhathuockhpharma"
+        if not shop_hint:
+            shop_val = page.get("shop", "")
+            if shop_val:
+                if "khaihoan" in shop_val.lower() or "derma" in shop_val.lower():
+                    shop_hint = "khaihoanpharmacy"
+                elif "nhathuockh" in shop_val.lower() or "nhathuoc" in shop_val.lower() or "pharma" in shop_val.lower():
+                    shop_hint = "nhathuockhpharma"
         
         # Resolve ra product_folder_id
         product_folder_id = None
@@ -1576,28 +1669,61 @@ def sync_only_image_links_to_notion(
                 if folder_match:
                     product_folder_id = folder_match.group(1)
             else:
-                # Trường hợp dán đường dẫn local (ví dụ: G:\My Drive\Hình ảnh Shopee\Imiquad Cream)
+                # Trường hợp dán đường dẫn local
                 try:
                     local_path = Path(drive_url)
                     folder_name = local_path.name.strip()
                     if folder_name and folder_name.lower() != "my drive":
-                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name)
+                        product_folder_id = convert_zicum.find_product_folder(root_folder_id, folder_name, shop_hint=shop_hint)
                 except Exception as e:
                     logger.error(f"Lỗi khi trích xuất tên thư mục từ link local: {e}")
                     
         # Nếu vẫn không có, thử tìm kiếm tự động theo tên sản phẩm
         if not product_folder_id:
             try:
-                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title)
+                product_folder_id = convert_zicum.find_product_folder(root_folder_id, title, shop_hint=shop_hint)
             except Exception as e:
                 logger.error(f"Lỗi tìm kiếm thư mục tự động: {e}")
                 
         if not product_folder_id:
             if drive_url and "drive.google.com" not in drive_url:
-                logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Để sử dụng đường dẫn local, vui lòng cấu hình DRIVE_ROOT_FOLDER_ID trong file .env hoặc dán trực tiếp link Google Drive trên web của thư mục sản phẩm.")
+                logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Vui lòng dán trực tiếp link Google Drive web.")
             else:
-                logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}. Vui lòng kiểm tra lại link Drive sản phẩm.")
+                logger.warning(f"Không thể định vị thư mục Drive cho sản phẩm: {title}.")
             continue
+
+        online_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
+        # Cập nhật link Drive online vào trang Notion hiện tại
+        try:
+            notion_drive_update = {}
+            if "URL" in properties and properties["URL"].get("type") == "url":
+                notion_drive_update["URL"] = {"url": online_drive_url}
+            if "Link Drive bộ ảnh" in properties and properties["Link Drive bộ ảnh"].get("type") == "url":
+                notion_drive_update["Link Drive bộ ảnh"] = {"url": online_drive_url}
+            if "Media sản phẩm" in properties and properties["Media sản phẩm"].get("type") == "url":
+                notion_drive_update["Media sản phẩm"] = {"url": online_drive_url}
+            if notion_drive_update and page_id_str:
+                update_notion_page_safe(notion, page_id=page_id_str, properties=notion_drive_update)
+
+            # Nếu là trang Master DB và có quan hệ Insight Library, cập nhật trang Insight cha
+            ins_lib_rel = properties.get("Insight Library", {}).get("relation", [])
+            for rel in ins_lib_rel:
+                r_id = rel.get("id")
+                if r_id:
+                    try:
+                        rel_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=r_id)
+                        r_props = rel_page_obj.get("properties", {})
+                        r_up = {}
+                        if "URL" in r_props and r_props["URL"].get("type") == "url" and not r_props["URL"].get("url"):
+                            r_up["URL"] = {"url": online_drive_url}
+                        if "Link Drive bộ ảnh" in r_props and r_props["Link Drive bộ ảnh"].get("type") == "url" and not r_props["Link Drive bộ ảnh"].get("url"):
+                            r_up["Link Drive bộ ảnh"] = {"url": online_drive_url}
+                        if r_up:
+                            update_notion_page_safe(notion, page_id=r_id, properties=r_up)
+                    except Exception:
+                        pass
+        except Exception as d_err:
+            logger.warning(f"Lỗi cập nhật URL Drive cho trang cha Notion: {d_err}")
             
         # Cào danh sách thư mục con
         subfolders = {}
@@ -1611,24 +1737,86 @@ def sync_only_image_links_to_notion(
             logger.warning(f"Thư mục Drive sản phẩm không có thư mục con nào: {product_folder_id}")
             continue
             
-        # Lọc danh sách Insight từ Insight Library
-        insight_prop = properties.get("Insight Library", {})
+        # Lọc danh sách Insight từ Insight Library hoặc Danh sách Insight (hỗ trợ cả rich_text và relation)
         insight_items = []
+        insight_prop = properties.get("Insight Library", {})
         if insight_prop.get("type") == "rich_text":
             insight_items = parse_insight_mentions(insight_prop.get("rich_text", []))
+        elif insight_prop.get("type") == "relation":
+            for rel in insight_prop.get("relation", []):
+                rel_id = rel.get("id")
+                try:
+                    rel_page = call_notion_with_retry(notion.pages.retrieve, page_id=rel_id)
+                    rel_props = rel_page.get("properties", {})
+                    rel_title = ""
+                    for p_val in rel_props.values():
+                        if p_val.get("type") == "title":
+                            t_list = p_val.get("title", [])
+                            if t_list:
+                                rel_title = t_list[0].get("plain_text", "").strip()
+                            break
+
+                    sub_relations = rel_props.get("Danh sách Insight", {}).get("relation", [])
+                    if sub_relations:
+                        for sub_r in sub_relations:
+                            sub_id = sub_r.get("id")
+                            try:
+                                sub_page = call_notion_with_retry(notion.pages.retrieve, page_id=sub_id)
+                                sub_props = sub_page.get("properties", {})
+                                sub_title = ""
+                                for sp_val in sub_props.values():
+                                    if sp_val.get("type") == "title":
+                                        st_list = sp_val.get("title", [])
+                                        if st_list:
+                                            sub_title = st_list[0].get("plain_text", "").strip()
+                                        break
+                                clean_sub_title = sub_title.replace("|", "-").strip()
+                                insight_items.append({
+                                    "insight_name": clean_sub_title or sub_title,
+                                    "page_id": sub_id,
+                                    "plain_text": sub_title
+                                })
+                            except Exception:
+                                pass
+                    else:
+                        clean_title = rel_title.replace("|", "-").strip()
+                        insight_items.append({
+                            "insight_name": clean_title or rel_title,
+                            "page_id": rel_id,
+                            "plain_text": rel_title
+                        })
+                except Exception:
+                    pass
+
+        if not insight_items:
+            ds_prop = properties.get("Danh sách Insight", {})
+            if ds_prop.get("type") == "relation":
+                for rel in ds_prop.get("relation", []):
+                    rel_id = rel.get("id")
+                    try:
+                        rel_page = call_notion_with_retry(notion.pages.retrieve, page_id=rel_id)
+                        rel_props = rel_page.get("properties", {})
+                        rel_title = ""
+                        for p_val in rel_props.values():
+                            if p_val.get("type") == "title":
+                                t_list = p_val.get("title", [])
+                                if t_list:
+                                    rel_title = t_list[0].get("plain_text", "").strip()
+                                break
+                        clean_title = rel_title.replace("|", "-").strip()
+                        insight_items.append({
+                            "insight_name": clean_title or rel_title,
+                            "page_id": rel_id,
+                            "plain_text": rel_title
+                        })
+                    except Exception:
+                        pass
             
         if not insight_items:
             logger.info(f"Sản phẩm {title} không có trang Insight con nào trong Insight Library.")
             continue
 
         folder_mapping = map_insights_to_drive_folders(insight_items, subfolders)
-        for mapped_item in folder_mapping:
-            media_files = convert_zicum.get_images_and_videos_in_folder(mapped_item["folder_id"])
-            if not media_files:
-                raise ValueError(
-                    f"Thư mục Drive Insight {mapped_item['order']} của sản phẩm '{title}' không có hình hoặc video."
-                )
-
         for mapped_item in folder_mapping:
             item = mapped_item["insight"]
             ins_name = item["insight_name"]
@@ -1639,35 +1827,28 @@ def sync_only_image_links_to_notion(
             # Đọc thuộc tính Link hình hiện tại của trang Insight con
             ins_page_data = call_notion_with_retry(notion.pages.retrieve, page_id=ins_page_id)
             ins_properties = ins_page_data.get("properties", {})
-            prop_lh = ins_properties.get("Link hình", {})
-            prop_type = prop_lh.get("type", "url")
 
-            if prop_type == "url":
-                link_hinh = prop_lh.get("url", "") or ""
-            elif prop_type == "rich_text":
-                link_hinh = "".join([t.get("plain_text", "") for t in prop_lh.get("rich_text", [])]).strip()
-            else:
-                link_hinh = ""
-
-            if link_hinh == new_link:
-                logger.info(f"Insight '{ins_name}' đã có đúng link hình: {new_link}")
-                continue
-            if link_hinh and not replace_existing:
-                logger.info(f"Bỏ qua Insight '{ins_name}' vì đã có link hình và chưa bật ghi đè.")
-                continue
-
-            if prop_type == "url":
+            update_props = {}
+            for cand in ["Link Drive bộ ảnh", "URL", "Link hình"]:
+                if cand in ins_properties:
+                    p_type = ins_properties[cand].get("type", "url")
+                    cur_val = ins_properties[cand].get("url") if p_type == "url" else "".join([t.get("plain_text", "") for t in ins_properties[cand].get("rich_text", [])]).strip()
+                    if cur_val != new_link or replace_existing:
+                        if p_type == "url":
+                            update_props[cand] = {"url": new_link}
+                        else:
+                            update_props[cand] = {"rich_text": [{"text": {"content": new_link}}]}
+            if not update_props and "Link hình" in ins_properties:
                 update_props = {"Link hình": {"url": new_link}}
-            else:
-                update_props = {"Link hình": {"rich_text": [{"text": {"content": new_link}}]}}
 
-            update_notion_page_safe(
-                notion,
-                page_id=ins_page_id,
-                properties=update_props,
-            )
-            logger.info(f"Đã cập nhật Link hình cho Insight '{ins_name}': {new_link}")
-            updated_pages.append(ins_name)
+            if update_props:
+                update_notion_page_safe(
+                    notion,
+                    page_id=ins_page_id,
+                    properties=update_props,
+                )
+                logger.info(f"Đã cập nhật link Drive cho Insight '{ins_name}': {new_link}")
+                updated_pages.append(ins_name)
                 
     return updated_pages
 
