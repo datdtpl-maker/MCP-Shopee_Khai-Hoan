@@ -2219,7 +2219,10 @@ HTML = r"""
     let isWarning = false;
     let text = "";
 
-    if (typeof v === "string") {
+    if (v instanceof Error) {
+      text = v.stack || v.message || String(v);
+      isError = true;
+    } else if (typeof v === "string") {
       text = v;
       if (v.toLowerCase().includes("lỗi") || v.toLowerCase().includes("error") || v.toLowerCase().includes("failed")) isError = true;
     } else {
@@ -6267,12 +6270,14 @@ def list_shop_names() -> list[str]:
     try:
         root = validate_drive_root(drive_root())
         shops = set()
+        excluded_names = {"sản phẩm thay thế", "san pham thay the", "temp", "tmp", "trash"}
         if root and root.is_dir():
             for path in root.iterdir():
-                if path.is_dir() and not path.name.startswith("."):
+                if path.is_dir() and not path.name.startswith(".") and path.name.strip().lower() not in excluded_names:
                     shops.add(path.name)
         for s in _NOTION_DS_CACHE.get("insight", {}).keys():
-            shops.add(s)
+            if s.strip().lower() not in excluded_names:
+                shops.add(s)
         preferred = ["nhathuockh.pharma", "khaihoanpharmacy"]
         return sorted(list(shops), key=lambda s: (preferred.index(s) if s in preferred else 99, s.lower()))
     except Exception:
@@ -6607,8 +6612,11 @@ def api_status():
     connection_mode = pixel_cfg.get("connection_mode", "usb")
     wifi_ip = pixel_cfg.get("wifi_ip", "")
 
-    adb = pipeline.adb_command(cfg, "devices", check=False).stdout.splitlines()
-    devices = [line.split()[0] for line in adb if "\tdevice" in line]
+    try:
+        adb = pipeline.adb_command(cfg, "devices", check=False).stdout.splitlines()
+        devices = [line.split()[0] for line in adb if "\tdevice" in line]
+    except Exception:
+        devices = []
     try:
         folders, ready = list_drive_folders(), True
     except Exception:

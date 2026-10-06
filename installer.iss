@@ -3,7 +3,7 @@
 
 #define MyAppName "MCP Shopee Khải Hoàn"
 #ifndef MyAppVersion
-#define MyAppVersion "2.2.60"
+#define MyAppVersion "2.2.61"
 #endif
 #define MyAppPublisher "datdtpl-maker"
 #define MyAppURL "https://github.com/datdtpl-maker/MCP-Shopee_Khai-Hoan"
@@ -37,7 +37,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "dist\MCPShopee\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
+Source: "dist\MCPShopee_build\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

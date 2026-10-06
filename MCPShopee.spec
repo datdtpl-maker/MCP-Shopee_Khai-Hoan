@@ -6,6 +6,8 @@ binaries = []
 hiddenimports = []
 tmp_ret = collect_all('playwright')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_pandas = collect_all('pandas')
+datas += tmp_pandas[0]; binaries += tmp_pandas[1]; hiddenimports += tmp_pandas[2]
 
 
 a = Analysis(
@@ -48,5 +50,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='MCPShopee',
+    name='MCPShopee_build',
 )
