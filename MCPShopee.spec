@@ -8,6 +8,8 @@ tmp_ret = collect_all('playwright')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_pandas = collect_all('pandas')
 datas += tmp_pandas[0]; binaries += tmp_pandas[1]; hiddenimports += tmp_pandas[2]
+tmp_openpyxl = collect_all('openpyxl')
+datas += tmp_openpyxl[0]; binaries += tmp_openpyxl[1]; hiddenimports += tmp_openpyxl[2]
 
 
 a = Analysis(

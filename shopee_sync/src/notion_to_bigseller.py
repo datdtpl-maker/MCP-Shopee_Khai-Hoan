@@ -5,7 +5,6 @@ import logging
 from typing import List, Dict, Any, Optional
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 from pathlib import Path
 
 # Thiết lập logging
@@ -136,10 +135,20 @@ def export_to_bigseller_excel(products: List[Dict[str, Any]], output_path: str) 
         ]
         rows.append(row)
         
-    df = pd.DataFrame(rows, columns=columns)
-    
-    # Ghi ra file Excel sử dụng openpyxl
-    df.to_excel(output_path, index=False)
+    try:
+        import openpyxl
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(list(columns))
+        for r in rows:
+            ws.append(list(r))
+        wb.save(output_path)
+    except Exception as e_xl:
+        logger.warning(f"Lưu file Excel bằng openpyxl không thành công ({e_xl}), thử lazy pandas...")
+        import pandas as pd
+        df = pd.DataFrame(rows, columns=columns)
+        df.to_excel(output_path, index=False)
+        
     logger.info("Đã ghi file Excel thành công.")
     return output_path
 

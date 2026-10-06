@@ -1371,6 +1371,7 @@ HTML = r"""
           <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
           <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
         </div>
         <div class="actions" style="display: flex; align-items: center; gap: 10px;">
           <!-- Dropdown 1: Thiết bị & Hệ thống -->
@@ -1571,6 +1572,7 @@ HTML = r"""
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
           <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <!-- ChatGPT Chrome Debug Status -->
@@ -1785,6 +1787,7 @@ HTML = r"""
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
           <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
         </div>
         <div class="actions" style="display: flex; gap: 12px; align-items: center;">
           <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
@@ -1792,9 +1795,6 @@ HTML = r"""
           </div>
           <button type="button" id="btnToggleShopeeBot" class="md3-btn-primary" onclick="toggleShopeeBot()" style="padding: 6px 12px; font-size: 11px; min-height: 32px; border-radius: 6px;">
             Khởi động Bot
-          </button>
-          <button type="button" id="btnToggleConfig" class="md3-btn-secondary" onclick="toggleConfigColumn()" style="padding: 6px 12px; font-size: 11px; min-height: 32px; border-radius: 6px;" title="Ẩn/Hiện cấu hình">
-            Cấu hình
           </button>
         </div>
       </header>
@@ -1838,69 +1838,6 @@ HTML = r"""
 
         <!-- Cột chính (Giữa và Phải) -->
         <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0;">
-
-          <!-- Cấu hình kết nối Notion / Telegram / API (Cột ẩn/hiện, mặc định ẩn) -->
-          <div id="configSectionWrapper" style="display: none; flex-direction: column; gap: 16px; width: 100%; transition: all 0.3s ease;">
-            <section class="panel">
-              <div class="panel-head" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <div>
-                  <h4 style="margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 14px;">Cấu hình Notion & Telegram</h4>
-                  <p style="margin: 4px 0 0; font-size: 12px; color: var(--muted);">Nhập thông tin kết nối hoặc nạp nhanh từ file <code>đồng bộ shopee.txt</code> / <code>.env</code></p>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <input type="file" id="configFileInput" accept=".txt,.env,.json" style="display: none;" onchange="handleConfigFileUpload(this.files)">
-                  <button type="button" class="secondary" onclick="document.getElementById('configFileInput').click()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    📂 Nhập file .txt
-                  </button>
-                  <button type="button" class="secondary" onclick="openPasteConfigModal()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                    📋 Dán nội dung
-                  </button>
-                  <button type="button" class="secondary" onclick="exportConfigFile()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Xuất file mẫu cấu hình .txt">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    📥 Xuất file .txt
-                  </button>
-                </div>
-              </div>
-              <div class="panel-body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 16px;">
-                <div>
-                  <label for="shopeeNotionToken" class="md3-label">Notion Integration Token (NOTION_TOKEN)</label>
-                  <input id="shopeeNotionToken" class="md3-input" type="password" placeholder="ntn_...">
-                </div>
-                <div>
-                  <label for="shopeeNotionDbId" class="md3-label">Notion Database ID (NOTION_DATABASE_ID)</label>
-                  <input id="shopeeNotionDbId" class="md3-input" type="text" placeholder="Ví dụ: ca055a7742824b9598abde7a7686d144">
-                </div>
-                <div>
-                  <label for="shopeeTelegramToken" class="md3-label">Telegram Bot Token (TELEGRAM_BOT_TOKEN)</label>
-                  <input id="shopeeTelegramToken" class="md3-input" type="password" placeholder="Mã token của Bot Telegram...">
-                </div>
-                <div>
-                  <label for="shopeeManagerChatId" class="md3-label">Manager Chat ID (MANAGER_CHAT_ID)</label>
-                  <input id="shopeeManagerChatId" class="md3-input" type="text" placeholder="ID người quản lý nhận thông báo...">
-                </div>
-                <div class="field-span-2">
-                  <label for="shopeeDriveRootId" class="md3-label">Google Drive Root ID (DRIVE_ROOT_FOLDER_ID)</label>
-                  <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ">
-                </div>
-                <div class="field-span-2">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mặc định Gemini 3.7 Flash)</label>
-                    <span id="geminiKeyStatus" style="font-size: 12px; font-weight: 600;"></span>
-                  </div>
-                  <div class="field-action" style="display: flex; gap: 8px; align-items: center;">
-                    <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="Nhập API Key Gemini (AIzaSy...) hoặc OpenAI (sk-...)" style="flex: 1;">
-                    <button type="button" id="btnTestGemini" onclick="testGeminiApiKey()" class="secondary" style="min-height: 40px; padding: 0 14px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                      Kiểm tra Key
-                    </button>
-                    <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 18px; white-space: nowrap;">Lưu cấu hình</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
 
           <!-- Hidden elements for complete JS backward compatibility -->
           <div style="display: none;">
@@ -2044,6 +1981,130 @@ HTML = r"""
           </div><!-- end sync-bottom-grid -->
         </div><!-- end col-2 main content -->
       </div><!-- end workspace -->
+    </div>
+
+    <!-- Tab 4: Cấu hình hệ thống -->
+    <div id="settingsDashboard" style="display: none; flex-direction: column; width: 100%;">
+      <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showCaptureDashboard()">
+          <img src="/favicon.ico" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--brand); box-shadow: 0 0 10px var(--brand-glow); background: #fff;" />
+          <div>
+            <h2 style="font-size: 19px; font-weight: 800; font-family: var(--font-title); display: flex; align-items: center; gap: 6px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">MCP Shopee Khải Hoàn</h2>
+          </div>
+        </div>
+        <div class="nav-tabs">
+          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
+          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
+          <span class="nav-tab nav-tab-settings active" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
+        </div>
+        <div class="actions" style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 34px; padding: 0 16px; font-size: 12.5px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Lưu cấu hình
+          </button>
+        </div>
+      </header>
+
+      <div class="workspace" style="display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 1100px; margin: 24px auto; padding: 0 20px; box-sizing: border-box;">
+        
+        <!-- Hidden inputs for complete JS backward compatibility -->
+        <input type="hidden" id="shopeeTelegramToken" value="">
+        <input type="hidden" id="shopeeManagerChatId" value="">
+
+        <!-- Card 1: Cấu hình Notion & Google Drive & AI -->
+        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+          <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+            <div>
+              <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                Cấu hình Kết nối &amp; Dịch vụ
+              </h3>
+              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Thông tin tích hợp Notion API, Google Drive Root Folder và Gemini AI Studio</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <input type="file" id="configFileInput" accept=".txt,.env,.json" style="display: none;" onchange="handleConfigFileUpload(this.files)">
+              <button type="button" class="secondary" onclick="document.getElementById('configFileInput').click()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                📂 Nhập file .txt
+              </button>
+              <button type="button" class="secondary" onclick="openPasteConfigModal()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                📋 Dán nội dung
+              </button>
+              <button type="button" class="secondary" onclick="exportConfigFile()" style="min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Xuất file mẫu cấu hình .txt">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                📥 Xuất file .txt
+              </button>
+            </div>
+          </div>
+          <div class="panel-body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 22px;">
+            <div>
+              <label for="shopeeNotionToken" class="md3-label">Notion Integration Token (NOTION_TOKEN)</label>
+              <input id="shopeeNotionToken" class="md3-input" type="password" placeholder="ntn_..." style="font-family: monospace;">
+            </div>
+            <div>
+              <label for="shopeeNotionDbId" class="md3-label">Notion Database ID (NOTION_DATABASE_ID)</label>
+              <input id="shopeeNotionDbId" class="md3-input" type="text" placeholder="Ví dụ: ca055a7742824b9598abde7a7686d144" style="font-family: monospace;">
+            </div>
+            <div class="field-span-2">
+              <label for="shopeeDriveRootId" class="md3-label">Google Drive Root ID (DRIVE_ROOT_FOLDER_ID)</label>
+              <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ" style="font-family: monospace;">
+            </div>
+            <div class="field-span-2">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mặc định Gemini 3.7 Flash)</label>
+                <span id="geminiKeyStatus" style="font-size: 12px; font-weight: 600;"></span>
+              </div>
+              <div class="field-action" style="display: flex; gap: 10px; align-items: center;">
+                <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="Nhập API Key Gemini (AIzaSy...) hoặc OpenAI (sk-...)" style="flex: 1; font-family: monospace;">
+                <button type="button" id="btnTestGemini" onclick="testGeminiApiKey()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Kiểm tra Key
+                </button>
+                <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 20px; white-space: nowrap; font-weight: 600;">Lưu cấu hình</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 2: Cập nhật Hệ thống (Software Update) -->
+        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+          <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+            <div>
+              <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Cập nhật Hệ thống
+              </h3>
+              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Kiểm tra và tự động nâng cấp phiên bản mới nhất từ máy chủ GitHub Release</p>
+            </div>
+          </div>
+          <div class="panel-body" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 13px; color: var(--muted); font-weight: 600;">Phiên bản hiện tại:</span>
+                  <span id="settingsCurrentVersion" style="background: var(--soft); color: var(--brand); font-weight: 800; font-size: 14px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--panel-border);">v2.2.61</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
+                  <span style="font-size: 13px; color: var(--muted); font-weight: 600;">Trạng thái kiểm tra:</span>
+                  <span id="settingsUpdateStatus" style="font-size: 13px; font-weight: 600; color: var(--text);">Chưa kiểm tra</span>
+                </div>
+              </div>
+              <div>
+                <button type="button" id="settingsCheckUpdateBtn" class="md3-btn-primary" onclick="checkAppUpdate(false)" style="min-height: 42px; padding: 0 22px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Kiểm tra cập nhật ngay
+                </button>
+              </div>
+            </div>
+            <p style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6;">
+              💡 <strong>Cơ chế tự động:</strong> Khi phát hiện phiên bản mới trên GitHub, hệ thống sẽ tải gói cài đặt cập nhật và tự động cài đè mà không làm mất cấu hình cá nhân hoặc dữ liệu hiện có.
+            </p>
+          </div>
+        </section>
+
+      </div>
     </div>
 
   <!-- Modal Loading khi chọn sản phẩm từ Notion -->
@@ -2567,6 +2628,8 @@ HTML = r"""
     updateNavTabs("poster");
     document.getElementById("captureDashboard").style.display = "none";
     document.getElementById("shopeeSyncDashboard").style.display = "none";
+    const sDash = document.getElementById("settingsDashboard");
+    if (sDash) sDash.style.display = "none";
     document.getElementById("posterDashboard").style.display = "flex";
     // Tải cấu hình OpenAI từ backend lên UI
     loadOpenAIConfig();
@@ -2742,6 +2805,8 @@ HTML = r"""
     updateNavTabs("capture");
     document.getElementById("posterDashboard").style.display = "none";
     document.getElementById("shopeeSyncDashboard").style.display = "none";
+    const sDash = document.getElementById("settingsDashboard");
+    if (sDash) sDash.style.display = "none";
     document.getElementById("captureDashboard").style.display = "block";
   }
 
@@ -2750,8 +2815,9 @@ HTML = r"""
     updateNavTabs("shopee");
     document.getElementById("captureDashboard").style.display = "none";
     document.getElementById("posterDashboard").style.display = "none";
+    const sDash = document.getElementById("settingsDashboard");
+    if (sDash) sDash.style.display = "none";
     document.getElementById("shopeeSyncDashboard").style.display = "flex";
-    loadShopeeConfig();
     loadShopeeExcelList();
     checkShopeeBotStatus();
     loadPendingProducts();
@@ -2761,6 +2827,16 @@ HTML = r"""
       shopeeSyncInitialized = true;
       initShopeeDragDrop();
     }
+  }
+
+  function showSettingsDashboard() {
+    updateNavTabs("settings");
+    document.getElementById("captureDashboard").style.display = "none";
+    document.getElementById("posterDashboard").style.display = "none";
+    document.getElementById("shopeeSyncDashboard").style.display = "none";
+    const sDash = document.getElementById("settingsDashboard");
+    if (sDash) sDash.style.display = "flex";
+    loadShopeeConfig();
   }
 
   function initShopeeDragDrop() {
@@ -5877,6 +5953,14 @@ HTML = r"""
   }
 
   async function checkAppUpdate(autoAlert = false) {
+    const settingsUpdateStatus = document.getElementById("settingsUpdateStatus");
+    const settingsCheckBtn = document.getElementById("settingsCheckUpdateBtn");
+    if (settingsUpdateStatus && !autoAlert) {
+      settingsUpdateStatus.innerHTML = '<span style="color: var(--brand); font-weight: 600;">Đang kiểm tra máy chủ GitHub...</span>';
+    }
+    if (settingsCheckBtn && !autoAlert) {
+      settingsCheckBtn.disabled = true;
+    }
     try {
       const response = await fetch('/api/app/check-update');
       const data = await response.json();
@@ -5886,8 +5970,11 @@ HTML = r"""
       const updateText = document.getElementById("updateAppText");
 
       if (data.has_update) {
-        updateBtn.classList.add("pulse-warn");
-        updateText.innerText = `Cập nhật (${data.latest_version})`;
+        if (updateBtn) updateBtn.classList.add("pulse-warn");
+        if (updateText) updateText.innerText = `Cập nhật (${data.latest_version})`;
+        if (settingsUpdateStatus) {
+          settingsUpdateStatus.innerHTML = `<span style="color: #f59e0b; font-weight: 700;">Có bản mới: ${data.latest_version}</span>`;
+        }
 
         if (!autoAlert) {
           const confirmUpdate = confirm(`Có phiên bản mới: ${data.latest_version}\n\nNội dung: ${data.release_notes || 'Không có ghi chú.'}\n\nBạn có muốn tải về và tự động cài đè cập nhật ngay bây giờ không?\n(Chương trình sẽ tự động đóng và khởi động lại sau khi hoàn thành)`);
@@ -5896,16 +5983,26 @@ HTML = r"""
           }
         }
       } else {
-        updateBtn.classList.remove("pulse-warn");
-        updateText.innerText = `Phiên bản: ${data.current_version}`;
+        if (updateBtn) updateBtn.classList.remove("pulse-warn");
+        if (updateText) updateText.innerText = `Phiên bản: ${data.current_version}`;
+        if (settingsUpdateStatus) {
+          settingsUpdateStatus.innerHTML = `<span style="color: #10b981; font-weight: 700;">Đang sử dụng phiên bản mới nhất (${data.current_version})</span>`;
+        }
         if (!autoAlert) {
           alert("Bạn đang sử dụng phiên bản mới nhất!");
         }
       }
     } catch (e) {
       console.error("Lỗi kiểm tra cập nhật:", e);
+      if (settingsUpdateStatus) {
+        settingsUpdateStatus.innerHTML = `<span style="color: #ef4444; font-weight: 600;">Lỗi kiểm tra máy chủ</span>`;
+      }
       if (!autoAlert) {
         alert("Lỗi kiểm tra cập nhật: " + (e.error || e.message || JSON.stringify(e)));
+      }
+    } finally {
+      if (settingsCheckBtn) {
+        settingsCheckBtn.disabled = false;
       }
     }
   }
@@ -5913,10 +6010,16 @@ HTML = r"""
   async function startAppUpdate(downloadUrl) {
     const updateBtn = document.getElementById("updateAppBtn");
     const updateText = document.getElementById("updateAppText");
+    const settingsCheckBtn = document.getElementById("settingsCheckUpdateBtn");
+    const settingsUpdateStatus = document.getElementById("settingsUpdateStatus");
 
     if (updateBtn) {
       updateBtn.disabled = true;
       updateBtn.classList.remove("pulse-warn");
+    }
+    if (settingsCheckBtn) settingsCheckBtn.disabled = true;
+    if (settingsUpdateStatus) {
+      settingsUpdateStatus.innerHTML = '<span style="color: var(--brand); font-weight: 600;">Đang tải và cập nhật ứng dụng...</span>';
     }
 
     if (typeof appendAutomationLog === 'function') {

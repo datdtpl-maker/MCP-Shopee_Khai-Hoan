@@ -3,7 +3,6 @@ import re
 import json
 import logging
 import requests
-import pandas as pd
 from pathlib import Path
 from typing import List, Optional
 
@@ -306,8 +305,16 @@ def generate_zicum_excel(drive_url: Optional[str] = None):
         raise FileNotFoundError(f"Không tìm thấy file mẫu gốc tại: {template_path}")
         
     # Đọc cấu trúc header hàng 1 từ file mẫu
-    df_template = pd.read_excel(template_path, header=None)
-    columns = df_template.iloc[0].tolist()
+    columns = []
+    try:
+        import openpyxl
+        wb_tpl = openpyxl.load_workbook(template_path, data_only=True)
+        columns = [cell for cell in next(wb_tpl.active.iter_rows(values_only=True))]
+    except Exception as e_xl:
+        logger.warning(f"Đọc template bằng openpyxl không thành công ({e_xl}), thử lazy pandas...")
+        import pandas as pd
+        df_template = pd.read_excel(template_path, header=None)
+        columns = df_template.iloc[0].tolist()
     
     # Mô tả sản phẩm chi tiết chuẩn SEO
     description = """Viên uống bổ sung kẽm ZicumGSV là giải pháp hỗ trợ điều trị mụn trứng cá, mụn viêm và tăng cường sức đề kháng cho cơ thể một cách hiệu quả, an toàn. Sản phẩm được sản xuất bởi Công ty Cổ phần Dược phẩm Hà Tây uy tín hàng đầu Việt Nam.
@@ -380,14 +387,23 @@ Bảo quản nơi khô ráo, thoáng mát, nhiệt độ dưới 30°C, tránh �
     row_data["Chiều cao (cm)"] = 5
     row_data["Tình trạng"] = 1
 
-    # Tạo DataFrame
-    new_df = pd.DataFrame([row_data], columns=columns)
-    
-    # Lưu file
+    # Lưu file Excel
     output_dir = Path(__file__).resolve().parent.parent / "output"
     output_dir.mkdir(exist_ok=True)
     output_file = output_dir / "bigseller_zicumgsv.xlsx"
-    new_df.to_excel(output_file, index=False)
+    
+    try:
+        import openpyxl
+        wb_out = openpyxl.Workbook()
+        ws_out = wb_out.active
+        ws_out.append(list(columns))
+        ws_out.append([row_data.get(c, "") for c in columns])
+        wb_out.save(output_file)
+    except Exception as e_xl:
+        logger.warning(f"Lưu file Excel bằng openpyxl không thành công ({e_xl}), thử lazy pandas...")
+        import pandas as pd
+        new_df = pd.DataFrame([row_data], columns=columns)
+        new_df.to_excel(output_file, index=False)
     
     logger.info(f"Đã tạo thành công file Excel BigSeller tại: {output_file}")
     if len(images) > 0:

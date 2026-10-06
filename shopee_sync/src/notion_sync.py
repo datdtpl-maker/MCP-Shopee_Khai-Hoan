@@ -2,7 +2,6 @@ import os
 import re
 import logging
 import requests
-import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from notion_client import Client
@@ -850,8 +849,21 @@ def sync_notion_to_bigseller_excel(
         return "", []
         
     # 4. Đọc cấu trúc tiêu đề cột của BigSeller mẫu
-    df_template = pd.read_excel(template_path, header=None)
-    columns = df_template.iloc[0].tolist()
+    columns = []
+    try:
+        import openpyxl
+        wb_template = openpyxl.load_workbook(template_path, data_only=True)
+        ws_template = wb_template.active
+        columns = [cell for cell in next(ws_template.iter_rows(values_only=True))]
+    except Exception as e_tpl:
+        logger.warning(f"Đọc template bằng openpyxl không thành công ({e_tpl}), thử lazy pandas...")
+        try:
+            import pandas as pd
+            df_template = pd.read_excel(template_path, header=None)
+            columns = df_template.iloc[0].tolist()
+        except Exception as e_pd:
+            logger.error(f"Lỗi đọc template BigSeller: {e_pd}")
+            raise e_pd
     
     # 5. Xử lý từng sản phẩm và tạo dòng Excel
     rows_to_export = []
@@ -1409,8 +1421,7 @@ def sync_notion_to_bigseller_excel(
         processed_page_ids.append(page_id_str)
         page_id_to_desc[page_id_str] = "\n==============================\n".join(desc_logs)
         
-    # 6. Tạo DataFrame và lưu file Excel
-    new_df = pd.DataFrame(rows_to_export, columns=columns)
+    # 6. Tạo và lưu file Excel
     export_dir_env = os.getenv("BIGSELLER_EXPORT_DIR")
     if export_dir_env:
         output_dir = Path(export_dir_env)
@@ -1423,7 +1434,20 @@ def sync_notion_to_bigseller_excel(
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     excel_output_path = output_dir / f"bigseller_sync_{timestamp}.xlsx"
     
-    new_df.to_excel(excel_output_path, index=False)
+    try:
+        import openpyxl
+        wb_out = openpyxl.Workbook()
+        ws_out = wb_out.active
+        ws_out.append(list(columns))
+        for r_dict in rows_to_export:
+            ws_out.append([r_dict.get(col, "") for col in columns])
+        wb_out.save(excel_output_path)
+    except Exception as e_xl:
+        logger.warning(f"Lưu file Excel bằng openpyxl không thành công ({e_xl}), thử lazy pandas...")
+        import pandas as pd
+        new_df = pd.DataFrame(rows_to_export, columns=columns)
+        new_df.to_excel(excel_output_path, index=False)
+        
     logger.info(f"Đã xuất file Excel đồng bộ thành công tại: {excel_output_path}")
     
     # Tự động lưu 1 bản sao file Excel trực tiếp vào thư mục Drive cục bộ của từng sản phẩm
