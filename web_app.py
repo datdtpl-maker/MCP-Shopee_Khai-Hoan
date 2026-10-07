@@ -584,6 +584,7 @@ HTML = r"""
       position: relative;
       z-index: var(--z-content);
     }
+    #captureDashboard .content,
     #posterDashboard .content,
     #shopeeSyncDashboard .content {
       max-width: 1840px;
@@ -591,7 +592,7 @@ HTML = r"""
     }
     .workspace {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 400px;
+      grid-template-columns: minmax(0, 1fr) 420px;
       gap: 24px;
       align-items: start;
     }
@@ -608,7 +609,7 @@ HTML = r"""
     }
     .metrics {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
     }
     .metric {
@@ -1371,7 +1372,7 @@ HTML = r"""
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Thư mục Sản phẩm</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Tạo Ảnh</span>
           <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; align-items: center; gap: 10px;">
@@ -1386,103 +1387,137 @@ HTML = r"""
         </div>
       </header>
       <div class="content">
-        <div class="workspace">
-        <div class="work-main">
-        <section class="metrics">
+        <!-- 4 Metrics full-width at top -->
+        <section class="metrics" style="margin-bottom: 20px;">
           <div class="metric"><small>Thư mục Drive</small><strong id="driveMetric"><span class="badge warn">Đang kiểm tra</span></strong></div>
           <div class="metric"><small>Thư mục đang chọn</small><strong id="selectedMetric">Chưa chọn</strong></div>
           <div class="metric"><small>Số thư mục sản phẩm</small><strong id="folderMetric">0</strong></div>
           <div class="metric"><small>Trạng thái tác vụ</small><strong id="busyMetric"><span class="badge ok">Sẵn sàng</span></strong></div>
         </section>
 
-        <section class="layout">
-          <div class="panel">
-            <div class="panel-head"><h3>Thư mục Google Drive</h3><p>Quản lý trực tiếp thư mục Google Drive đang đồng bộ trên máy tính.</p></div>
-            <div class="panel-body">
-              <div class="field-action">
-                <div><label for="driveRoot">Đường dẫn thư mục chính</label><input id="driveRoot" value="G:\My Drive\Hình ảnh Shopee"></div>
-                <button onclick="saveDriveRoot()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                  Lưu &amp; quét lại
-                </button>
+        <div class="workspace">
+          <!-- Cột trái: Rộng rãi, tối ưu không gian -->
+          <div class="work-main" style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Thư mục Google Drive</h3>
+                <p>Quản lý trực tiếp thư mục Google Drive đang đồng bộ trên máy tính.</p>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 10px;">
-                <!-- Cột 1: Shop Shopee & Nguồn Notion -->
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
-                  <div>
-                    <label for="shopSelect" style="font-weight: 700; font-size: 12.5px; margin-bottom: 6px; display: block;">Shop Shopee</label>
-                    <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 38px; font-weight: 600;">
-                      <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-                      <option value="khaihoanpharmacy">khaihoanpharmacy</option>
-                    </select>
-                  </div>
-                  <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 38px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                    Quét Notion &amp; Tạo Thư Mục
+              <div class="panel-body">
+                <div class="field-action">
+                  <div><label for="driveRoot">Đường dẫn thư mục chính</label><input id="driveRoot" value="G:\My Drive\Hình ảnh Shopee"></div>
+                  <button onclick="saveDriveRoot()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Lưu &amp; quét lại
                   </button>
                 </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0 10px;">
+                  <!-- Cột 1: Shop Shopee & Nguồn Notion -->
+                  <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 12px; background: rgba(255,255,255,0.02); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                    <div>
+                      <label for="shopSelect" style="font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block;">Shop Shopee</label>
+                      <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 40px; font-weight: 600; font-size: 13px;">
+                        <option value="nhathuockh.pharma">nhathuockh.pharma</option>
+                        <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+                      </select>
+                    </div>
+                    <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 40px; padding: 0 16px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                      Quét Notion &amp; Tạo Thư Mục
+                    </button>
+                  </div>
 
-                <!-- Cột 2: Thư mục sản phẩm & Thao tác -->
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
-                  <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                      <label for="folderSelect" style="margin: 0; font-weight: 700; font-size: 12.5px;">Thư mục sản phẩm</label>
-                      <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 3px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm (bao gồm shop)">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                        Copy đường dẫn
+                  <!-- Cột 2: Thư mục sản phẩm & Thao tác -->
+                  <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 12px; background: rgba(255,255,255,0.02); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label for="folderSelect" style="margin: 0; font-weight: 700; font-size: 13px;">Thư mục sản phẩm</label>
+                        <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 4px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm (bao gồm shop)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                          Copy đường dẫn
+                        </button>
+                      </div>
+                      <select id="folderSelect" onchange="selectFolder()" style="width: 100%; min-height: 40px; font-weight: 600; font-size: 13px;"><option value="">-- Chưa chọn thư mục --</option></select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                      <button class="secondary" onclick="scanFolders()" style="min-height: 40px; padding: 0 10px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        Quét lại
+                      </button>
+                      <button class="danger" onclick="deleteFolder()" style="min-height: 40px; padding: 0 10px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        Xóa thư mục
                       </button>
                     </div>
-                    <select id="folderSelect" onchange="selectFolder()" style="width: 100%; min-height: 38px; font-weight: 600;"><option value="">-- Chưa chọn thư mục --</option></select>
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="secondary" onclick="scanFolders()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                      Quét lại
-                    </button>
-                    <button class="danger" onclick="deleteFolder()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                      Xóa thư mục
-                    </button>
                   </div>
                 </div>
-              </div>
 
-              <!-- Hàng tạo thư mục mới thủ công -->
-              <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--panel-border);">
-                <label for="newFolder" style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">Tạo thư mục mới trong shop:</label>
-                <div class="field-action">
-                  <input id="newFolder" placeholder="Nhập tên thư mục sản phẩm mới...">
-                  <button class="secondary" onclick="createFolder()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Tạo thư mục
-                  </button>
+                <!-- Hàng tạo thư mục mới thủ công -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--panel-border);">
+                  <label for="newFolder" style="font-size: 12.5px; font-weight: 600; margin-bottom: 6px; display: block;">Tạo thư mục mới trong shop:</label>
+                  <div class="field-action">
+                    <input id="newFolder" placeholder="Nhập tên thư mục sản phẩm mới...">
+                    <button class="secondary" onclick="createFolder()" style="min-height: 40px; font-size: 12.5px; font-weight: 600; padding: 0 16px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      Tạo thư mục
+                    </button>
+                  </div>
+                </div>
+                <div class="hint" style="margin-top: 8px;">Chọn đúng Shop và thư mục sản phẩm để copy đường dẫn hoặc thao tác đồng bộ.</div>
+              </div>
+            </div>
+
+            <!-- Panel 2: Quy trình vận hành (3 bước ngang) -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Quy trình vận hành</h3>
+                <p>Quản lý thư mục ảnh sản phẩm trên Google Drive</p>
+              </div>
+              <div class="panel-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 18px 20px;">
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #000; font-weight: 800; font-size: 12px;">1</span>
+                    <b style="font-size: 13px;">Quét &amp; tạo thư mục</b>
+                  </div>
+                  <small style="color: var(--muted); font-size: 12px; line-height: 1.4; display: block;">Bấm "Quét Notion &amp; Tạo Thư Mục" để tự động tạo cấu trúc thư mục từ dữ liệu bài viết Notion.</small>
+                </div>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #000; font-weight: 800; font-size: 12px;">2</span>
+                    <b style="font-size: 13px;">Chọn &amp; copy đường dẫn</b>
+                  </div>
+                  <small style="color: var(--muted); font-size: 12px; line-height: 1.4; display: block;">Chọn sản phẩm trong danh sách và bấm "Copy đường dẫn" để dán vào các công cụ.</small>
+                </div>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; padding: 14px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #000; font-weight: 800; font-size: 12px;">3</span>
+                    <b style="font-size: 13px;">Đồng bộ Shopee &amp; AI Tạo Ảnh</b>
+                  </div>
+                  <small style="color: var(--muted); font-size: 12px; line-height: 1.4; display: block;">Chuyển qua tab "Đồng bộ Shopee" để xuất file Excel BigSeller hoặc "AI Tạo Ảnh" để xử lý ảnh.</small>
                 </div>
               </div>
-              <div class="hint" style="margin-top: 8px;">Chọn đúng Shop và thư mục sản phẩm để copy đường dẫn hoặc thao tác đồng bộ.</div>
             </div>
           </div>
 
-          <aside class="panel">
-            <div class="panel-head"><h3>Quy trình vận hành</h3><p>Quản lý thư mục ảnh sản phẩm trên Google Drive.</p></div>
-            <div class="panel-body steps">
-              <div class="step"><span>1</span><div><b>Quét bài viết &amp; tạo thư mục</b><small>Bấm "Quét Notion &amp; Tạo Thư Mục" để tự động tạo cấu trúc thư mục từ dữ liệu Notion.</small></div></div>
-              <div class="step"><span>2</span><div><b>Chọn thư mục sản phẩm</b><small>Chọn sản phẩm từ danh sách và bấm "Copy đường dẫn" để dán vào công cụ.</small></div></div>
-              <div class="step"><span>3</span><div><b>Đồng bộ Shopee &amp; AI Edit</b><small>Chuyển qua tab "Đồng bộ Shopee" để xuất Excel BigSeller hoặc "AI Edit / Video" để xử lý ảnh.</small></div></div>
+          <!-- Cột phải: Nhật ký xử lý -->
+          <aside class="panel work-log">
+            <div class="panel-head">
+              <h3>Nhật ký xử lý</h3>
+              <p>Theo dõi các tác vụ quét folder, tạo folder và thông báo hệ thống.</p>
+            </div>
+            <div class="panel-body">
+              <div class="buttons">
+                <button class="ghost" onclick="clearLog()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Xóa log
+                </button>
+              </div>
+              <div class="logbox">
+                <div class="loghead"><span>Event stream</span><span id="logCount">0 events</span></div>
+                <div id="log" class="log" style="height: 520px; max-height: calc(100vh - 280px);"></div>
+              </div>
             </div>
           </aside>
-        </section>
-        </div>
-
-        <aside class="panel work-log">
-          <div class="panel-head"><h3>Nhật ký xử lý</h3><p>Theo dõi các tác vụ quét folder, tạo folder và thông báo hệ thống.</p></div>
-          <div class="panel-body">
-            <div class="buttons"><button class="ghost" onclick="clearLog()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Xóa log</button></div>
-            <div class="logbox">
-              <div class="loghead"><span>Event stream</span><span id="logCount">0 events</span></div>
-              <div id="log" class="log"></div>
-            </div>
-          </div>
-        </aside>
         </div>
       </div>
 
@@ -1513,7 +1548,7 @@ HTML = r"""
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Thư mục Sản phẩm</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Tạo Ảnh</span>
           <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -1526,14 +1561,10 @@ HTML = r"""
               Mở ChatGPT
             </button>
           </div>
-          <!-- Gemini Chrome Debug Status -->
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div id="geminiStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
-              <span id="geminiStatusText">Gemini Chrome: Offline</span>
-            </div>
-            <button type="button" class="btn-capture" onclick="startChromeGemini()" style="min-height: 32px; padding: 4px 10px; font-size: 11px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border-radius: 6px; font-weight: 700; border: none; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);">
-              Mở Gemini
-            </button>
+          <!-- Hidden fallback for Gemini JS handlers -->
+          <div style="display: none;">
+            <div id="geminiStatusBadge"><span id="geminiStatusText"></span></div>
+            <button type="button" onclick="startChromeGemini()"></button>
           </div>
           <button onclick="toggleTheme()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Chuyển đổi giao diện Sáng/Tối">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -1678,15 +1709,12 @@ HTML = r"""
               </div>
 
               <!-- Khung gửi tin nhắn -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
-                <button class="btn-capture" id="btnSendToChatGPT" onclick="sendToChatGPT()" style="font-size: 13.5px; padding: 10px 16px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;">
+              <div style="margin-top: 4px;">
+                <button class="btn-capture" id="btnSendToChatGPT" onclick="sendToChatGPT()" style="width: 100%; font-size: 13.5px; padding: 10px 16px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                   Gửi Lên ChatGPT
                 </button>
-                <button class="btn-capture" id="btnSendToGemini" onclick="sendToGemini()" style="font-size: 13.5px; padding: 10px 16px; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); border: none; min-height: 40px;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                  Gửi Lên Gemini
-                </button>
+                <button id="btnSendToGemini" onclick="sendToGemini()" style="display: none;"></button>
               </div>
 
               <!-- Nút lấy ảnh thủ công từ tab ChatGPT khi cần -->
@@ -1736,7 +1764,7 @@ HTML = r"""
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Thư mục Sản phẩm</span>
           <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Tạo Ảnh</span>
           <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; gap: 10px; align-items: center;">
@@ -1957,7 +1985,7 @@ HTML = r"""
         <div class="nav-tabs">
           <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Thư mục Sản phẩm</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Tạo Ảnh</span>
           <span class="nav-tab nav-tab-settings active" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; gap: 10px; align-items: center;">
@@ -1976,7 +2004,7 @@ HTML = r"""
         </div>
       </header>
 
-      <div class="workspace" style="display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; box-sizing: border-box;">
+      <div class="workspace" style="display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 1200px; margin: 20px auto; padding: 0 20px; box-sizing: border-box;">
         
         <!-- Hidden inputs for complete JS backward compatibility -->
         <input type="hidden" id="shopeeTelegramToken" value="">
@@ -2038,95 +2066,83 @@ HTML = r"""
           </div>
         </section>
 
-        <!-- Card 2: Đường dẫn Thư mục Cục bộ trên Máy tính -->
-        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
-          <div class="panel-head" style="padding: 16px 22px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
-            <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-              Đường dẫn Thư mục Cục bộ trên Máy tính
-            </h3>
-            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Thư mục đồng bộ Google Drive for Desktop và thư mục xuất ảnh / video</p>
-          </div>
-          <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px; padding: 22px;">
-            <div>
-              <label for="driveRoot" class="md3-label">Thư mục Google Drive trên máy tính (Lưu ảnh Shopee)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input id="driveRoot" class="md3-input" value="G:\My Drive\Hình ảnh Shopee" style="flex: 1; font-family: monospace;">
-                <button type="button" class="secondary" onclick="saveDriveRoot()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                  Lưu đường dẫn
-                </button>
-              </div>
-              <div class="hint" style="margin-top: 6px;">Đường dẫn thư mục Google Drive đang đồng bộ trên máy tính (ví dụ: G:\My Drive\Hình ảnh Shopee).</div>
-            </div>
-            <div>
-              <label class="md3-label">Thư mục xuất ảnh / video AI</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input id="settingsPosterExportDir" class="md3-input" placeholder="Mặc định: Downloads" readonly style="flex: 1; font-family: monospace; background: rgba(255,255,255,0.03);">
-                <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; cursor: pointer;">
-                  Chọn thư mục...
-                </button>
-              </div>
-              <div class="hint" style="margin-top: 6px;">Thư mục lưu ảnh hoặc video khi chạy AI tạo ảnh.</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Card 3: Giao diện & Tiện ích -->
-        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
-          <div class="panel-head" style="padding: 16px 22px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
-            <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-              Giao diện &amp; Tiện ích Hệ thống
-            </h3>
-            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tùy chỉnh chủ đề màu sắc và làm mới dữ liệu ứng dụng</p>
-          </div>
-          <div class="panel-body" style="display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 16px; padding: 22px;">
-            <button id="themeToggleBtn" onclick="toggleTheme()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-              Chuyển Giao diện Sáng / Tối
-            </button>
-            <button onclick="refresh()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Làm mới toàn bộ trang
-            </button>
-          </div>
-        </section>
-
-        <!-- Card 4: Cập nhật Hệ thống (Software Update) -->
-        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
-          <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
-            <div>
+        <!-- Khối 2 cột: Đường dẫn Thư mục Cục bộ & Cập nhật Hệ thống -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch;">
+          <!-- Card 2: Đường dẫn Thư mục Cục bộ trên Máy tính -->
+          <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column;">
+            <div class="panel-head" style="padding: 16px 22px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
               <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                Cập nhật Hệ thống
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Đường dẫn Thư mục Cục bộ
               </h3>
-              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Kiểm tra và tự động nâng cấp phiên bản mới nhất từ máy chủ GitHub Release</p>
+              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Thư mục Google Drive và xuất ảnh / video</p>
             </div>
-          </div>
-          <div class="panel-body" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px;">
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-size: 13px; color: var(--muted); font-weight: 600;">Phiên bản hiện tại:</span>
-                  <span id="settingsCurrentVersion" style="background: var(--soft); color: var(--brand); font-weight: 800; font-size: 14px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--panel-border);">v2.2.61</span>
+            <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px; padding: 22px; flex: 1;">
+              <div>
+                <label for="driveRoot" class="md3-label">Thư mục Google Drive trên máy tính (Lưu ảnh Shopee)</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input id="driveRoot" class="md3-input" value="G:\My Drive\Hình ảnh Shopee" style="flex: 1; font-family: monospace;">
+                  <button type="button" class="secondary" onclick="saveDriveRoot()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Lưu
+                  </button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
-                  <span style="font-size: 13px; color: var(--muted); font-weight: 600;">Trạng thái kiểm tra:</span>
-                  <span id="settingsUpdateStatus" style="font-size: 13px; font-weight: 600; color: var(--text);">Chưa kiểm tra</span>
-                </div>
+                <div class="hint" style="margin-top: 6px;">Đường dẫn thư mục Google Drive đang đồng bộ trên máy tính.</div>
               </div>
               <div>
-                <button type="button" id="settingsCheckUpdateBtn" class="md3-btn-primary" onclick="checkAppUpdate(false)" style="min-height: 42px; padding: 0 22px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  Kiểm tra cập nhật ngay
-                </button>
+                <label class="md3-label">Thư mục xuất ảnh / video AI</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input id="settingsPosterExportDir" class="md3-input" placeholder="Mặc định: Downloads" readonly style="flex: 1; font-family: monospace; background: rgba(255,255,255,0.03);">
+                  <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; cursor: pointer;">
+                    Chọn thư mục...
+                  </button>
+                </div>
+                <div class="hint" style="margin-top: 6px;">Thư mục lưu ảnh hoặc video khi chạy AI tạo ảnh.</div>
               </div>
             </div>
-            <p style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6;">
-              💡 <strong>Cơ chế tự động:</strong> Khi phát hiện phiên bản mới trên GitHub, hệ thống sẽ tải gói cài đặt cập nhật và tự động cài đè mà không làm mất cấu hình cá nhân hoặc dữ liệu hiện có.
-            </p>
-          </div>
+          </section>
+
+          <!-- Card 4: Cập nhật Hệ thống (Software Update) -->
+          <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column;">
+            <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+              <div>
+                <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Cập nhật Hệ thống
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tự động nâng cấp phiên bản mới từ GitHub Release</p>
+              </div>
+            </div>
+            <div class="panel-body" style="padding: 22px; display: flex; flex-direction: column; gap: 16px; flex: 1; justify-content: space-between;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Phiên bản:</span>
+                    <span id="settingsCurrentVersion" style="background: var(--soft); color: var(--brand); font-weight: 800; font-size: 13.5px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--panel-border);">v2.2.61</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                    <span style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Trạng thái:</span>
+                    <span id="settingsUpdateStatus" style="font-size: 12.5px; font-weight: 600; color: var(--text);">Chưa kiểm tra</span>
+                  </div>
+                </div>
+                <div>
+                  <button type="button" id="settingsCheckUpdateBtn" class="md3-btn-primary" onclick="checkAppUpdate(false)" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Kiểm tra cập nhật
+                  </button>
+                </div>
+              </div>
+              <p style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5;">
+                💡 <strong>Tự động:</strong> Khi có bản mới trên GitHub, hệ thống tự động tải và cài đè an toàn, giữ nguyên dữ liệu cấu hình.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <!-- Card 3: Giao diện & Tiện ích (Ẩn do đã có trên header bên góc phải) -->
+        <section class="panel" style="display: none !important;">
+          <button onclick="toggleTheme()"></button>
+          <button onclick="refresh()"></button>
         </section>
 
       </div>
