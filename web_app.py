@@ -1359,222 +1359,47 @@ HTML = r"""
     </div>
   </aside>
   <main class="main" style="display: flex; flex-direction: column;">
-    <div id="captureDashboard" style="display: block; width: 100%;">
-      <header class="topbar">
-        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showCaptureDashboard()">
-          <img src="/favicon.ico" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--brand); box-shadow: 0 0 10px var(--brand-glow); background: #fff;" />
-          <div>
-            <h2 style="font-size: 19px; font-weight: 800; font-family: var(--font-title); display: flex; align-items: center; gap: 6px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">MCP Shopee Khải Hoàn</h2>
-          </div>
-        </div>
-        <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture active" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
-          <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
-          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
-        </div>
-        <div class="actions" style="display: flex; align-items: center; gap: 10px;">
-          <!-- Dropdown 1: Thiết bị & Hệ thống -->
-          <div class="dropdown">
-            <button class="secondary" style="font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-              Hệ thống
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7; margin-left: 2px;"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="dropdown-content">
-              <button id="updateAppBtn" onclick="checkAppUpdate(false)" style="">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                Cập nhật: <span id="updateAppText">v1.1.0</span>
-              </button>
-              <button id="themeToggleBtn" onclick="toggleTheme()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                Giao diện Sáng/Tối
-              </button>
-              <button onclick="refresh()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                Làm mới trang
-              </button>
-              <hr style="border: 0; border-top: 1px solid var(--line); margin: 4px 0;" />
-              <button onclick="togglePixelScreen()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-                Bật/Tắt màn hình Pixel
-              </button>
-              <button id="previewBtn" onclick="togglePreview()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <span id="previewBtnText">Xem Pixel</span>
-              </button>
-            </div>
-          </div>
-
-          <div style="width: 1px; height: 16px; background: var(--line); margin: 0 4px;"></div>
-
-          <!-- Các nút tác vụ chính -->
-          <button class="btn-capture" onclick="capture()" style="min-height: 34px; padding: 4px 12px; border-radius: 6px; font-size: 12.5px;" title="Chụp ảnh sản phẩm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            Chụp ảnh
-          </button>
-          <button class="btn-record" onclick="record()" style="min-height: 34px; padding: 4px 12px; border-radius: 6px; font-size: 12.5px;" title="Quay video sản phẩm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-            Quay video
-          </button>
-          <button id="btnStop" class="btn-stop" onclick="stopOperation()" style="min-height: 34px; padding: 4px 12px; border-radius: 6px; font-size: 12.5px;" title="Dừng tác vụ hiện tại">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect></svg>
-            Dừng
-          </button>
-        </div>
-      </header>
-      <div class="content">
-        <div class="workspace">
-        <div class="work-main">
-        <section class="metrics">
-          <div class="metric"><small>Pixel ADB</small><strong id="adbMetric"><span class="badge warn">Đang kiểm tra</span></strong></div>
-          <div class="metric"><small>Thư mục Drive</small><strong id="driveMetric"><span class="badge warn">Đang kiểm tra</span></strong></div>
-          <div class="metric"><small>Thư mục đang chọn</small><strong id="selectedMetric">Chưa chọn</strong></div>
-          <div class="metric"><small>Số thư mục sản phẩm</small><strong id="folderMetric">0</strong></div>
-          <div class="metric"><small>Trạng thái tác vụ</small><strong id="busyMetric"><span class="badge ok">Sẵn sàng</span></strong></div>
-        </section>
-
-        <section class="layout">
-          <div class="panel">
-            <div class="panel-head"><h3>Thư mục Google Drive</h3><p>App ghi file trực tiếp vào thư mục Google Drive for desktop đang đồng bộ trên máy tính.</p></div>
-            <div class="panel-body">
-              <div class="field-action">
-                <div><label for="driveRoot">Đường dẫn thư mục chính</label><input id="driveRoot" value="G:\My Drive\Hình ảnh Shopee"></div>
-                <button onclick="saveDriveRoot()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                  Lưu & quét lại
-                </button>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 10px;">
-                <!-- Cột 1: Shop Shopee & Nguồn Notion -->
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
-                  <div>
-                    <label for="shopSelect" style="font-weight: 700; font-size: 12.5px; margin-bottom: 6px; display: block;">Shop Shopee</label>
-                    <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 38px; font-weight: 600;">
-                      <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-                      <option value="khaihoanpharmacy">khaihoanpharmacy</option>
-                    </select>
-                  </div>
-                  <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 38px; padding: 0 16px; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                    Quét Notion &amp; Tạo Thư Mục
-                  </button>
-                </div>
-
-                <!-- Cột 2: Thư mục sản phẩm & Thao tác -->
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--panel-border);">
-                  <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                      <label for="folderSelect" style="margin: 0; font-weight: 700; font-size: 12.5px;">Thư mục sản phẩm</label>
-                      <button class="ghost" id="btnCopyFolderPath" onclick="copyCurrentFolderPath()" style="min-height: auto; padding: 3px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--brand); font-weight: 700; cursor: pointer; border-radius: 4px;" title="Sao chép đường dẫn thư mục sản phẩm (bao gồm shop)">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                        Copy đường dẫn
-                      </button>
-                    </div>
-                    <select id="folderSelect" onchange="selectFolder()" style="width: 100%; min-height: 38px; font-weight: 600;"><option value="">-- Chưa chọn thư mục --</option></select>
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="secondary" onclick="scanFolders()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                      Quét lại
-                    </button>
-                    <button class="danger" onclick="deleteFolder()" style="min-height: 38px; padding: 0 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; cursor: pointer;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                      Xóa thư mục
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="hint">Bắt buộc chọn đúng thư mục sản phẩm trước khi chụp hoặc quay. App không tự phân loại và không tự tạo album Google Photos.</div>
-            </div>
-          </div>
-          <aside class="panel">
-            <div class="panel-head"><h3>Quy trình vận hành</h3><p>Luồng đơn giản, phù hợp xử lý số lượng lớn.</p></div>
-            <div class="panel-body steps">
-              <div class="step"><span>1</span><div><b>Tạo hoặc chọn thư mục</b><small>Chọn đúng tên sản phẩm trong Drive.</small></div></div>
-              <div class="step"><span>2</span><div><b>Điều chỉnh góc máy</b><small>Mở xem màn hình Pixel trước khi thao tác.</small></div></div>
-              <div class="step"><span>3</span><div><b>Chụp hoặc quay</b><small>File được chép vào Drive, kiểm tra và xóa khỏi Pixel.</small></div></div>
-            </div>
-          </aside>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head"><h3>Cấu hình hệ thống & kết nối</h3><p>Thiết lập thời lượng quay video và phương thức kết nối điều khiển Pixel.</p></div>
-          <div class="panel-body">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
-              <div>
-                <label for="duration">Thời lượng video (giây)</label>
-                <input id="duration" type="number" min="1" max="300" value="10">
-                <div class="hint" style="margin-top: 6px;">Giới hạn từ 1 đến 300 giây cho mỗi lần quay.</div>
-              </div>
-              <div>
-                <label for="connMode">Kiểu kết nối Pixel</label>
-                <select id="connMode" onchange="changeConnMode()">
-                  <option value="usb">🔌 Cắm cáp USB vật lý</option>
-                  <option value="wifi">📶 Kết nối Wi-Fi không dây</option>
-                </select>
-
-                <div id="wifiIpGroup" style="margin-top: 12px; display: none;">
-                  <label for="wifiIp">Địa chỉ IP của Pixel (Wi-Fi)</label>
-                  <div class="field-action">
-                    <input id="wifiIp" placeholder="Ví dụ: 192.168.1.18">
-                    <button class="secondary" onclick="detectPixelIp()" title="Dò tìm IP tự động khi đang cắm cáp USB">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                      Quét IP (USB)
-                    </button>
-                    <button onclick="saveConnSettings()">Kết nối Wifi</button>
-                  </div>
-                  <div class="hint" style="margin-top: 6px;">Cắm cáp USB rồi bấm "Quét IP (USB)" để tự động dò IP, sau đó bấm "Kết nối Wifi" và rút cáp ra.</div>
-                </div>
-              </div>
-              <div>
-                <label for="adbPathInput">Đường dẫn thư mục ADB (platform-tools)</label>
-                <div class="field-action" style="margin-bottom: 12px;">
-                  <input id="adbPathInput" placeholder="Ví dụ: E:\platform-tools" style="width: 100%;">
-                </div>
-
-                <label for="scrcpyPathInput" style="display: block;">Đường dẫn thư mục Scrcpy</label>
-                <div class="field-action">
-                  <input id="scrcpyPathInput" placeholder="Ví dụ: E:\scrcpy-win64-v4.0" style="width: 100%;">
-                  <button onclick="saveToolPaths()">Lưu</button>
-                </div>
-                <div class="hint" style="margin-top: 6px;">Điền thư mục chứa file adb.exe và scrcpy.exe rồi bấm "Lưu".</div>
-              </div>
-            </div>
-          </div>
-        </section>
-        </div>
-
-        <aside class="panel work-log">
-          <div class="panel-head"><h3>Nhật ký xử lý</h3><p>Theo dõi từng bước: chụp/quay, kéo file, chép vào Drive và xóa khỏi Pixel.</p></div>
-          <div class="panel-body">
-            <div class="buttons"><button class="ghost" onclick="clearLog()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Xóa log</button></div>
-            <div class="logbox">
-              <div class="loghead"><span>Event stream</span><span id="logCount">0 events</span></div>
-              <div id="log" class="log"></div>
-            </div>
-          </div>
-        </aside>
-        </div>
-      </div>
+    <!-- Hidden legacy fallback elements to preserve JS safety without phone connection -->
+    <div id="legacyFallbacks" style="display: none !important;">
+      <span id="adbMetric"></span>
+      <span id="driveMetric"></span>
+      <span id="selectedMetric"></span>
+      <span id="folderMetric"></span>
+      <span id="busyMetric"></span>
+      <span id="navFolders"></span>
+      <span id="navDrive"></span>
+      <span id="navAdb"></span>
+      <span id="unifiedAdbBadge"></span>
+      <button id="previewBtn"><span id="previewBtnText"></span></button>
+      <button id="btnStop"></button>
+      <button id="updateAppBtn"><span id="updateAppText"></span></button>
+      <select id="connMode"><option value="usb">USB</option><option value="wifi">WiFi</option></select>
+      <input id="wifiIp" value="">
+      <input id="adbPathInput" value="">
+      <input id="scrcpyPathInput" value="">
+      <select id="folderSelect"><option value="">-- Chưa chọn thư mục --</option></select>
+      <select id="shopSelect"><option value="nhathuockh.pharma">nhathuockh.pharma</option><option value="khaihoanpharmacy">khaihoanpharmacy</option></select>
+      <input id="duration" value="10">
+      <div id="captureDashboard" style="display: none !important;"></div>
+      <div id="log"></div>
+      <span id="logCount">0 events</span>
     </div>
 
     <!-- AI Poster Generator Tab (Content Helper Tool) -->
     <div id="posterDashboard" style="display: none; flex-direction: column; width: 100%;">
       <header class="topbar">
-        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showCaptureDashboard()">
+        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showShopeeSyncDashboard()">
           <img src="/favicon.ico" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--brand); box-shadow: 0 0 10px var(--brand-glow); background: #fff;" />
           <div>
             <h2 style="font-size: 19px; font-weight: 800; font-family: var(--font-title); display: flex; align-items: center; gap: 6px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">MCP Shopee Khải Hoàn</h2>
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
-          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
+          <span class="nav-tab nav-tab-poster active" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
-        <div class="actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div class="actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
           <!-- ChatGPT Chrome Debug Status -->
           <div style="display: flex; align-items: center; gap: 6px;">
             <div id="chromeStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
@@ -1593,6 +1418,14 @@ HTML = r"""
               Mở Gemini
             </button>
           </div>
+          <button onclick="toggleTheme()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Chuyển đổi giao diện Sáng/Tối">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Giao diện
+          </button>
+          <button onclick="refresh()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Làm mới trang">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Làm mới
+          </button>
         </div>
       </header>
 
@@ -1775,26 +1608,33 @@ HTML = r"""
     </div>
 
     <!-- Shopee Notion to BigSeller Auto Sync Tab -->
-    <div id="shopeeSyncDashboard" style="display: none; flex-direction: column; width: 100%;">
+    <div id="shopeeSyncDashboard" style="display: flex; flex-direction: column; width: 100%;">
       <header class="topbar">
-        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showCaptureDashboard()">
+        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showShopeeSyncDashboard()">
           <img src="/favicon.ico" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--brand); box-shadow: 0 0 10px var(--brand-glow); background: #fff;" />
           <div>
             <h2 style="font-size: 19px; font-weight: 800; font-family: var(--font-title); display: flex; align-items: center; gap: 6px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">MCP Shopee Khải Hoàn</h2>
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee active" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
-          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
-        <div class="actions" style="display: flex; gap: 12px; align-items: center;">
+        <div class="actions" style="display: flex; gap: 10px; align-items: center;">
           <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
             <span id="shopeeBotStatusText">Bot Telegram: OFFLINE</span>
           </div>
           <button type="button" id="btnToggleShopeeBot" class="md3-btn-primary" onclick="toggleShopeeBot()" style="padding: 6px 12px; font-size: 11px; min-height: 32px; border-radius: 6px;">
             Khởi động Bot
+          </button>
+          <button onclick="toggleTheme()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Chuyển đổi giao diện Sáng/Tối">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Giao diện
+          </button>
+          <button onclick="refresh()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Làm mới trang">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Làm mới
           </button>
         </div>
       </header>
@@ -1822,6 +1662,10 @@ HTML = r"""
                 <option value="Chưa đặt">⚪ Chưa đặt</option>
               </select>
             </div>
+            <button type="button" class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 36px; padding: 0 12px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              Quét Notion &amp; Tạo Thư Mục
+            </button>
             <input type="text" id="shopeeProductSearchInput" oninput="filterShopeeProductsBySearch(this.value)" placeholder="🔍 Tìm kiếm sản phẩm..." style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); box-sizing: border-box;">
           </div>
 
@@ -1983,44 +1827,51 @@ HTML = r"""
       </div><!-- end workspace -->
     </div>
 
-    <!-- Tab 4: Cấu hình hệ thống -->
+    <!-- Tab 3: Cài đặt & Cập nhật -->
     <div id="settingsDashboard" style="display: none; flex-direction: column; width: 100%;">
       <header class="topbar">
-        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showCaptureDashboard()">
+        <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="showShopeeSyncDashboard()">
           <img src="/favicon.ico" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--brand); box-shadow: 0 0 10px var(--brand-glow); background: #fff;" />
           <div>
             <h2 style="font-size: 19px; font-weight: 800; font-family: var(--font-title); display: flex; align-items: center; gap: 6px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">MCP Shopee Khải Hoàn</h2>
           </div>
         </div>
         <div class="nav-tabs">
-          <span class="nav-tab nav-tab-capture" onclick="showCaptureDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Chụp &amp; Quay</span>
           <span class="nav-tab nav-tab-shopee" onclick="showShopeeSyncDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Đồng bộ Shopee</span>
-          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit/Video</span>
-          <span class="nav-tab nav-tab-settings active" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cấu hình hệ thống</span>
+          <span class="nav-tab nav-tab-poster" onclick="showPosterDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>AI Edit / Video</span>
+          <span class="nav-tab nav-tab-settings active" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; gap: 10px; align-items: center;">
-          <button type="button" onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 34px; padding: 0 16px; font-size: 12.5px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <button type="button" onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 32px; padding: 0 14px; font-size: 11.5px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             Lưu cấu hình
+          </button>
+          <button onclick="toggleTheme()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Chuyển đổi giao diện Sáng/Tối">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Giao diện
+          </button>
+          <button onclick="refresh()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Làm mới trang">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Làm mới
           </button>
         </div>
       </header>
 
-      <div class="workspace" style="display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 1100px; margin: 24px auto; padding: 0 20px; box-sizing: border-box;">
+      <div class="workspace" style="display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; box-sizing: border-box;">
         
         <!-- Hidden inputs for complete JS backward compatibility -->
         <input type="hidden" id="shopeeTelegramToken" value="">
         <input type="hidden" id="shopeeManagerChatId" value="">
 
-        <!-- Card 1: Cấu hình Notion & Google Drive & AI -->
+        <!-- Card 1: Cấu hình Kết nối & API -->
         <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
           <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
             <div>
               <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                Cấu hình Kết nối &amp; Dịch vụ
+                Cấu hình Kết nối &amp; API
               </h3>
-              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Thông tin tích hợp Notion API, Google Drive Root Folder và Gemini AI Studio</p>
+              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tích hợp Notion API, Google Drive Root Folder ID và Gemini AI Studio</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <input type="file" id="configFileInput" accept=".txt,.env,.json" style="display: none;" onchange="handleConfigFileUpload(this.files)">
@@ -2068,7 +1919,62 @@ HTML = r"""
           </div>
         </section>
 
-        <!-- Card 2: Cập nhật Hệ thống (Software Update) -->
+        <!-- Card 2: Đường dẫn Thư mục Cục bộ trên Máy tính -->
+        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+          <div class="panel-head" style="padding: 16px 22px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+            <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              Đường dẫn Thư mục Cục bộ trên Máy tính
+            </h3>
+            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Thư mục đồng bộ Google Drive for Desktop và thư mục xuất ảnh / video</p>
+          </div>
+          <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px; padding: 22px;">
+            <div>
+              <label for="driveRoot" class="md3-label">Thư mục Google Drive trên máy tính (Lưu ảnh Shopee)</label>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input id="driveRoot" class="md3-input" value="G:\My Drive\Hình ảnh Shopee" style="flex: 1; font-family: monospace;">
+                <button type="button" class="secondary" onclick="saveDriveRoot()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  Lưu đường dẫn
+                </button>
+              </div>
+              <div class="hint" style="margin-top: 6px;">Đường dẫn thư mục Google Drive đang đồng bộ trên máy tính (ví dụ: G:\My Drive\Hình ảnh Shopee).</div>
+            </div>
+            <div>
+              <label class="md3-label">Thư mục xuất ảnh / video AI</label>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input id="settingsPosterExportDir" class="md3-input" placeholder="Mặc định: Downloads" readonly style="flex: 1; font-family: monospace; background: rgba(255,255,255,0.03);">
+                <button type="button" class="secondary" onclick="browseExportDirectory()" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; cursor: pointer;">
+                  Chọn thư mục...
+                </button>
+              </div>
+              <div class="hint" style="margin-top: 6px;">Thư mục lưu ảnh hoặc video khi chạy AI tạo ảnh.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 3: Giao diện & Tiện ích -->
+        <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+          <div class="panel-head" style="padding: 16px 22px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+            <h3 style="margin: 0; font-family: var(--font-title); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Giao diện &amp; Tiện ích Hệ thống
+            </h3>
+            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tùy chỉnh chủ đề màu sắc và làm mới dữ liệu ứng dụng</p>
+          </div>
+          <div class="panel-body" style="display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 16px; padding: 22px;">
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Chuyển Giao diện Sáng / Tối
+            </button>
+            <button onclick="refresh()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Làm mới toàn bộ trang
+            </button>
+          </div>
+        </section>
+
+        <!-- Card 4: Cập nhật Hệ thống (Software Update) -->
         <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
           <div class="panel-head" style="padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
             <div>
@@ -2273,7 +2179,8 @@ HTML = r"""
 
   function log(v) {
     eventCount++;
-    document.getElementById("logCount").textContent = `${eventCount} events`;
+    const lCount = document.getElementById("logCount");
+    if (lCount) lCount.textContent = `${eventCount} events`;
 
     let isError = false;
     let isSuccess = false;
@@ -2338,9 +2245,9 @@ HTML = r"""
       <pre class="log-text">${escText}</pre>
     </div>`;
 
-    logBox.innerHTML = logItem + logBox.innerHTML;
+    if (logBox) logBox.innerHTML = logItem + logBox.innerHTML;
   }
-  async function clearLog(){try{await fetch("/api/events/clear",{method:"POST"});eventCount=0;lastId=0;logBox.innerHTML="";document.getElementById("logCount").textContent="0 events"}catch(e){console.error(e)}}
+  async function clearLog(){try{await fetch("/api/events/clear",{method:"POST"});eventCount=0;lastId=0;if(logBox)logBox.innerHTML="";const lCount=document.getElementById("logCount");if(lCount)lCount.textContent="0 events"}catch(e){console.error(e)}}
   async function api(path,body){const r=await fetch(path,{method:body?"POST":"GET",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok)throw d;return d}
   async function pull(){const d=await api(`/api/events?after=${lastId}`);for(const e of d.events||[]){lastId=Math.max(lastId,e.id||0);log(e.payload)}}
   function startPoll(){if(!poller){pull().catch(()=>{});poller=setInterval(()=>pull().catch(()=>{}),700)}}
@@ -2415,25 +2322,39 @@ HTML = r"""
   async function stopOperation(){try{log({status:"Đang dừng tất cả tiến trình..."});const d=await api("/api/operation/stop",{});log(d);setBusy(false);await refresh()}catch(e){log(e);setBusy(false);await refresh()}}
   function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
   function render(d){
-    document.getElementById("adbMetric").innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;
-    document.getElementById("driveMetric").innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;
-    document.getElementById("selectedMetric").textContent=d.selected_folder||"Chưa chọn";
-    document.getElementById("folderMetric").textContent=(d.folders||[]).length;
-    document.getElementById("busyMetric").innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;
-    document.getElementById("navFolders").textContent=(d.folders||[]).length;
-    document.getElementById("navDrive").textContent=d.drive_ready?"OK":"Lỗi";
-    document.getElementById("navAdb").textContent=d.adb_device?"OK":"Offline";
+    if (!d) return;
+    const adbM = document.getElementById("adbMetric");
+    if (adbM) adbM.innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;
+    const drvM = document.getElementById("driveMetric");
+    if (drvM) drvM.innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;
+    const selM = document.getElementById("selectedMetric");
+    if (selM) selM.textContent=d.selected_folder||"Chưa chọn";
+    const fldM = document.getElementById("folderMetric");
+    if (fldM) fldM.textContent=(d.folders||[]).length;
+    const bsyM = document.getElementById("busyMetric");
+    if (bsyM) bsyM.innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;
+    const navF = document.getElementById("navFolders");
+    if (navF) navF.textContent=(d.folders||[]).length;
+    const navD = document.getElementById("navDrive");
+    if (navD) navD.textContent=d.drive_ready?"OK":"Lỗi";
+    const navA = document.getElementById("navAdb");
+    if (navA) navA.textContent=d.adb_device?"OK":"Offline";
     const uAdb = document.getElementById("unifiedAdbBadge");
     if (uAdb) {
       uAdb.className = d.adb_device ? "badge ok" : "badge warn";
       uAdb.textContent = d.adb_device ? `Pixel ADB: ${d.adb_device}` : "Pixel ADB: Chưa kết nối";
     }
-    document.getElementById("driveRoot").value=d.drive_root;
-    document.getElementById("connMode").value=d.connection_mode||"usb";
-    document.getElementById("wifiIp").value=d.wifi_ip||"";
-    document.getElementById("adbPathInput").value=d.adb_path||"";
-    document.getElementById("scrcpyPathInput").value=d.scrcpy_path||"";
-    changeConnMode();
+    const dRoot = document.getElementById("driveRoot");
+    if (dRoot) dRoot.value=d.drive_root;
+    const cMode = document.getElementById("connMode");
+    if (cMode) cMode.value=d.connection_mode||"usb";
+    const wIp = document.getElementById("wifiIp");
+    if (wIp) wIp.value=d.wifi_ip||"";
+    const aPath = document.getElementById("adbPathInput");
+    if (aPath) aPath.value=d.adb_path||"";
+    const sPath = document.getElementById("scrcpyPathInput");
+    if (sPath) sPath.value=d.scrcpy_path||"";
+    if (typeof changeConnMode === 'function') changeConnMode();
 
     if (d.shops && d.shops.length > 0) {
       const shopSel = document.getElementById("shopSelect");
@@ -2450,9 +2371,12 @@ HTML = r"""
       }
     }
 
-    const s=document.getElementById("folderSelect"),current=d.selected_folder||s.value;
-    s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+d.folders.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
-    s.value=current;
+    const s=document.getElementById("folderSelect");
+    if (s) {
+      const current=d.selected_folder||s.value;
+      s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+(d.folders||[]).map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+      s.value=current;
+    }
 
     const pb=document.getElementById("previewBtn"),pt=document.getElementById("previewBtnText");
     if(pb&&pt){
@@ -2611,7 +2535,19 @@ HTML = r"""
   async function refresh(){try{render(await api("/api/status"))}catch(e){log(e)}}
   async function scanFolders(){try{render(await api("/api/status"));log({status:"Đã quét lại danh sách thư mục."})}catch(e){log(e)}}
   async function togglePreview(){try{const txt=document.getElementById("previewBtnText").textContent;if(txt==="Đóng xem Pixel"){log(await api("/api/close-preview",{}))}else{log(await api("/api/open-preview",{}))}refresh()}catch(e){log(e)}}
-  async function saveDriveRoot(){try{log(await api("/api/drive-root",{drive_root:document.getElementById("driveRoot").value}));await refresh()}catch(e){log(e)}}
+  async function saveDriveRoot(){
+    try{
+      const dRoot = document.getElementById("driveRoot");
+      if(!dRoot) return;
+      const res = await api("/api/drive-root",{drive_root: dRoot.value.trim()});
+      log(res);
+      alert("Đã lưu đường dẫn Google Drive thành công!");
+      await refresh();
+    }catch(e){
+      log(e);
+      alert("Lỗi lưu đường dẫn Google Drive: " + (e.error || e.message || JSON.stringify(e)));
+    }
+  }
   async function saveToolPaths(){try{const adb=document.getElementById("adbPathInput").value.trim();const scrcpy=document.getElementById("scrcpyPathInput").value.trim();log(await api("/api/pixel/paths",{adb_path:adb,scrcpy_path:scrcpy}));await refresh()}catch(e){log(e)}}
   async function createFolder(){try{const el=document.getElementById("newFolder");if(!el)return;const d=await api("/api/folders",{name:el.value});el.value="";log(d);await refresh()}catch(e){log(e)}}
   async function deleteFolder(){const name=selected();if(!name){log({error:"Hãy chọn thư mục cần xóa."});return}if(!confirm(`Xóa thư mục rỗng "${name}"?`))return;try{log(await api("/api/folders/delete",{name}));await refresh()}catch(e){log(e)}}
@@ -2626,18 +2562,23 @@ HTML = r"""
 
   function showPosterDashboard() {
     updateNavTabs("poster");
-    document.getElementById("captureDashboard").style.display = "none";
-    document.getElementById("shopeeSyncDashboard").style.display = "none";
+    const cap = document.getElementById("captureDashboard");
+    if (cap) cap.style.display = "none";
+    const shop = document.getElementById("shopeeSyncDashboard");
+    if (shop) shop.style.display = "none";
     const sDash = document.getElementById("settingsDashboard");
     if (sDash) sDash.style.display = "none";
-    document.getElementById("posterDashboard").style.display = "flex";
-    // Tải cấu hình OpenAI từ backend lên UI
+    const post = document.getElementById("posterDashboard");
+    if (post) post.style.display = "flex";
     loadOpenAIConfig();
   }
 
   // 0. Thay đổi thư mục lưu ảnh kết quả thủ công (khi tự dán link)
   async function onExportDirChange() {
     await saveOpenAIConfig();
+    const sDir = document.getElementById("settingsPosterExportDir");
+    const pDir = document.getElementById("posterExportDir");
+    if (sDir && pDir) sDir.value = pDir.value;
     if (typeof loadDownloadedImages === 'function') {
       loadDownloadedImages();
     }
@@ -2802,22 +2743,20 @@ HTML = r"""
   }
 
   function showCaptureDashboard() {
-    updateNavTabs("capture");
-    document.getElementById("posterDashboard").style.display = "none";
-    document.getElementById("shopeeSyncDashboard").style.display = "none";
-    const sDash = document.getElementById("settingsDashboard");
-    if (sDash) sDash.style.display = "none";
-    document.getElementById("captureDashboard").style.display = "block";
+    showShopeeSyncDashboard();
   }
 
   let shopeeSyncInitialized = false;
   function showShopeeSyncDashboard() {
     updateNavTabs("shopee");
-    document.getElementById("captureDashboard").style.display = "none";
-    document.getElementById("posterDashboard").style.display = "none";
+    const cap = document.getElementById("captureDashboard");
+    if (cap) cap.style.display = "none";
+    const post = document.getElementById("posterDashboard");
+    if (post) post.style.display = "none";
     const sDash = document.getElementById("settingsDashboard");
     if (sDash) sDash.style.display = "none";
-    document.getElementById("shopeeSyncDashboard").style.display = "flex";
+    const shop = document.getElementById("shopeeSyncDashboard");
+    if (shop) shop.style.display = "flex";
     loadShopeeExcelList();
     checkShopeeBotStatus();
     loadPendingProducts();
@@ -2831,11 +2770,17 @@ HTML = r"""
 
   function showSettingsDashboard() {
     updateNavTabs("settings");
-    document.getElementById("captureDashboard").style.display = "none";
-    document.getElementById("posterDashboard").style.display = "none";
-    document.getElementById("shopeeSyncDashboard").style.display = "none";
+    const cap = document.getElementById("captureDashboard");
+    if (cap) cap.style.display = "none";
+    const post = document.getElementById("posterDashboard");
+    if (post) post.style.display = "none";
+    const shop = document.getElementById("shopeeSyncDashboard");
+    if (shop) shop.style.display = "none";
     const sDash = document.getElementById("settingsDashboard");
     if (sDash) sDash.style.display = "flex";
+    const pExp = document.getElementById("posterExportDir");
+    const sExp = document.getElementById("settingsPosterExportDir");
+    if (pExp && sExp) sExp.value = pExp.value;
     loadShopeeConfig();
   }
 
@@ -5025,6 +4970,10 @@ HTML = r"""
       if (dirEl && d.export_dir) {
         dirEl.value = d.export_dir;
       }
+      const sDir = document.getElementById("settingsPosterExportDir");
+      if (sDir && d.export_dir) {
+        sDir.value = d.export_dir;
+      }
     } catch(e) {
       console.error(e);
     }
@@ -5059,6 +5008,10 @@ HTML = r"""
         const dirEl = document.getElementById("posterExportDir");
         if (dirEl) {
           dirEl.value = d.directory;
+        }
+        const sDir = document.getElementById("settingsPosterExportDir");
+        if (sDir) {
+          sDir.value = d.directory;
         }
         await saveOpenAIConfig();
         loadDownloadedImages();
@@ -6094,6 +6047,7 @@ HTML = r"""
 
   initTheme();
   refresh();
+  showShopeeSyncDashboard();
 
   // Khoi tao Content Helper Tool
   loadOpenAIConfig();
