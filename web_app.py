@@ -2250,12 +2250,15 @@ HTML = r"""
   }
 
   function changeConnMode() {
-    const mode = document.getElementById("connMode").value;
+    const connEl = document.getElementById("connMode");
+    const mode = connEl ? connEl.value : "usb";
     const ipGroup = document.getElementById("wifiIpGroup");
-    if (mode === "wifi") {
-      ipGroup.style.display = "block";
-    } else {
-      ipGroup.style.display = "none";
+    if (ipGroup) {
+      if (mode === "wifi") {
+        ipGroup.style.display = "block";
+      } else {
+        ipGroup.style.display = "none";
+      }
     }
   }
 
@@ -2437,71 +2440,92 @@ HTML = r"""
 
   function selected(){return document.getElementById("folderSelect").value}
   function requireFolder(){if(!selected()){log({error:"Hãy chọn hoặc tạo thư mục sản phẩm trước khi chụp/quay."});return false}return true}
-  function setBusy(v){busy=v;document.querySelectorAll("button").forEach(b=>{if(b.id!=="btnStop"&&!b.classList.contains("btn-stop"))b.disabled=v});document.getElementById("themeToggleBtn").disabled=false;if(document.querySelector("#wifiIpGroup button")) document.querySelectorAll("#wifiIpGroup button").forEach(b=>b.disabled=v);}
+  function setBusy(v){
+    busy=v;
+    document.querySelectorAll("button").forEach(b=>{
+      if(b.id!=="btnStop"&&!b.classList.contains("btn-stop"))b.disabled=v;
+    });
+    const tBtn = document.getElementById("themeToggleBtn");
+    if (tBtn) tBtn.disabled = false;
+    if(document.querySelector("#wifiIpGroup button")) {
+      document.querySelectorAll("#wifiIpGroup button").forEach(b=>b.disabled=v);
+    }
+  }
   async function stopOperation(){try{log({status:"Đang dừng tất cả tiến trình..."});const d=await api("/api/operation/stop",{});log(d);setBusy(false);await refresh()}catch(e){log(e);setBusy(false);await refresh()}}
   function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
   function render(d){
     if (!d) return;
-    const adbM = document.getElementById("adbMetric");
-    if (adbM) adbM.innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;
-    const drvM = document.getElementById("driveMetric");
-    if (drvM) drvM.innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;
-    const selM = document.getElementById("selectedMetric");
-    if (selM) selM.textContent=d.selected_folder||"Chưa chọn";
-    const fldM = document.getElementById("folderMetric");
-    if (fldM) fldM.textContent=(d.folders||[]).length;
-    const bsyM = document.getElementById("busyMetric");
-    if (bsyM) bsyM.innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;
-    const navF = document.getElementById("navFolders");
-    if (navF) navF.textContent=(d.folders||[]).length;
-    const navD = document.getElementById("navDrive");
-    if (navD) navD.textContent=d.drive_ready?"OK":"Lỗi";
-    const navA = document.getElementById("navAdb");
-    if (navA) navA.textContent=d.adb_device?"OK":"Offline";
-    const uAdb = document.getElementById("unifiedAdbBadge");
-    if (uAdb) {
-      uAdb.className = d.adb_device ? "badge ok" : "badge warn";
-      uAdb.textContent = d.adb_device ? `Pixel ADB: ${d.adb_device}` : "Pixel ADB: Chưa kết nối";
-    }
-    const dRoot = document.getElementById("driveRoot");
-    if (dRoot) dRoot.value=d.drive_root;
-    const cMode = document.getElementById("connMode");
-    if (cMode) cMode.value=d.connection_mode||"usb";
-    const wIp = document.getElementById("wifiIp");
-    if (wIp) wIp.value=d.wifi_ip||"";
-    const aPath = document.getElementById("adbPathInput");
-    if (aPath) aPath.value=d.adb_path||"";
-    const sPath = document.getElementById("scrcpyPathInput");
-    if (sPath) sPath.value=d.scrcpy_path||"";
-    if (typeof changeConnMode === 'function') changeConnMode();
-
-    if (d.shops && d.shops.length > 0) {
-      const shopSel = document.getElementById("shopSelect");
-      if (shopSel) {
-        const curShop = d.selected_shop || shopSel.value;
-        shopSel.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
-        shopSel.value = curShop;
+    try {
+      const adbM = document.getElementById("adbMetric");
+      if (adbM) adbM.innerHTML=d.adb_device?`<span class="badge ok">${d.adb_device}</span>`:`<span class="badge warn">Chưa thấy Pixel</span>`;
+      const drvM = document.getElementById("driveMetric");
+      if (drvM) drvM.innerHTML=d.drive_ready?`<span class="badge ok">Đã kết nối</span>`:`<span class="badge warn">Không tìm thấy</span>`;
+      const selM = document.getElementById("selectedMetric");
+      if (selM) selM.textContent=d.selected_folder||"Chưa chọn";
+      const fldM = document.getElementById("folderMetric");
+      if (fldM) fldM.textContent=(d.folders||[]).length;
+      const bsyM = document.getElementById("busyMetric");
+      if (bsyM) bsyM.innerHTML=d.operation_busy?`<span class="badge warn">Đang xử lý</span>`:`<span class="badge ok">Sẵn sàng</span>`;
+      const navF = document.getElementById("navFolders");
+      if (navF) navF.textContent=(d.folders||[]).length;
+      const navD = document.getElementById("navDrive");
+      if (navD) navD.textContent=d.drive_ready?"OK":"Lỗi";
+      const navA = document.getElementById("navAdb");
+      if (navA) navA.textContent=d.adb_device?"OK":"Offline";
+      const uAdb = document.getElementById("unifiedAdbBadge");
+      if (uAdb) {
+        uAdb.className = d.adb_device ? "badge ok" : "badge warn";
+        uAdb.textContent = d.adb_device ? `Pixel ADB: ${d.adb_device}` : "Pixel ADB: Chưa kết nối";
       }
-      const modalShop = document.getElementById("modalShopSelect");
-      if (modalShop) {
-        const curMShop = d.selected_shop || modalShop.value;
-        modalShop.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
-        modalShop.value = curMShop;
+      const dRoot = document.getElementById("driveRoot");
+      if (dRoot) dRoot.value=d.drive_root;
+      const cMode = document.getElementById("connMode");
+      if (cMode) cMode.value=d.connection_mode||"usb";
+      const wIp = document.getElementById("wifiIp");
+      if (wIp) wIp.value=d.wifi_ip||"";
+      const aPath = document.getElementById("adbPathInput");
+      if (aPath) aPath.value=d.adb_path||"";
+      const sPath = document.getElementById("scrcpyPathInput");
+      if (sPath) sPath.value=d.scrcpy_path||"";
+    } catch(err) {}
+
+    try {
+      if (typeof changeConnMode === 'function') changeConnMode();
+    } catch(err) {}
+
+    try {
+      if (d.shops && d.shops.length > 0) {
+        const shopSel = document.getElementById("shopSelect");
+        if (shopSel) {
+          const curShop = d.selected_shop || shopSel.value;
+          shopSel.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+          shopSel.value = curShop;
+        }
+        const modalShop = document.getElementById("modalShopSelect");
+        if (modalShop) {
+          const curMShop = d.selected_shop || modalShop.value;
+          modalShop.innerHTML = d.shops.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+          modalShop.value = curMShop;
+        }
       }
-    }
+    } catch(err) {}
 
-    const s=document.getElementById("folderSelect");
-    if (s) {
-      const current=d.selected_folder||s.value;
-      s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+(d.folders||[]).map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
-      s.value=current;
-    }
+    try {
+      const s=document.getElementById("folderSelect");
+      if (s) {
+        const current=d.selected_folder||s.value;
+        s.innerHTML='<option value="">-- Chưa chọn thư mục --</option>'+(d.folders||[]).map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+        s.value=current;
+      }
+    } catch(err) {}
 
-    const pb=document.getElementById("previewBtn"),pt=document.getElementById("previewBtnText");
-    if(pb&&pt){
-      if(d.scrcpy_running){pb.classList.add("pulse-warn");pt.textContent="Đóng xem Pixel"}
-      else{pb.classList.remove("pulse-warn");pt.textContent="Xem Pixel"}
-    }
+    try {
+      const pb=document.getElementById("previewBtn"),pt=document.getElementById("previewBtnText");
+      if(pb&&pt){
+        if(d.scrcpy_running){pb.classList.add("pulse-warn");pt.textContent="Đóng xem Pixel"}
+        else{pb.classList.remove("pulse-warn");pt.textContent="Xem Pixel"}
+      }
+    } catch(err) {}
   }
 
   async function changeShop(){
