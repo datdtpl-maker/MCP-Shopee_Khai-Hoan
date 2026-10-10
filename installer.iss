@@ -37,7 +37,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "dist\MCPShopee_build\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
+; Cai dat file cau hinh he thong: chi copy neu may dich chua co (khong ghi de lam mat cau hinh cua nguoi dung khi cap nhat)
+Source: "dist\MCPShopee_build\config.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "dist\MCPShopee_build\content_prompts.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "dist\MCPShopee_build\shopee_sync\.env"; DestDir: "{app}\shopee_sync"; Flags: onlyifdoesntexist
+Source: "dist\MCPShopee_build\shopee_sync\.env"; DestDir: "{app}"; DestName: ".env"; Flags: onlyifdoesntexist
+; Cai dat toan bo tep thuc thi va tai nguyen (loai tru cac file config da khai bao o tren de tranh ghi de)
+Source: "dist\MCPShopee_build\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs; Excludes: "config.json,content_prompts.json,.env"
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

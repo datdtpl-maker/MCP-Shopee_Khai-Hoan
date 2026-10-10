@@ -63,6 +63,27 @@ if not prompts_path.exists():
         except Exception as e:
             print(f"Loi khi sao chep file content_prompts.json: {e}")
 
+# Tu dong khoi tao shopee_sync/.env va .env tu bundle neu chua ton tai o ngoai
+for env_dest in [ROOT / "shopee_sync" / ".env", ROOT / ".env"]:
+    if not env_dest.exists():
+        try:
+            env_dest.parent.mkdir(parents=True, exist_ok=True)
+            bundled_env = BUNDLE_DIR / "shopee_sync" / ".env"
+            if bundled_env.exists():
+                shutil.copy(bundled_env, env_dest)
+                print(f"Da tu dong khoi tao .env tu bundle tai: {env_dest}")
+        except Exception as e:
+            print(f"Loi khi sao chep file .env tu bundle: {e}")
+
+# Tu dong nap bien moi truong tu .env
+try:
+    from dotenv import load_dotenv
+    for ep in [ROOT / "shopee_sync" / ".env", ROOT / ".env", BUNDLE_DIR / "shopee_sync" / ".env"]:
+        if ep.exists():
+            load_dotenv(ep, override=False)
+except Exception:
+    pass
+
 chrome_bat_path = ROOT / "run_debug_chrome.bat"
 if not chrome_bat_path.exists():
     try:
@@ -10765,7 +10786,13 @@ import sys
 import logging
 
 # Thêm đường dẫn shopee_sync vào sys.path để có thể import
-SHOPEE_SYNC_ROOT = BUNDLE_DIR / "shopee_sync"
+if (ROOT / "shopee_sync").exists():
+    SHOPEE_SYNC_ROOT = ROOT / "shopee_sync"
+elif (BUNDLE_DIR / "shopee_sync").exists():
+    SHOPEE_SYNC_ROOT = BUNDLE_DIR / "shopee_sync"
+else:
+    SHOPEE_SYNC_ROOT = ROOT / "shopee_sync"
+
 if str(SHOPEE_SYNC_ROOT) not in sys.path:
     sys.path.append(str(SHOPEE_SYNC_ROOT))
 
@@ -10831,25 +10858,41 @@ def resolve_shopee_sync_export_dir(config: dict, selected_drive_path: str) -> st
 @app.get("/api/shopee/config")
 def api_get_shopee_config():
     try:
-        env_file = SHOPEE_SYNC_ROOT / ".env"
+        # Danh sách các vị trí tìm kiếm file .env
+        env_candidates = [
+            ROOT / "shopee_sync" / ".env",
+            ROOT / ".env",
+            SHOPEE_SYNC_ROOT / ".env",
+            BUNDLE_DIR / "shopee_sync" / ".env",
+        ]
+        env_file = None
+        for cand in env_candidates:
+            if cand.exists():
+                env_file = cand
+                break
+
+        # Gia tri mac dinh doc tu bien moi truong he thong
         config_data = {
-            "NOTION_TOKEN": "",
-            "NOTION_DATABASE_ID": "",
-            "TELEGRAM_BOT_TOKEN": "",
-            "MANAGER_CHAT_ID": "",
-            "GEMINI_API_KEY": "",
+            "NOTION_TOKEN": os.getenv("NOTION_TOKEN", ""),
+            "NOTION_DATABASE_ID": os.getenv("NOTION_DATABASE_ID", "ca055a7742824b9598abde7a7686d144"),
+            "TELEGRAM_BOT_TOKEN": os.getenv("TELEGRAM_BOT_TOKEN", ""),
+            "MANAGER_CHAT_ID": os.getenv("MANAGER_CHAT_ID", ""),
+            "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY", ""),
             "PARTNER_ID": "0",
             "PARTNER_KEY": "",
             "SHOP_ID": "0",
             "MOCK_MODE": "True",
-            "DRIVE_ROOT_FOLDER_ID": ""
+            "DRIVE_ROOT_FOLDER_ID": os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ")
         }
-        if env_file.exists():
+        if env_file and env_file.exists():
             content = env_file.read_text(encoding="utf-8")
             for line in content.splitlines():
                 if "=" in line and not line.strip().startswith("#"):
                     k, v = line.split("=", 1)
-                    config_data[k.strip()] = v.strip()
+                    k_str = k.strip()
+                    v_str = v.strip()
+                    if v_str or k_str not in config_data:
+                        config_data[k_str] = v_str
         return jsonify(config_data)
     except Exception as exc:
         return error_response(exc, 400)
@@ -10858,10 +10901,13 @@ def api_get_shopee_config():
 def api_save_shopee_config():
     try:
         payload = request.json or {}
-        env_file = SHOPEE_SYNC_ROOT / ".env"
 
         # Tạo lại nội dung file .env
         lines = []
+        lines.append("# ==========================================")
+        lines.append("# CẤU HÌNH HỆ THỐNG SHOPEE SYNC & MCP SHOPEE")
+        lines.append("# ==========================================")
+        lines.append("")
         lines.append("# Cấu hình Shopee Open Platform (BigSeller Sync)")
         lines.append(f"PARTNER_ID={payload.get('PARTNER_ID', '0')}")
         lines.append(f"PARTNER_KEY={payload.get('PARTNER_KEY', '')}")
@@ -10874,16 +10920,34 @@ def api_save_shopee_config():
         lines.append("# Cấu hình Telegram Bot và Notion")
         lines.append(f"TELEGRAM_BOT_TOKEN={payload.get('TELEGRAM_BOT_TOKEN', '')}")
         lines.append(f"NOTION_TOKEN={payload.get('NOTION_TOKEN', '')}")
-        lines.append(f"NOTION_DATABASE_ID={payload.get('NOTION_DATABASE_ID', '')}")
+        lines.append(f"NOTION_DATABASE_ID={payload.get('NOTION_DATABASE_ID', 'ca055a7742824b9598abde7a7686d144')}")
+        lines.append(f"NOTION_DATABASE_ID_KHAIHOAN={payload.get('NOTION_DATABASE_ID_KHAIHOAN', 'a1daa38950504cb5849bbdfde6e547ff')}")
         lines.append(f"GEMINI_API_KEY={payload.get('GEMINI_API_KEY', '')}")
-        lines.append(f"MANAGER_CHAT_ID={payload.get('MANAGER_CHAT_ID', '')}")
-        lines.append(f"DRIVE_ROOT_FOLDER_ID={payload.get('DRIVE_ROOT_FOLDER_ID', '')}")
+        lines.append(f"MANAGER_CHAT_ID={payload.get('MANAGER_CHAT_ID', '6295080195')}")
+        lines.append(f"DRIVE_ROOT_FOLDER_ID={payload.get('DRIVE_ROOT_FOLDER_ID', '1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ')}")
+        lines.append("DRIVE_ROOT_DIR=G:\\My Drive\\Hình ảnh Shopee")
 
-        env_file.write_text("\n".join(lines), encoding="utf-8")
+        content_str = "\n".join(lines)
+
+        # Ghi đồng bộ vào tất cả các vị trí để đảm bảo mọi module đều đọc được
+        target_paths = [
+            ROOT / "shopee_sync" / ".env",
+            ROOT / ".env",
+            SHOPEE_SYNC_ROOT / ".env"
+        ]
+        for target_env in target_paths:
+            try:
+                target_env.parent.mkdir(parents=True, exist_ok=True)
+                target_env.write_text(content_str, encoding="utf-8")
+            except Exception:
+                pass
 
         # Nạp lại env cho các luồng hiện tại bằng cách gọi load_dotenv
         from dotenv import load_dotenv
-        load_dotenv(env_file, override=True)
+        primary_env = ROOT / "shopee_sync" / ".env"
+        if not primary_env.exists():
+            primary_env = ROOT / ".env"
+        load_dotenv(primary_env, override=True)
 
         return jsonify({"success": True, "message": "Đã lưu cấu hình Notion & Telegram thành công!"})
     except Exception as exc:

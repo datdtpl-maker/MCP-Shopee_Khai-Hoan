@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('config.example.json', '.'), ('content_prompts.json', '.'), ('run_debug_chrome.bat', '.'), ('favicon.ico', '.'), ('app_icon.ico', '.'), ('shopee_sync', 'shopee_sync')]
+datas = [('config.json', '.'), ('config.example.json', '.'), ('.env', '.'), ('content_prompts.json', '.'), ('run_debug_chrome.bat', '.'), ('favicon.ico', '.'), ('app_icon.ico', '.'), ('shopee_sync', 'shopee_sync')]
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('playwright')
