@@ -9160,27 +9160,69 @@ def run_chatgpt_automation_thread(image_path: str | None, prompt_text: str, expo
             if files_to_upload:
                 desc = "ảnh sản phẩm" if len(files_to_upload) == 1 else "ảnh sản phẩm và ảnh mẫu"
                 add_event({"step": "chatgpt_automation", "message": f"Đang upload {desc} lên ChatGPT..."})
-                file_input = page.query_selector('input[type="file"]')
+                
+                # ChatGPT có nhiều input[type="file"] ẩn (ví dụ: 'Take a photo' đơn tệp vs 'Attach photos or videos' đa tệp)
+                # Cần ưu tiên chọn input hỗ trợ multiple và nhận image/*
+                candidate_selectors = [
+                    'input[type="file"][multiple][accept*="image"]',
+                    'input[type="file"][multiple]',
+                    'input[type="file"]:not([capture])',
+                    'input[type="file"]'
+                ]
+                
+                file_input = None
+                for sel in candidate_selectors:
+                    try:
+                        cand = page.query_selector(sel)
+                        if cand:
+                            file_input = cand
+                            break
+                    except Exception:
+                        pass
+                
                 if file_input:
-                    file_input.set_input_files(files_to_upload)
-                    # Chờ tối đa 60 giây cho tệp tải lên xong (đợi nút Send sẵn sàng/enabled)
-                    add_event({"step": "chatgpt_automation", "message": "Đang chờ tải tệp lên hoàn tất (đợi nút Gửi sẵn sàng)..."})
-                    upload_success = False
-                    for i in range(60):
-                        time.sleep(1.0)
-                        for sel in send_selectors:
+                    uploaded_ok = False
+                    try:
+                        # Đảm bảo thuộc tính multiple được bật để Playwright không chặn khi upload từ 2 file trở lên
+                        if len(files_to_upload) > 1:
                             try:
-                                btn = page.query_selector(sel)
-                                if btn and btn.is_enabled():
-                                    upload_success = True
-                                    break
+                                page.evaluate('el => el.setAttribute("multiple", "")', file_input)
                             except Exception:
                                 pass
-                        if upload_success:
-                            add_event({"step": "chatgpt_automation", "message": f"Tệp đã tải lên hoàn tất sau {i+1} giây."})
-                            break
-                    if not upload_success:
-                        add_event({"step": "chatgpt_automation", "message": "Cảnh báo: Quá thời gian chờ tải tệp lên, vẫn tiến hành nhập prompt..."})
+                        file_input.set_input_files(files_to_upload)
+                        uploaded_ok = True
+                    except Exception as e_upload_multi:
+                        print(f"[ChatGPT Auto] Upload chùm gặp lỗi: {e_upload_multi}, chuyển sang upload từng file tuần tự...")
+                        # Fallback: Upload từng file một
+                        for f_item in files_to_upload:
+                            try:
+                                inp = page.query_selector('input[type="file"][multiple][accept*="image"]') or page.query_selector('input[type="file"]')
+                                if inp:
+                                    inp.set_input_files(f_item)
+                                    uploaded_ok = True
+                                    time.sleep(1.0)
+                            except Exception as e_single:
+                                print(f"[ChatGPT Auto] Lỗi khi upload file {f_item}: {e_single}")
+
+                    if uploaded_ok:
+                        # Chờ tối đa 60 giây cho tệp tải lên xong (đợi nút Send sẵn sàng/enabled)
+                        add_event({"step": "chatgpt_automation", "message": "Đang chờ tải tệp lên hoàn tất (đợi nút Gửi sẵn sàng)..."})
+                        upload_success = False
+                        for i in range(60):
+                            time.sleep(1.0)
+                            for sel in send_selectors:
+                                try:
+                                    btn = page.query_selector(sel)
+                                    if btn and btn.is_enabled():
+                                        upload_success = True
+                                        break
+                                except Exception:
+                                    pass
+                            if upload_success:
+                                add_event({"step": "chatgpt_automation", "message": f"Tệp đã tải lên hoàn tất sau {i+1} giây."})
+                                break
+                        if not upload_success:
+                            add_event({"step": "chatgpt_automation", "message": "Cảnh báo: Quá thời gian chờ tải tệp lên, vẫn tiến hành nhập prompt..."})
                 else:
                     add_event({"step": "chatgpt_automation", "message": "Cảnh báo: Không tìm thấy input tải file của ChatGPT."})
 
