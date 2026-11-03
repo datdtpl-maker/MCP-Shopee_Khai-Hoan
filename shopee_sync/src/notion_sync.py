@@ -177,6 +177,28 @@ def parse_insight_mentions(rich_text_list: list) -> List[Dict[str, str]]:
     return results
 
 
+def extract_notion_title(prop_or_list: Any, default: str = "") -> str:
+    """Trích xuất toàn bộ text từ Notion title/rich_text, không bao giờ bị cắt cụt khi có dấu chấm hay phân mảnh rich_text."""
+    if not prop_or_list:
+        return default
+    if isinstance(prop_or_list, list):
+        text = "".join(str(t.get("plain_text", "")) for t in prop_or_list if isinstance(t, dict)).strip()
+        return text or default
+    if isinstance(prop_or_list, dict):
+        p_type = prop_or_list.get("type", "")
+        if p_type in {"title", "rich_text"}:
+            items = prop_or_list.get(p_type, [])
+            text = "".join(str(t.get("plain_text", "")) for t in items if isinstance(t, dict)).strip()
+            return text or default
+        if "title" in prop_or_list:
+            text = "".join(str(t.get("plain_text", "")) for t in prop_or_list["title"] if isinstance(t, dict)).strip()
+            return text or default
+        if "rich_text" in prop_or_list:
+            text = "".join(str(t.get("plain_text", "")) for t in prop_or_list["rich_text"] if isinstance(t, dict)).strip()
+            return text or default
+    return default
+
+
 def _normalize_page_id(page_id: Optional[str]) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", str(page_id or "")).lower()
 
@@ -223,11 +245,11 @@ def find_local_product_folder(drive_root_path: Path, product_title: str) -> Opti
     prefix_matches = []
     
     # Phân biệt thư mục gốc (chứa các shop) và thư mục shop con (chứa trực tiếp các sản phẩm)
-    KNOWN_SHOPS = {"nhathuockh.pharma", "khaihoanpharmacy", "sản phẩm thay thế", "san pham thay the"}
+    KNOWN_SHOPS = {"dermapharm", "dermaskin86", "sản phẩm thay thế", "san pham thay the"}
     is_shop_dir = (
         drive_root_path.name.lower() in KNOWN_SHOPS
-        or ".pharma" in drive_root_path.name.lower()
-        or "pharmacy" in drive_root_path.name.lower()
+        or "dermapharm" in drive_root_path.name.lower()
+        or "dermaskin" in drive_root_path.name.lower()
     )
     has_shop_children = False
     if not is_shop_dir:
@@ -368,8 +390,7 @@ def select_products_for_export(
             target_was_found = True
 
         properties = page.get("properties", {})
-        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-        title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        title = extract_notion_title(properties.get("Tên sản phẩm", {}))
         if not title:
             continue
 
@@ -500,9 +521,7 @@ def fetch_insight_page_content(notion_client, page_id: str) -> Tuple[str, str, s
     title = "Sản phẩm không tên"
     for prop_name, prop_val in properties.items():
         if prop_val.get("type") == "title":
-            title_list = prop_val.get("title", [])
-            if title_list:
-                title = title_list[0].get("plain_text", "").strip()
+            title = extract_notion_title(prop_val, "Sản phẩm không tên")
             break
             
     # Lấy thuộc tính Link hình / Link Drive bộ ảnh
@@ -652,14 +671,11 @@ def adapt_insight_library_product(
             return None
 
         # 1. Lấy tên sản phẩm từ Shopee Insight Library
-        title_list = props.get("Tên post Shopee", {}).get("title", [])
-        insight_title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        insight_title = extract_notion_title(props.get("Tên post Shopee", {}))
         if not insight_title:
             for pv in props.values():
                 if pv.get("type") == "title":
-                    tl = pv.get("title", [])
-                    if tl:
-                        insight_title = tl[0].get("plain_text", "").strip()
+                    insight_title = extract_notion_title(pv)
                     break
 
         drive_url = override_drive_url if override_drive_url else (
@@ -722,10 +738,10 @@ def adapt_insight_library_product(
 
         detected_shop = master_page.get("shop", "") if master_page else ""
         if not detected_shop:
-            if "02441166322448d9b596aea64410bb06" in parent_db or "af2820ea" in parent_db or "a1daa389" in parent_db:
-                detected_shop = "khaihoanpharmacy"
+            if "87208694" in parent_db or "a3289a37" in parent_db or "dermaskin" in parent_db:
+                detected_shop = "dermaskin86"
             else:
-                detected_shop = "nhathuockh.pharma"
+                detected_shop = "dermapharm"
 
         adapted_page = {
             "id": target_page_id,
@@ -785,10 +801,10 @@ def sync_notion_to_bigseller_excel(
         
     notion = Client(auth=token)
     
-    # 1. Tự động lấy danh sách sản phẩm từ các Master DB của các Shop (nhathuockh.pharma & khaihoanpharmacy)
+    # 1. Tự động lấy danh sách sản phẩm từ các Master DB của các Shop (dermapharm & dermaskin86)
     master_db_configs = [
-        ("nhathuockh.pharma", page_id),
-        ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "af2820eaa1594d8ca928da36a0f10e48")
+        ("dermapharm", page_id or "d0b610c235304b82a5c91a660351c56b"),
+        ("dermaskin86", os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e")
     ]
     records = []
     for s_name, m_db_id in master_db_configs:
@@ -823,10 +839,10 @@ def sync_notion_to_bigseller_excel(
                 direct_page = call_notion_with_retry(notion.pages.retrieve, page_id=target_page_id)
                 if direct_page:
                     p_db = direct_page.get("parent", {}).get("database_id", "").replace("-", "")
-                    if "02441166322448d9b596aea64410bb06" in p_db or "af2820ea" in p_db or "a1daa389" in p_db:
-                        direct_page["shop"] = "khaihoanpharmacy"
+                    if "87208694" in p_db or "a3289a37" in p_db or "dermaskin" in p_db:
+                        direct_page["shop"] = "dermaskin86"
                     else:
-                        direct_page["shop"] = "nhathuockh.pharma"
+                        direct_page["shop"] = "dermapharm"
                     records.append(direct_page)
             except Exception as e:
                 logger.warning(f"Không thể đọc trực tiếp page ID {target_page_id}: {e}")
@@ -880,8 +896,7 @@ def sync_notion_to_bigseller_excel(
         properties = page.get("properties", {})
         
         # Lấy tên sản phẩm
-        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-        title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
+        title = extract_notion_title(properties.get("Tên sản phẩm", {}), "Sản phẩm không tên")
         
         drive_url = override_drive_url if override_drive_url else (
             extract_property_url(properties.get("Media sản phẩm")) or
@@ -931,20 +946,20 @@ def sync_notion_to_bigseller_excel(
         shop_hint = None
         if drive_url:
             low_url = drive_url.lower()
-            if "khaihoan" in low_url or "derma" in low_url:
-                shop_hint = "khaihoanpharmacy"
-            elif "nhathuockh" in low_url or "nhathuoc" in low_url or "pharma" in low_url:
-                shop_hint = "nhathuockhpharma"
+            if "dermaskin" in low_url or "skin86" in low_url:
+                shop_hint = "dermaskin86"
+            elif "dermapharm" in low_url or "pharma" in low_url:
+                shop_hint = "dermapharm"
 
         if not shop_hint:
             shop_val = page.get("shop", "")
             if not shop_val and page.get("master_page"):
                 shop_val = page["master_page"].get("shop", "")
             if shop_val:
-                if "khaihoan" in shop_val.lower() or "derma" in shop_val.lower():
-                    shop_hint = "khaihoanpharmacy"
-                elif "nhathuockh" in shop_val.lower() or "nhathuoc" in shop_val.lower() or "pharma" in shop_val.lower():
-                    shop_hint = "nhathuockhpharma"
+                if "dermaskin" in shop_val.lower() or "skin86" in shop_val.lower():
+                    shop_hint = "dermaskin86"
+                elif "dermapharm" in shop_val.lower() or "pharma" in shop_val.lower():
+                    shop_hint = "dermapharm"
 
         if drive_url:
             if "drive.google.com" in drive_url:
@@ -1065,9 +1080,7 @@ def sync_notion_to_bigseller_excel(
                     rel_title = ""
                     for p_val in rel_props.values():
                         if p_val.get("type") == "title":
-                            t_list = p_val.get("title", [])
-                            if t_list:
-                                rel_title = t_list[0].get("plain_text", "").strip()
+                            rel_title = extract_notion_title(p_val)
                             break
 
                     # Kiểm tra xem rel_page này có relation "Danh sách Insight" trỏ tới các insight con không
@@ -1082,9 +1095,7 @@ def sync_notion_to_bigseller_excel(
                                 sub_title = ""
                                 for sp_val in sub_props.values():
                                     if sp_val.get("type") == "title":
-                                        st_list = sp_val.get("title", [])
-                                        if st_list:
-                                            sub_title = st_list[0].get("plain_text", "").strip()
+                                        sub_title = extract_notion_title(sp_val)
                                         break
                                 clean_sub_title = sub_title.replace("|", "-").strip()
                                 insight_items.append({
@@ -1116,9 +1127,7 @@ def sync_notion_to_bigseller_excel(
                         rel_title = ""
                         for p_val in rel_props.values():
                             if p_val.get("type") == "title":
-                                t_list = p_val.get("title", [])
-                                if t_list:
-                                    rel_title = t_list[0].get("plain_text", "").strip()
+                                rel_title = extract_notion_title(p_val)
                                 break
                         clean_title = rel_title.replace("|", "-").strip()
                         insight_items.append({
@@ -1475,10 +1484,7 @@ def sync_notion_to_bigseller_excel(
                     selected_local_folder = candidate
 
             for p_page_dict in pending_products:
-                p_title = ""
-                t_list = p_page_dict.get("properties", {}).get("Tên sản phẩm", {}).get("title", [])
-                if t_list:
-                    p_title = t_list[0].get("plain_text", "").strip()
+                p_title = extract_notion_title(p_page_dict.get("properties", {}).get("Tên sản phẩm", {}))
                 p_orig_title = p_page_dict.get("original_insight_title", "")
 
                 matched_folder = selected_local_folder
@@ -1579,8 +1585,7 @@ def check_pending_products() -> List[Dict[str, Any]]:
             it_status = properties.get("Trạng thái đăng bài shopee", {}).get("checkbox", False)
             
             # Lấy tên sản phẩm
-            title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            title = extract_notion_title(properties.get("Tên sản phẩm", {}))
             
             # Điều kiện: Tên sản phẩm không trống, Bài viết = True, Trạng thái đăng bài shopee = False
             if title and bai_viet and not it_status:
@@ -1625,8 +1630,8 @@ def sync_only_image_links_to_notion(
     
     # 1. Quét danh sách bản ghi từ Master DB của cả 2 Shop
     master_db_configs = [
-        ("nhathuockh.pharma", page_id),
-        ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "af2820eaa1594d8ca928da36a0f10e48")
+        ("dermapharm", page_id or "d0b610c235304b82a5c91a660351c56b"),
+        ("dermaskin86", os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e")
     ]
     records = []
     for s_name, m_db_id in master_db_configs:
@@ -1685,8 +1690,7 @@ def sync_only_image_links_to_notion(
     for page in pending_products:
         page_id_str = page.get("id")
         properties = page.get("properties", {})
-        title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-        title = title_list[0].get("plain_text", "Sản phẩm không tên") if title_list else "Sản phẩm không tên"
+        title = extract_notion_title(properties.get("Tên sản phẩm", {}), "Sản phẩm không tên")
         
         # Lấy link Drive hình ảnh
         drive_url = override_drive_url if override_drive_url else (
@@ -1701,17 +1705,17 @@ def sync_only_image_links_to_notion(
         shop_hint = None
         if drive_url:
             low_url = drive_url.lower()
-            if "khaihoan" in low_url or "derma" in low_url:
-                shop_hint = "khaihoanpharmacy"
-            elif "nhathuockh" in low_url or "nhathuoc" in low_url or "pharma" in low_url:
-                shop_hint = "nhathuockhpharma"
+            if "dermaskin" in low_url or "skin86" in low_url:
+                shop_hint = "dermaskin86"
+            elif "dermapharm" in low_url or "pharma" in low_url:
+                shop_hint = "dermapharm"
         if not shop_hint:
             shop_val = page.get("shop", "")
             if shop_val:
-                if "khaihoan" in shop_val.lower() or "derma" in shop_val.lower():
-                    shop_hint = "khaihoanpharmacy"
-                elif "nhathuockh" in shop_val.lower() or "nhathuoc" in shop_val.lower() or "pharma" in shop_val.lower():
-                    shop_hint = "nhathuockhpharma"
+                if "dermaskin" in shop_val.lower() or "skin86" in shop_val.lower():
+                    shop_hint = "dermaskin86"
+                elif "dermapharm" in shop_val.lower() or "pharma" in shop_val.lower():
+                    shop_hint = "dermapharm"
         
         # Resolve ra product_folder_id
         product_folder_id = None
@@ -1803,9 +1807,7 @@ def sync_only_image_links_to_notion(
                     rel_title = ""
                     for p_val in rel_props.values():
                         if p_val.get("type") == "title":
-                            t_list = p_val.get("title", [])
-                            if t_list:
-                                rel_title = t_list[0].get("plain_text", "").strip()
+                            rel_title = extract_notion_title(p_val)
                             break
 
                     sub_relations = rel_props.get("Danh sách Insight", {}).get("relation", [])
@@ -1818,9 +1820,7 @@ def sync_only_image_links_to_notion(
                                 sub_title = ""
                                 for sp_val in sub_props.values():
                                     if sp_val.get("type") == "title":
-                                        st_list = sp_val.get("title", [])
-                                        if st_list:
-                                            sub_title = st_list[0].get("plain_text", "").strip()
+                                        sub_title = extract_notion_title(sp_val)
                                         break
                                 clean_sub_title = sub_title.replace("|", "-").strip()
                                 insight_items.append({
@@ -1851,9 +1851,7 @@ def sync_only_image_links_to_notion(
                         rel_title = ""
                         for p_val in rel_props.values():
                             if p_val.get("type") == "title":
-                                t_list = p_val.get("title", [])
-                                if t_list:
-                                    rel_title = t_list[0].get("plain_text", "").strip()
+                                rel_title = extract_notion_title(p_val)
                                 break
                         clean_title = rel_title.replace("|", "-").strip()
                         insight_items.append({

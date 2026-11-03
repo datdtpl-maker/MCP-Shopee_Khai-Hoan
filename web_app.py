@@ -45,7 +45,9 @@ CURRENT_VERSION = "v2.2.61"
 
 # Tu dong khoi tao cac file config va data tu bundle neu chua ton tai o ngoai
 if not CONFIG_PATH.exists():
-    example_config = BUNDLE_DIR / "config.example.json"
+    example_config = BUNDLE_DIR / "config.json"
+    if not example_config.exists():
+        example_config = BUNDLE_DIR / "config.example.json"
     if example_config.exists():
         try:
             shutil.copy(example_config, CONFIG_PATH)
@@ -69,6 +71,8 @@ for env_dest in [ROOT / "shopee_sync" / ".env", ROOT / ".env"]:
         try:
             env_dest.parent.mkdir(parents=True, exist_ok=True)
             bundled_env = BUNDLE_DIR / "shopee_sync" / ".env"
+            if not bundled_env.exists():
+                bundled_env = BUNDLE_DIR / ".env"
             if bundled_env.exists():
                 shutil.copy(bundled_env, env_dest)
                 print(f"Da tu dong khoi tao .env tu bundle tai: {env_dest}")
@@ -83,6 +87,28 @@ try:
             load_dotenv(ep, override=False)
 except Exception:
     pass
+
+
+def extract_notion_title(prop_or_list, default="") -> str:
+    """Trích xuất toàn bộ text từ Notion title/rich_text, không bao giờ bị cắt cụt khi có dấu chấm hay phân mảnh rich_text."""
+    if not prop_or_list:
+        return default
+    if isinstance(prop_or_list, list):
+        text = "".join(str(t.get("plain_text", "")) for t in prop_or_list if isinstance(t, dict)).strip()
+        return text or default
+    if isinstance(prop_or_list, dict):
+        p_type = prop_or_list.get("type", "")
+        if p_type in {"title", "rich_text"}:
+            items = prop_or_list.get(p_type, [])
+            text = "".join(str(t.get("plain_text", "")) for t in items if isinstance(t, dict)).strip()
+            return text or default
+        if "title" in prop_or_list:
+            text = "".join(str(t.get("plain_text", "")) for t in prop_or_list["title"] if isinstance(t, dict)).strip()
+            return text or default
+        if "rich_text" in prop_or_list:
+            text = "".join(str(t.get("plain_text", "")) for t in prop_or_list["rich_text"] if isinstance(t, dict)).strip()
+            return text or default
+    return default
 
 chrome_bat_path = ROOT / "run_debug_chrome.bat"
 if not chrome_bat_path.exists():
@@ -1372,7 +1398,7 @@ HTML = r"""
 <body>
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand"><h1>MCP Shopee - Khải Hoàn</h1><p>Giải pháp đồng bộ sản phẩm Notion & Telegram thông minh.</p></div>
+    <div class="brand"><h1>MCP Shopee - Khải Hoàn</h1><p>Giải pháp quản lý và đồng bộ sản phẩm Notion Shopee thông minh.</p></div>
     <div class="nav">
       <div class="active"><span>Bảng điều khiển</span><span>Live</span></div>
       <div><span>Thư mục sản phẩm</span><span id="navFolders">0</span></div>
@@ -1438,8 +1464,8 @@ HTML = r"""
                     <div>
                       <label for="shopSelect" style="font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block;">Shop Shopee</label>
                       <select id="shopSelect" onchange="changeShop()" style="width: 100%; min-height: 40px; font-weight: 600; font-size: 13px;">
-                        <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-                        <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+                        <option value="dermapharm">dermapharm</option>
+                        <option value="dermaskin86">dermaskin86</option>
                       </select>
                     </div>
                     <button class="md3-btn-primary" onclick="openNotionInsightModal()" style="width: 100%; min-height: 40px; padding: 0 16px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);" title="Quét bài viết từ Notion và tự tạo cấu trúc thư mục Insight trên Drive">
@@ -1789,12 +1815,6 @@ HTML = r"""
           <span class="nav-tab nav-tab-settings" onclick="showSettingsDashboard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Cài đặt &amp; Cập nhật</span>
         </div>
         <div class="actions" style="display: flex; gap: 10px; align-items: center;">
-          <div id="shopeeBotStatusBadge" class="badge danger" style="padding: 6px 12px; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
-            <span id="shopeeBotStatusText">Bot Telegram: OFFLINE</span>
-          </div>
-          <button type="button" id="btnToggleShopeeBot" class="md3-btn-primary" onclick="toggleShopeeBot()" style="padding: 6px 12px; font-size: 11px; min-height: 32px; border-radius: 6px;">
-            Khởi động Bot
-          </button>
           <button onclick="toggleTheme()" class="secondary" style="min-height: 32px; padding: 4px 10px; font-size: 11px; border-radius: 6px;" title="Chuyển đổi giao diện Sáng/Tối">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             Giao diện
@@ -1818,8 +1838,8 @@ HTML = r"""
             <div style="display: flex; gap: 6px; align-items: center; flex-direction: column;">
               <select id="shopeeShopFilter" onchange="filterShopeeProductsByShop(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text);">
                 <option value="">-- Tất cả Shop --</option>
-                <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-                <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+                <option value="dermapharm">dermapharm</option>
+                <option value="dermaskin86">dermaskin86</option>
               </select>
               <select id="shopeeStatusFilter" onchange="filterShopeeProductsByStatus(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
                 <option value="">-- Tất cả trạng thái --</option>
@@ -2030,6 +2050,8 @@ HTML = r"""
         <!-- Hidden inputs for complete JS backward compatibility -->
         <input type="hidden" id="shopeeTelegramToken" value="">
         <input type="hidden" id="shopeeManagerChatId" value="">
+        <input type="hidden" id="shopeeGeminiApiKey" value="">
+        <input type="hidden" id="shopeeManagerChatId" value="">
 
         <!-- Card 1: Cấu hình Kết nối & API -->
         <section class="panel" style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
@@ -2039,7 +2061,7 @@ HTML = r"""
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                 Cấu hình Kết nối &amp; API
               </h3>
-              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tích hợp Notion API, Google Drive Root Folder ID và Gemini AI Studio</p>
+              <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">Tích hợp Notion API và Google Drive Root Folder ID</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <input type="file" id="configFileInput" accept=".txt,.env,.json" style="display: none;" onchange="handleConfigFileUpload(this.files)">
@@ -2064,24 +2086,16 @@ HTML = r"""
             </div>
             <div>
               <label for="shopeeNotionDbId" class="md3-label">Notion Database ID (NOTION_DATABASE_ID)</label>
-              <input id="shopeeNotionDbId" class="md3-input" type="text" placeholder="Ví dụ: ca055a7742824b9598abde7a7686d144" style="font-family: monospace;">
+              <input id="shopeeNotionDbId" class="md3-input" type="text" placeholder="Ví dụ: d0b610c235304b82a5c91a660351c56b" style="font-family: monospace;">
             </div>
             <div class="field-span-2">
               <label for="shopeeDriveRootId" class="md3-label">Google Drive Root ID (DRIVE_ROOT_FOLDER_ID)</label>
-              <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ" style="font-family: monospace;">
-            </div>
-            <div class="field-span-2">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label for="shopeeGeminiApiKey" class="md3-label" style="margin: 0;">Gemini API Key (Mặc định Gemini 3.7 Flash)</label>
-                <span id="geminiKeyStatus" style="font-size: 12px; font-weight: 600;"></span>
-              </div>
-              <div class="field-action" style="display: flex; gap: 10px; align-items: center;">
-                <input id="shopeeGeminiApiKey" class="md3-input" type="password" placeholder="Nhập API Key Gemini (AIzaSy...) hoặc OpenAI (sk-...)" style="flex: 1; font-family: monospace;">
-                <button type="button" id="btnTestGemini" onclick="testGeminiApiKey()" class="secondary" style="min-height: 40px; padding: 0 16px; font-size: 12.5px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                  Kiểm tra Key
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input id="shopeeDriveRootId" class="md3-input" type="text" placeholder="Ví dụ: 1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ" style="flex: 1; font-family: monospace;">
+                <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 24px; white-space: nowrap; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  Lưu cấu hình
                 </button>
-                <button onclick="saveShopeeConfig()" class="md3-btn-primary" style="min-height: 40px; padding: 0 20px; white-space: nowrap; font-weight: 600;">Lưu cấu hình</button>
               </div>
             </div>
           </div>
@@ -2221,8 +2235,8 @@ HTML = r"""
         <div style="display: flex; align-items: center; gap: 10px;">
           <label style="font-size: 12.5px; font-weight: 700; margin: 0; white-space: nowrap; color: #f3f4f6;">Shop lưu ảnh trên Drive:</label>
           <select id="modalShopSelect" onchange="loadNotionInsightProducts()" style="padding: 6px 12px; border-radius: 6px; font-size: 12.5px; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #ffffff;">
-            <option value="nhathuockh.pharma">nhathuockh.pharma</option>
-            <option value="khaihoanpharmacy">khaihoanpharmacy</option>
+            <option value="dermapharm">dermapharm</option>
+            <option value="dermaskin86">dermaskin86</option>
           </select>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -2580,7 +2594,7 @@ HTML = r"""
   async function openNotionInsightModal() {
     const modal = document.getElementById("notionInsightModal");
     if (modal) modal.style.display = "flex";
-    const shopVal = (document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
+    const shopVal = (document.getElementById("shopSelect") || {}).value || "dermapharm";
     const modalShop = document.getElementById("modalShopSelect");
     if (modalShop) modalShop.value = shopVal;
     await loadNotionInsightProducts();
@@ -2596,7 +2610,7 @@ HTML = r"""
     if (tableBody) {
       tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--muted);"><div class="spinner" style="margin: 0 auto 10px;"></div>Đang quét dữ liệu từ Shopee Insight Library trên Notion...</td></tr>';
     }
-    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
+    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "dermapharm";
     try {
       const res = await fetch("/api/notion/insight-products?shop=" + encodeURIComponent(shop));
       const data = await res.json();
@@ -2679,7 +2693,7 @@ HTML = r"""
       btn.innerHTML = "Đang tạo...";
     }
 
-    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "nhathuockh.pharma";
+    const shop = (document.getElementById("modalShopSelect") || document.getElementById("shopSelect") || {}).value || "dermapharm";
 
     try {
       const res = await fetch("/api/notion/create-product-folders", {
@@ -2946,7 +2960,6 @@ HTML = r"""
     const shop = document.getElementById("shopeeSyncDashboard");
     if (shop) shop.style.display = "flex";
     loadShopeeExcelList();
-    checkShopeeBotStatus();
     loadPendingProducts();
     initInsightPromptEditor();
 
@@ -3054,7 +3067,7 @@ HTML = r"""
 
       const d = await api("/api/shopee/config/save", payload);
       alert("Đã lưu cấu hình thành công!");
-      log({step: "shopee_sync", message: "Đã lưu cấu hình kết nối Notion & Telegram thành công!"});
+      log({step: "shopee_sync", message: "Đã lưu cấu hình kết nối Notion thành công!"});
     } catch(e) {
       alert("Lỗi lưu cấu hình: " + (e.error || e.message || JSON.stringify(e)));
     }
@@ -3241,15 +3254,6 @@ HTML = r"""
       "------------------------------------------------",
       "NOTION DATABASE ID (NOTION_DATABASE_ID) :",
       notionDbId,
-      "------------------------------------------------",
-      "TELEGRAM BOT TOKEN (TELEGRAM_BOT_TOKEN) :",
-      telegramToken,
-      "------------------------------------------------",
-      "MANAGER CHAT ID (MANAGER_CHAT_ID) :",
-      managerChatId,
-      "------------------------------------------------",
-      "GEMINI/OPENAI API KEY (GEMINI_API_KEY) :",
-      geminiApiKey,
       "------------------------------------------------",
       "DRIVE_ROOT_FOLDER_ID :",
       driveRootId
@@ -3690,8 +3694,13 @@ HTML = r"""
       document.getElementById("productVariants").value = details.variants || "";
       const driveInput = document.getElementById("shopeeSyncDriveUrl");
       if (driveInput) {
-        driveInput.value = details.selected_folder_path || "";
+        driveInput.value = details.selected_folder_path || details.drive_url || "";
         localStorage.setItem("shopee_sync_drive_url", driveInput.value);
+      }
+      const posterDirInput = document.getElementById("posterExportDir");
+      if (posterDirInput && details.selected_folder_path) {
+        posterDirInput.value = details.selected_folder_path;
+        if (typeof onExportDirChange === 'function') onExportDirChange();
       }
 
       // Cập nhật state.product
@@ -4285,7 +4294,7 @@ HTML = r"""
       masterChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Master DB: ${escapeHtml(product.master.title)} (Giá: ${escapeHtml(product.price || 'Chưa có')} | ${escapeHtml(product.classification || 'Mặc định')})`;
     } else {
       masterChip.style = "padding: 6px 12px; border-radius: 8px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.25); color: #fbbf24; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;";
-      masterChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Chưa tìm thấy trong Master DB (ca055a7742824b9598abde7a7686d144)`;
+      masterChip.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Chưa tìm thấy trong Master DB`;
     }
     summary.appendChild(masterChip);
 
@@ -4810,55 +4819,9 @@ HTML = r"""
     }
   }
 
-  async function checkShopeeBotStatus() {
-    try {
-      const d = await api("/api/shopee/bot/status");
-      updateShopeeBotUI(d.running);
-    } catch(e) {
-      console.error("Lỗi kiểm tra trạng thái bot:", e);
-    }
-  }
-
-  function updateShopeeBotUI(running) {
-    const badge = document.getElementById("shopeeBotStatusBadge");
-    const text = document.getElementById("shopeeBotStatusText");
-    const btn = document.getElementById("btnToggleShopeeBot");
-
-    if (running) {
-      badge.className = "badge ok";
-      badge.style.background = "rgba(34, 197, 94, 0.15)";
-      text.textContent = "Bot Telegram: ONLINE";
-      btn.textContent = "Dừng Bot Telegram";
-      btn.style.background = "#ef4444";
-    } else {
-      badge.className = "badge danger";
-      badge.style.background = "rgba(239, 68, 68, 0.15)";
-      text.textContent = "Bot Telegram: OFFLINE";
-      btn.textContent = "Khởi động Telegram Bot";
-      btn.style.background = "var(--brand)";
-    }
-  }
-
-  async function toggleShopeeBot() {
-    const btn = document.getElementById("btnToggleShopeeBot");
-    const isRunning = btn.textContent.includes("Dừng");
-
-    try {
-      if (isRunning) {
-        log({step: "shopee_sync", message: "Đang gửi yêu cầu dừng Bot Telegram..."});
-        const d = await api("/api/shopee/bot/stop", {});
-        log({step: "shopee_sync", message: d.message});
-      } else {
-        log({step: "shopee_sync", message: "Đang gửi yêu cầu khởi động Bot Telegram..."});
-        const d = await api("/api/shopee/bot/start", {});
-        log({step: "shopee_sync", message: d.message});
-      }
-      setTimeout(checkShopeeBotStatus, 1500);
-    } catch(e) {
-      log({step: "shopee_sync", message: "Lỗi: " + (e.error || e.message || JSON.stringify(e))});
-      alert("Lỗi điều khiển bot: " + (e.error || e.message || JSON.stringify(e)));
-    }
-  }
+  async function checkShopeeBotStatus() {}
+  function updateShopeeBotUI(running) {}
+  async function toggleShopeeBot() {}
 
   async function runShopeeSync() {
     document.getElementById("shopeeSyncLogBox").innerHTML = "";
@@ -6322,7 +6285,7 @@ HTML = r"""
     <p style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4;">
       Dán nội dung từ file cấu hình <code>đồng bộ shopee.txt</code> hoặc file <code>.env</code> vào ô bên dưới. Hệ thống sẽ tự động phân tích tất cả các khóa và giá trị tương ứng.
     </p>
-    <textarea id="pasteConfigTextarea" placeholder="NOTION INTEGRATION TOKEN (NOTION_TOKEN) :&#10;ntn_...&#10;------------------------------------------------&#10;NOTION DATABASE ID (NOTION_DATABASE_ID) :&#10;ca055...&#10;------------------------------------------------&#10;TELEGRAM BOT TOKEN (TELEGRAM_BOT_TOKEN) :&#10;...&#10;------------------------------------------------&#10;MANAGER CHAT ID (MANAGER_CHAT_ID) :&#10;...&#10;------------------------------------------------&#10;GEMINI/OPENAI API KEY (GEMINI_API_KEY) :&#10;...&#10;------------------------------------------------&#10;DRIVE_ROOT_FOLDER_ID :&#10;..." style="width: 100%; height: 220px; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--soft); color: var(--text); resize: vertical; box-sizing: border-box;"></textarea>
+    <textarea id="pasteConfigTextarea" placeholder="NOTION INTEGRATION TOKEN (NOTION_TOKEN) :&#10;ntn_...&#10;------------------------------------------------&#10;NOTION DATABASE ID (NOTION_DATABASE_ID) :&#10;d0b610c235304b82a5c91a660351c56b&#10;------------------------------------------------&#10;DRIVE_ROOT_FOLDER_ID :&#10;1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ" style="width: 100%; height: 220px; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--soft); color: var(--text); resize: vertical; box-sizing: border-box;"></textarea>
     <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--panel-border); padding-top: 14px;">
       <button type="button" class="secondary" onclick="closePasteConfigModal()" style="min-height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600;">Hủy</button>
       <button type="button" class="md3-btn-primary" onclick="applyPastedConfig()" style="min-height: 36px; padding: 0 20px; font-size: 13px; font-weight: 700;">Áp dụng & Lưu cấu hình</button>
@@ -6410,10 +6373,7 @@ HTML = r"""
 
     <!-- Footer buttons -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 14px; margin-top: 4px;">
-      <button type="button" class="secondary" id="btnRegenSinglePost" onclick="regenerateCurrentPostWithAI()" style="min-height: 38px; padding: 0 16px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-        ✨ Viết lại bài này bằng Gemini AI
-      </button>
+      <span style="font-size: 12px; color: var(--muted);">* Bài viết và insight được đồng bộ trực tiếp từ Notion của team Content.</span>
       <div style="display: flex; gap: 10px;">
         <button type="button" class="secondary" onclick="closeFullPostsEditorModal()" style="min-height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;">Đóng</button>
         <button type="button" class="md3-btn-primary" onclick="saveFullPostsFromModal()" style="min-height: 38px; padding: 0 22px; font-size: 13px; font-weight: 700;">💾 Lưu thay đổi bài viết</button>
@@ -6492,12 +6452,12 @@ def validate_drive_root(path: Path) -> Path:
 
 _NOTION_DS_CACHE = {
     "insight": {
-        "nhathuockh.pharma": "6d20cd08-5a5a-41b9-b7f9-966b708a8241",
-        "khaihoanpharmacy": "2672b9c4-69e7-4477-bd83-3ca15f015434",
+        "dermapharm": "6be1a288-fb70-4ecd-a6c3-bb54b5578361",
+        "dermaskin86": "de109072-8329-4a58-b372-f467807503e7",
     },
     "master": {
-        "nhathuockh.pharma": "839708fb-4e87-4df8-9fe8-6a66c9f5bddd",
-        "khaihoanpharmacy": "15893870-8887-4252-9d62-201001ffa6fb",
+        "dermapharm": "86450602-8226-47c2-a8b1-e37531a735d8",
+        "dermaskin86": "9b02e81a-739b-4517-8988-d330c5b19610",
     }
 }
 
@@ -6523,10 +6483,10 @@ def list_shop_names() -> list[str]:
         for s in _NOTION_DS_CACHE.get("insight", {}).keys():
             if s.strip().lower() not in excluded_names:
                 shops.add(s)
-        preferred = ["nhathuockh.pharma", "khaihoanpharmacy"]
-        return sorted(list(shops), key=lambda s: (preferred.index(s) if s in preferred else 99, s.lower()))
+        preferred = ["dermapharm", "dermaskin86"]
+        return [s for s in preferred if s in shops] or preferred
     except Exception:
-        return ["nhathuockh.pharma", "khaihoanpharmacy"]
+        return ["dermapharm", "dermaskin86"]
 
 
 def selected_shop_name() -> str:
@@ -6535,9 +6495,9 @@ def selected_shop_name() -> str:
     shops = list_shop_names()
     if shop in shops:
         return shop
-    if "nhathuockh.pharma" in shops:
-        return "nhathuockh.pharma"
-    return shops[0] if shops else "nhathuockh.pharma"
+    if "dermapharm" in shops:
+        return "dermapharm"
+    return shops[0] if shops else "dermapharm"
 
 
 def list_drive_folders(shop: str | None = None) -> list[str]:
@@ -6551,7 +6511,7 @@ def list_drive_folders(shop: str | None = None) -> list[str]:
     folders = []
     for sub in root.iterdir():
         if sub.is_dir() and not sub.name.startswith("."):
-            if sub.name in ["nhathuockh.pharma", "khaihoanpharmacy"]:
+            if sub.name in ["dermapharm", "dermaskin86"]:
                 for p in sub.iterdir():
                     if p.is_dir() and not p.name.startswith("."):
                         folders.append(f"{sub.name}/{p.name}")
@@ -7023,13 +6983,13 @@ def get_notion_insight_ds_for_shop(notion_client, shop_name: str) -> str:
                     shop_part = title.split("|")[-1].strip()
                     _NOTION_DS_CACHE["insight"][shop_part] = ds_id
                 elif "shopee insight library" in title.lower():
-                    _NOTION_DS_CACHE["insight"]["nhathuockh.pharma"] = ds_id
+                    _NOTION_DS_CACHE["insight"]["dermapharm"] = ds_id
     except Exception as exc:
         print(f"[Notion DS Resolver] Lỗi tìm kiếm data source: {exc}")
 
-    if clean_target in ["khaihoanpharmacy", "khaihoan"]:
-        return "2672b9c4-69e7-4477-bd83-3ca15f015434"
-    return "6d20cd08-5a5a-41b9-b7f9-966b708a8241"
+    if clean_target in ["dermaskin86", "dermaskin"]:
+        return "de109072-8329-4a58-b372-f467807503e7"
+    return "6be1a288-fb70-4ecd-a6c3-bb54b5578361"
 
 
 def get_notion_master_ds_for_shop(notion_client, shop_name: str) -> str:
@@ -7056,13 +7016,13 @@ def get_notion_master_ds_for_shop(notion_client, shop_name: str) -> str:
                     shop_part = title.split("|")[-1].strip()
                     _NOTION_DS_CACHE["master"][shop_part] = ds_id
                 else:
-                    _NOTION_DS_CACHE["master"]["nhathuockh.pharma"] = ds_id
+                    _NOTION_DS_CACHE["master"]["dermapharm"] = ds_id
     except Exception as exc:
         print(f"[Notion Master DS Resolver] Lỗi tìm kiếm data source: {exc}")
 
-    if clean_target in ["khaihoanpharmacy", "khaihoan"]:
-        return "15893870-8887-4252-9d62-201001ffa6fb"
-    return "839708fb-4e87-4df8-9fe8-6a66c9f5bddd"
+    if clean_target in ["dermaskin86", "dermaskin"]:
+        return "9b02e81a-739b-4517-8988-d330c5b19610"
+    return "86450602-8226-47c2-a8b1-e37531a735d8"
 
 
 @app.get("/api/notion/insight-products")
@@ -7099,13 +7059,11 @@ def api_get_notion_insight_products():
             loai_name = loai_sel.get("name", "")
 
             title_list = props.get("Tên post Shopee", {}).get("title", [])
-            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            title = extract_notion_title(title_list)
             if not title:
                 for p_val in props.values():
                     if p_val.get("type") == "title":
-                        tl = p_val.get("title", [])
-                        if tl:
-                            title = tl[0].get("plain_text", "").strip()
+                        title = extract_notion_title(p_val)
                         break
 
             if not title or not title.strip():
@@ -7145,9 +7103,7 @@ def api_get_notion_insight_products():
                         c_title = ""
                         for cp_val in c_props.values():
                             if cp_val.get("type") == "title":
-                                ctl = cp_val.get("title", [])
-                                if ctl:
-                                    c_title = ctl[0].get("plain_text", "").strip()
+                                c_title = extract_notion_title(cp_val)
                                 break
                         clean_child = re.sub(r'[\\/*?:"<>|]', '-', c_title).strip()
                         clean_child = re.sub(r'-+', '-', clean_child).strip()
@@ -7231,13 +7187,11 @@ def api_create_notion_product_folders():
         page = call_notion_with_retry(notion.pages.retrieve, page_id=page_id)
         props = page.get("properties", {})
         title_list = props.get("Tên post Shopee", {}).get("title", [])
-        title = title_list[0].get("plain_text", "").strip() if title_list else ""
+        title = extract_notion_title(title_list)
         if not title:
             for p_val in props.values():
                 if p_val.get("type") == "title":
-                    tl = p_val.get("title", [])
-                    if tl:
-                        title = tl[0].get("plain_text", "").strip()
+                    title = extract_notion_title(p_val)
                     break
 
         if not title:
@@ -7263,9 +7217,7 @@ def api_create_notion_product_folders():
                 c_title = ""
                 for cp_val in c_props.values():
                     if cp_val.get("type") == "title":
-                        ctl = cp_val.get("title", [])
-                        if ctl:
-                            c_title = ctl[0].get("plain_text", "").strip()
+                        c_title = extract_notion_title(cp_val)
                         break
                 if not c_title:
                     c_title = f"Insight {idx}"
@@ -7399,6 +7351,13 @@ def api_create_notion_product_folders():
         # Ghi nhận trạng thái chọn folder hiện tại
         save_path_setting("selected_shop", shop_name)
         save_path_setting("selected_drive_folder", clean_prod_name)
+        try:
+            with CONFIG_LOCK:
+                _cfg = load_config()
+                _cfg.setdefault("openai", {})["export_dir"] = str(product_dir)
+                save_config(_cfg)
+        except Exception:
+            pass
 
         return jsonify({
             "success": True,
@@ -10991,7 +10950,7 @@ def api_save_shopee_config():
             primary_env = ROOT / ".env"
         load_dotenv(primary_env, override=True)
 
-        return jsonify({"success": True, "message": "Đã lưu cấu hình Notion & Telegram thành công!"})
+        return jsonify({"success": True, "message": "Đã lưu cấu hình Notion thành công!"})
     except Exception as exc:
         return error_response(exc, 400)
 
@@ -11197,8 +11156,8 @@ def api_get_pending_products():
 
         # Quét từ cả 2 Database chính của 2 Shop: nhathuockh.pharma và khaihoanpharmacy
         SHOP_DATABASES = [
-            ("nhathuockh.pharma", os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"),
-            ("khaihoanpharmacy", os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "a1daa38950504cb5849bbdfde6e547ff")
+            ("dermapharm", os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b"),
+            ("dermaskin86", os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or os.getenv("NOTION_DATABASE_ID_KHAIHOAN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e")
         ]
 
         target_shop = request.args.get("shop", "").strip()
@@ -11225,7 +11184,7 @@ def api_get_pending_products():
                 for page in records:
                     properties = page.get("properties", {})
                     title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-                    title = title_list[0].get("plain_text", "").strip() if title_list else ""
+                    title = extract_notion_title(title_list)
                     if not title:
                         continue
 
@@ -11260,7 +11219,7 @@ def api_get_pending_products():
                                 or lib_props.get("Tên thư viện", {}).get("title", [])
                                 or lib_props.get("Tên sản phẩm", {}).get("title", [])
                             )
-                            lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
+                            lib_title = extract_notion_title(lt_list)
                             rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
                             rel_insight_ids = [r.get("id") for r in rel_ins]
                             num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
@@ -11616,7 +11575,21 @@ def api_save_insights_to_notion():
                 import re
                 price_digits = re.sub(r"\D", "", price_raw)
                 price_num = int(price_digits) if price_digits else None
-                master_db_id = "ca055a7742824b9598abde7a7686d144"
+                save_shop = data.get("shop", "").strip()
+                if not save_shop and parent_page_id:
+                    try:
+                        p_info = (p_page.get("parent", {}) if 'p_page' in locals() and p_page else {})
+                        p_db = p_info.get("database_id", "").replace("-", "") or p_info.get("data_source_id", "").replace("-", "")
+                        if any(k in p_db for k in ["87208694", "a3289a37", "de109072", "9b02e81a"]):
+                            save_shop = "dermaskin86"
+                        else:
+                            save_shop = "dermapharm"
+                    except Exception:
+                        save_shop = "dermapharm"
+                if clean_shop_name(save_shop) in ["dermaskin86", "dermaskin"]:
+                    master_db_id = os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e"
+                else:
+                    master_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b"
                 db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=master_db_id)
                 ds = db_meta.get("data_sources", [])
                 q_target = ds[0]["id"] if ds else master_db_id
@@ -12783,13 +12756,11 @@ def api_get_product_details():
         if is_from_product_db:
             # 1. Page từ DB Xử lý sản phẩm đăng: Lấy trực tiếp thông tin giá, biến thể
             title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            title = extract_notion_title(title_list)
             if not title:
                 for pv in properties.values():
                     if pv.get("type") == "title":
-                        tl = pv.get("title", [])
-                        if tl:
-                            title = tl[0].get("plain_text", "").strip()
+                        title = extract_notion_title(pv)
                         break
 
             master_title = title
@@ -12827,18 +12798,30 @@ def api_get_product_details():
                     lib_page = call_notion_with_retry(notion.pages.retrieve, page_id=lib_id)
                     lib_props = lib_page.get("properties", {})
                     lt_list = lib_props.get("Tên post Shopee", {}).get("title", [])
-                    lib_title = lt_list[0].get("plain_text", "").strip() if lt_list else ""
+                    lib_title = extract_notion_title(lt_list)
                     rel_insights = lib_props.get("Danh sách Insight", {}).get("relation", [])
                 except Exception as lib_err:
                     print(f"[Product Details] Lỗi truy vấn Insight Library {lib_id}: {lib_err}")
         else:
             # 2. Fallback: Page từ Insight Library
             title_list = properties.get("Tên post Shopee", {}).get("title", []) or properties.get("Tên sản phẩm", {}).get("title", [])
-            title = title_list[0].get("plain_text", "").strip() if title_list else ""
+            title = extract_notion_title(title_list)
             lib_title = title
             rel_insights = properties.get("Danh sách Insight", {}).get("relation", [])
 
-            master_db_id = "ca055a7742824b9598abde7a7686d144"
+            shop_arg = request.args.get("shop", "").strip()
+            if not shop_arg:
+                parent_info = page.get("parent", {})
+                parent_db = parent_info.get("database_id", "").replace("-", "") or parent_info.get("data_source_id", "").replace("-", "")
+                if any(k in parent_db for k in ["87208694", "a3289a37", "de109072", "9b02e81a"]):
+                    shop_arg = "dermaskin86"
+                else:
+                    shop_arg = "dermapharm"
+
+            if clean_shop_name(shop_arg) in ["dermaskin86", "dermaskin"]:
+                master_db_id = os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e"
+            else:
+                master_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b"
             try:
                 db_meta = call_notion_with_retry(notion.databases.retrieve, database_id=master_db_id)
                 ds = db_meta.get("data_sources", [])
@@ -13350,19 +13333,21 @@ def api_review_save_shopee():
             
             if root and root.exists():
                 try:
-                    from shopee_sync.src import convert_zicum
+                    from shopee_sync.src.notion_sync import find_local_product_folder
                 except ImportError:
-                    from src import convert_zicum
+                    from src.notion_sync import find_local_product_folder
                     
-                target_clean = convert_zicum.clean_name(product_name)
-                for item in root.iterdir():
-                    if item.is_dir() and convert_zicum.clean_name(item.name) == target_clean:
-                        product_folder = item
-                        break
+                product_folder = find_local_product_folder(root, product_name)
                         
-                # Nếu chưa có thư mục nào khớp, tự động tạo mới thư mục đúng theo tên sản phẩm
+                # Nếu chưa có thư mục nào khớp, tự động tạo mới thư mục đúng theo shop và tên sản phẩm
                 if not product_folder:
-                    product_folder = root / product_name
+                    req_shop = payload.get("shop", "").strip() or product_data.get("shop", "").strip() or selected_shop_name()
+                    clean_target_shop = req_shop if req_shop in ["dermapharm", "dermaskin86"] else "dermapharm"
+                    shop_dir = root / clean_target_shop
+                    shop_dir.mkdir(parents=True, exist_ok=True)
+                    clean_pname = re.sub(r'[\\/*?:"<>|]', '-', product_name).strip()
+                    clean_pname = re.sub(r'-+', '-', clean_pname).strip()
+                    product_folder = shop_dir / clean_pname
                     product_folder.mkdir(parents=True, exist_ok=True)
                     
             if product_folder and product_folder.exists() and product_folder.is_dir():
@@ -13381,6 +13366,7 @@ def api_review_save_shopee():
                     if "paths" not in cfg:
                         cfg["paths"] = {}
                     cfg["paths"]["selected_drive_folder"] = product_folder.name
+                    cfg.setdefault("openai", {})["export_dir"] = str(product_folder)
                     save_config(cfg)
                 except Exception as cf_err:
                     print(f"[Notion Save] Lỗi cập nhật config selected_drive_folder: {cf_err}")
@@ -13396,12 +13382,17 @@ def api_review_save_shopee():
 
         if not notion_token:
             return jsonify({"error": "Chưa cấu hình NOTION_TOKEN trong file .env."}), 400
-        if not api_key:
-            return jsonify({"error": "Chưa cấu hình GEMINI_API_KEY (hoặc OpenAI key) để AI viết bài."}), 400
+        # Bỏ bắt buộc GEMINI_API_KEY vì nội dung và insight do team Content soạn sẵn trên Notion
 
         from notion_client import Client
         notion = Client(auth=notion_token)
-        insight_database_id = "88159c90-46fb-426d-b3c9-a0d79358e76c"
+        target_shop = payload.get("shop", "").strip() or product_data.get("shop", "").strip() or selected_shop_name()
+        if clean_shop_name(target_shop) in ["dermaskin86", "dermaskin"]:
+            insight_database_id = os.getenv("NOTION_INSIGHT_DB_DERMASKIN86", "").strip() or "87208694-504c-434a-8018-dea13b979025"
+            parent_db_id = os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e"
+        else:
+            insight_database_id = os.getenv("NOTION_INSIGHT_DB_DERMAPHARM", "").strip() or "bd88ef76-993c-4fee-9035-293366f98c76"
+            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b"
 
         saved_product_page_id = product_page_id
 
@@ -13426,7 +13417,8 @@ def api_review_save_shopee():
         if classification_options:
             product_props_to_save["Biến thể"] = {"multi_select": [{"name": x} for x in classification_options]}
 
-        parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+        if not parent_db_id:
+            parent_db_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b"
         if not parent_db_id:
             return jsonify({"error": "Chưa cấu hình NOTION_DATABASE_ID sản phẩm."}), 400
 
@@ -13439,7 +13431,7 @@ def api_review_save_shopee():
                 chk_page = call_notion_with_retry(notion.pages.retrieve, page_id=product_page_id)
                 chk_props = chk_page.get("properties", {})
                 chk_title_list = chk_props.get("Tên sản phẩm", {}).get("title", [])
-                chk_title = chk_title_list[0].get("plain_text", "").strip() if chk_title_list else ""
+                chk_title = extract_notion_title(chk_title_list)
                 if chk_title and chk_title.lower() == product_name.lower():
                     saved_product_page_id = product_page_id
                 else:
@@ -13458,7 +13450,7 @@ def api_review_save_shopee():
                     for rec in query_res.get("results", []):
                         r_props = rec.get("properties", {})
                         r_title_list = r_props.get("Tên sản phẩm", {}).get("title", [])
-                        r_title = r_title_list[0].get("plain_text", "").strip() if r_title_list else ""
+                        r_title = extract_notion_title(r_title_list)
                         if r_title and r_title.lower() == product_name.lower():
                             saved_product_page_id = rec.get("id")
                             print(f"[Notion Save] Tìm thấy trang sẵn có cho sản phẩm '{product_name}': {saved_product_page_id}")
@@ -13577,10 +13569,10 @@ def api_review_save_shopee():
             if not insight_drive_url and product_folder_id:
                 insight_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
 
-            # 1. Lấy bài viết chi tiết đã được xem/sửa (hoặc tự động sinh nếu chưa có)
+            # 1. Lấy bài viết chi tiết đã được xem/sửa (hoặc nội dung sẵn có từ Notion)
             if not force_regenerate and item.get("full_post") and isinstance(item.get("full_post"), dict):
                 body = item.get("full_post")
-            else:
+            elif api_key:
                 product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
                 classification = product_data.get("classification", "") or ""
                 body = generate_single_post_body(
@@ -13594,6 +13586,18 @@ def api_review_save_shopee():
                     classification=classification,
                     custom_prompt=writing_prompt,
                 )
+            else:
+                product_desc = product_data.get("description", "") or product_data.get("note", "") or ""
+                body = {
+                    "post_title": post_title,
+                    "description": insight_content or product_desc or post_title,
+                    "ingredients": [],
+                    "benefits": [],
+                    "target_users": [],
+                    "notes": [],
+                    "usage": "",
+                    "hashtags": ""
+                }
 
             # 2. Tạo trang con Notion
             page_properties = {
@@ -13891,9 +13895,7 @@ def load_notion_insights_for_product(product_hint: str, shop_hint: str = "") -> 
             if not p_title:
                 for pv in p_props.values():
                     if pv.get("type") == "title":
-                        tl = pv.get("title", [])
-                        if tl:
-                            p_title = tl[0].get("plain_text", "").strip()
+                        p_title = extract_notion_title(pv)
                         break
             score = _product_name_match_score(product_hint, p_title)
             if score > best_score:
@@ -13920,9 +13922,7 @@ def load_notion_insights_for_product(product_hint: str, shop_hint: str = "") -> 
                         if not post_title:
                             for cpv in c_props.values():
                                 if cpv.get("type") == "title":
-                                    ctl = cpv.get("title", [])
-                                    if ctl:
-                                        post_title = ctl[0].get("plain_text", "").strip()
+                                    post_title = extract_notion_title(cpv)
                                     break
                         angle = _notion_property_text(c_props.get("Angle", {}))
                         insight_content = _notion_property_text(c_props.get("Insight", {}))
@@ -13950,7 +13950,7 @@ def load_notion_insights_for_product(product_hint: str, shop_hint: str = "") -> 
         print(f"[load_notion_insights] Không đọc được Shopee Insight Library, thử database sản phẩm chính: {exc}")
 
     # 2. Fallback sang database sản phẩm chính (ca055a7742824b9598abde7a7686d144)
-    product_database_id = os.getenv("NOTION_DATABASE_ID", "").strip() or "ca055a7742824b9598abde7a7686d144"
+    product_database_id = (os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e") if clean_shop_name(target_shop) in ["dermaskin86", "dermaskin"] else (os.getenv("NOTION_DATABASE_ID", "").strip() or "d0b610c235304b82a5c91a660351c56b")
     try:
         database = call_notion_with_retry(notion.databases.retrieve, database_id=product_database_id)
         data_sources = database.get("data_sources", [])

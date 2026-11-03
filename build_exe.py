@@ -13,9 +13,9 @@ def find_or_install_inno_setup():
         
     # 2. Thu kiem tra cac duong dan mac dinh tren Windows
     possible_paths = [
-        Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)")) / "Inno Setup 6" / "ISCC.exe",
-        Path(os.environ.get("ProgramFiles", "C:\\Program Files")) / "Inno Setup 6" / "ISCC.exe",
-        Path(os.environ.get("LOCALAPPDATA", "C:\\Users\\datdt\\AppData\\Local")) / "Programs" / "Inno Setup 6" / "ISCC.exe"
+        Path(os.environ.get("LOCALAPPDATA", r"C:\Users\datdt\AppData\Local")) / "Programs" / "Inno Setup 6" / "ISCC.exe",
+        Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Inno Setup 6" / "ISCC.exe",
+        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Inno Setup 6" / "ISCC.exe"
     ]
     for p in possible_paths:
         if p.exists():
@@ -24,7 +24,6 @@ def find_or_install_inno_setup():
     # 3. Neu khong tim thay, tien hanh cai dat tu dong bang winget
     print("Khong tim thay Inno Setup tren may. Dang tien hanh cai dat tu dong qua winget...")
     try:
-        # Cai dat Inno Setup o che do silent
         cmd = [
             "winget", "install", "--id", "jrsoftware.InnoSetup",
             "--silent", "--accept-source-agreements", "--accept-package-agreements"
@@ -32,7 +31,6 @@ def find_or_install_inno_setup():
         res = subprocess.run(cmd, shell=True)
         if res.returncode == 0:
             print("Cai dat Inno Setup thanh cong!")
-            # Quet lai cac duong dan mac dinh sau khi cai
             for p in possible_paths:
                 if p.exists():
                     return str(p)
@@ -46,7 +44,7 @@ def find_or_install_inno_setup():
 def build():
     print("=== BAT DAU TIEN TRINH DONG GOI EXE & SETUP ===")
     
-    # 1. Kiem tra va cai dat PyInstaller
+    # 1. Kiem tra PyInstaller
     try:
         import PyInstaller
         print("PyInstaller da duoc cai dat.")
@@ -57,61 +55,80 @@ def build():
         
     # 2. Xac dinh duong dan
     root = Path(__file__).resolve().parent
-    web_app_py = root / "web_app.py"
-    dist_dir = root / "dist" / "MCPShopee"
+    spec_file = root / "MCPShopee.spec"
+    dist_dir = root / "dist" / "MCPShopee_build"
     
     # Don dep thu muc build cu truoc de tranh loi lock file
-    if dist_dir.exists():
-        print(f"Dang don dep thu muc cu tai: {dist_dir}...")
-        try:
-            shutil.rmtree(dist_dir)
-        except Exception as e:
-            print(f"Canh bao: Khong the xoa hoan toan thu muc dist cu (co the co file dang mo): {e}")
+    for old_dir in [dist_dir, root / "dist" / "MCPShopee"]:
+        if old_dir.exists():
+            print(f"Dang don dep thu muc cu tai: {old_dir}...")
+            try:
+                shutil.rmtree(old_dir)
+            except Exception as e:
+                print(f"Canh bao: Khong the xoa hoan toan thu muc {old_dir}: {e}")
     
-    # 3. Chay lenh PyInstaller
-    print("Dang chay PyInstaller de dong goi ung dung...")
+    # 3. Chay lenh PyInstaller voi file spec day du
+    print("Dang chay PyInstaller theo MCPShopee.spec...")
     cmd = [
         sys.executable,
         "-m",
         "PyInstaller",
-        "--name=MCPShopee",
-        "--onedir",
         "--clean",
         "--noconfirm",
-        "--noconsole",
-        "--icon=app_icon.ico",
-        "--collect-all", "playwright",
-        "--add-data", "config.example.json;.",
-        "--add-data", "content_prompts.json;.",
-        "--add-data", "run_debug_chrome.bat;.",
-        "--add-data", "favicon.ico;.",
-        "--add-data", "app_icon.ico;.",
-        "--add-data", "shopee_sync;shopee_sync",
-        str(web_app_py)
+        str(spec_file)
     ]
     
     res = subprocess.run(cmd, shell=False, cwd=str(root))
     
-    if res.returncode == 0:
-        print("\n=== DONG GOI PYINSTALLER THANH CONG! ===")
-        
-        # 4. Dong goi thanh bo cai dat Setup (.exe) su dung Inno Setup
-        iscc_path = find_or_install_inno_setup()
-        if iscc_path:
-            print(f"Dang bien dich file Setup bang Inno Setup (Duong dan ISCC: {iscc_path})...")
-            iss_file = root / "installer.iss"
-            setup_res = subprocess.run([iscc_path, str(iss_file)], shell=False, cwd=str(root))
-            if setup_res.returncode == 0:
-                print("\n=== TAO BO CAI DAT SETUP THANH CONG! ===")
-                print(f"File cai dat cua ban nam tai: {root / 'dist' / 'MCPShopeeSetup.exe'}")
-                print("Ban co the gui file nay cho may khac de cai dat truc tiep.")
-            else:
-                print(f"\n=== LOI: Bien dich Inno Setup that bai! Ma loi: {setup_res.returncode} ===")
-        else:
-            print("\n=== CANH BAO: Khong tim thay hoac cai dat duoc Inno Setup. Chi co file chay goc trong thu muc dist. ===")
-    else:
+    if res.returncode != 0:
         print("\n=== DONG GOI PYINSTALLER THAT BAI! ===")
         sys.exit(res.returncode)
+        
+    print("\n=== DONG GOI PYINSTALLER THANH CONG! ===")
+    
+    # Dam bao cac file cau hinh duoc copy day du vao thu muc dist de copy qua la chay ngay
+    files_to_sync = [
+        (root / "config.json", dist_dir / "config.json"),
+        (root / "config.example.json", dist_dir / "config.example.json"),
+        (root / ".env", dist_dir / ".env"),
+        (root / "shopee_sync" / ".env", dist_dir / "shopee_sync" / ".env"),
+        (root / "content_prompts.json", dist_dir / "content_prompts.json"),
+        (root / "run_debug_chrome.bat", dist_dir / "run_debug_chrome.bat"),
+    ]
+    for src_f, dst_f in files_to_sync:
+        if src_f.exists():
+            dst_f.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_f, dst_f)
+            print(f"[Config Sync] Da dong bo: {src_f.name} -> {dst_f}")
+
+    # 4. Dong goi thanh bo cai dat Setup (.exe) su dung Inno Setup
+    iscc_path = find_or_install_inno_setup()
+    if iscc_path:
+        print(f"\nDang bien dich file Setup bang Inno Setup (ISCC: {iscc_path})...")
+        iss_file = root / "installer.iss"
+        setup_res = subprocess.run([iscc_path, str(iss_file)], shell=False, cwd=str(root))
+        if setup_res.returncode == 0:
+            print("\n=== TAO BO CAI DAT SETUP THANH CONG! ===")
+            setup_exe = root / "dist" / "MCPShopeeSetup.exe"
+            print(f"File cai dat: {setup_exe}")
+        else:
+            print(f"\n=== LOI: Bien dich Inno Setup that bai! Ma loi: {setup_res.returncode} ===")
+    else:
+        print("\n=== CANH BAO: Khong tim thay Inno Setup ===")
+
+    # 5. Dong goi ban Portable ZIP de copy qua may khac la dung luon
+    print("\nDang tao ban Portable .ZIP...")
+    try:
+        portable_zip = root / "dist" / "MCPShopee_Windows_Portable"
+        shutil.make_archive(str(portable_zip), 'zip', str(dist_dir))
+        print(f"Ban Portable ZIP: {portable_zip}.zip")
+    except Exception as z_err:
+        print(f"Canh bao khi nen file ZIP: {z_err}")
+
+    print("\n=== HOAN TAT TOAN BO TIEN TRINH BUILD! ===")
+    print(f"1. Thu muc Portable (chay ngay): {dist_dir}")
+    print(f"2. File nen Portable ZIP:        {root / 'dist' / 'MCPShopee_Windows_Portable.zip'}")
+    print(f"3. Bo cai dat Windows Setup:     {root / 'dist' / 'MCPShopeeSetup.exe'}")
 
 if __name__ == "__main__":
     build()

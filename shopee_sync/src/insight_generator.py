@@ -1,3 +1,4 @@
+from .notion_sync import extract_notion_title
 import os
 import re
 import json
@@ -210,8 +211,7 @@ def generate_and_create_insights(product_page_id: str, progress_callback: Option
     page_data = call_notion_with_retry(notion.pages.retrieve, page_id=product_page_id)
     properties = page_data.get("properties", {})
     
-    title_list = properties.get("Tên sản phẩm", {}).get("title", [])
-    product_title = title_list[0].get("plain_text", "").strip() if title_list else ""
+    product_title = extract_notion_title(properties.get("Tên sản phẩm", {}))
     if not product_title:
         raise ValueError(f"Không tìm thấy Tên sản phẩm của Notion Page ID: {product_page_id}")
         

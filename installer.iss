@@ -37,11 +37,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; Cai dat file cau hinh he thong: chi copy neu may dich chua co (khong ghi de lam mat cau hinh cua nguoi dung khi cap nhat)
-Source: "dist\MCPShopee_build\config.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
-Source: "dist\MCPShopee_build\content_prompts.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
-Source: "dist\MCPShopee_build\shopee_sync\.env"; DestDir: "{app}\shopee_sync"; Flags: onlyifdoesntexist
-Source: "dist\MCPShopee_build\shopee_sync\.env"; DestDir: "{app}"; DestName: ".env"; Flags: onlyifdoesntexist
+; Cai dat file cau hinh he thong day du (san sang su dung ngay sau khi cai dat)
+Source: "dist\MCPShopee_build\config.json"; DestDir: "{app}"
+Source: "dist\MCPShopee_build\content_prompts.json"; DestDir: "{app}"
+Source: "dist\MCPShopee_build\shopee_sync\.env"; DestDir: "{app}\shopee_sync"
+Source: "dist\MCPShopee_build\.env"; DestDir: "{app}"
 ; Cai dat toan bo tep thuc thi va tai nguyen (loai tru cac file config da khai bao o tren de tranh ghi de)
 Source: "dist\MCPShopee_build\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs; Excludes: "config.json,content_prompts.json,.env"
 

@@ -3,7 +3,8 @@
     "inbox_dir": "inbox",
     "processed_dir": "processed",
     "drive_root_dir": "G:\\My Drive\\Hình ảnh Shopee",
-    "selected_drive_folder": ""
+    "selected_drive_folder": "",
+    "selected_shop": "dermapharm"
   },
   "pixel": {
     "adb_serial": "",
