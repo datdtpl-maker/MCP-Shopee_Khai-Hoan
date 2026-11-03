@@ -1475,6 +1475,12 @@ def sync_notion_to_bigseller_excel(
             if "Trạng thái đăng bài shopee" in p_props and p_props["Trạng thái đăng bài shopee"].get("type") == "checkbox":
                 update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
 
+            if drive_url and "drive.google.com" in drive_url:
+                if "URL" in p_props and p_props["URL"].get("type") == "url":
+                    update_payload["URL"] = {"url": drive_url}
+                if "Link Drive bộ ảnh" in p_props and p_props["Link Drive bộ ảnh"].get("type") == "url":
+                    update_payload["Link Drive bộ ảnh"] = {"url": drive_url}
+
             if update_payload:
                 update_notion_page_safe(
                     notion,
@@ -1484,18 +1490,30 @@ def sync_notion_to_bigseller_excel(
 
             # Đồng thời cập nhật trạng thái cho trang Master tương ứng nếu có
             master_page = p_page_dict.get("master_page") if isinstance(p_page_dict, dict) else None
+            if not master_page:
+                cw_rel = p_props.get("Công việc Shopee", {}).get("relation", [])
+                if cw_rel:
+                    master_page = {"id": cw_rel[0].get("id")}
+
             if master_page:
                 m_id = master_page.get("id")
                 try:
                     m_data = call_notion_with_retry(notion.pages.retrieve, page_id=m_id)
                     m_props = m_data.get("properties", {})
                     m_update = {}
+                    if "Trạng thái" in m_props and m_props["Trạng thái"].get("type") == "select":
+                        m_update["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
                     if "Trạng thái xử lý" in m_props and m_props["Trạng thái xử lý"].get("type") == "select":
                         m_update["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
                     if "Content xong" in m_props and m_props["Content xong"].get("type") == "checkbox":
                         m_update["Content xong"] = {"checkbox": True}
                     if "Bài viết" in m_props and m_props["Bài viết"].get("type") == "checkbox":
                         m_update["Bài viết"] = {"checkbox": True}
+                    if drive_url and "drive.google.com" in drive_url:
+                        if "Media sản phẩm" in m_props and m_props["Media sản phẩm"].get("type") == "url":
+                            m_update["Media sản phẩm"] = {"url": drive_url}
+                        if "URL" in m_props and m_props["URL"].get("type") == "url":
+                            m_update["URL"] = {"url": drive_url}
                     if m_update:
                         update_notion_page_safe(notion, page_id=m_id, properties=m_update)
                 except Exception as m_err:

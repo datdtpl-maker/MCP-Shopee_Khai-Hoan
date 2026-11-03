@@ -7340,6 +7340,8 @@ def api_create_notion_product_folders():
                             cw_update["URL"] = {"url": drive_url}
                     if "Trạng thái" in cw_props and cw_props["Trạng thái"].get("select") is None:
                         cw_update["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
+                    if "Bài viết" in cw_props and cw_props["Bài viết"].get("type") == "checkbox":
+                        cw_update["Bài viết"] = {"checkbox": True}
                     cur_rel_ids = [r.get("id") for r in cw_props.get("Insight Library", {}).get("relation", [])]
                     if page_id not in cur_rel_ids:
                         cw_update["Insight Library"] = {"relation": [{"id": page_id}]}
@@ -11569,23 +11571,47 @@ def api_save_insights_to_notion():
             except Exception as p_err:
                 print(f"[Save Insight] Lỗi cập nhật trang cha: {p_err}")
 
-        # Cập nhật Master DB nếu có liên kết
-        if price_raw or classification:
+        # Tìm link Drive sản phẩm chuẩn từ Google Drive gốc (1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ)
+        product_drive_url = None
+        try:
+            save_shop = data.get("shop", "").strip()
+            if not save_shop and parent_page_id:
+                try:
+                    p_info = (p_page.get("parent", {}) if 'p_page' in locals() and p_page else {})
+                    p_db = p_info.get("database_id", "").replace("-", "") or p_info.get("data_source_id", "").replace("-", "")
+                    if any(k in p_db for k in ["87208694", "a3289a37", "de109072", "9b02e81a"]):
+                        save_shop = "dermaskin86"
+                    else:
+                        save_shop = "dermapharm"
+                except Exception:
+                    save_shop = "dermapharm"
+            root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
+            from shopee_sync.src import convert_zicum
+            prod_fid = convert_zicum.find_product_folder(root_folder_id, product_name, shop_hint=save_shop)
+            if prod_fid:
+                product_drive_url = f"https://drive.google.com/drive/folders/{prod_fid}"
+                # Cập nhật URL vào trang Insight cha để Master DB tự động rollup sang Media sản phẩm
+                p_url_up = {}
+                if "URL" in p_props and p_props["URL"].get("type") == "url":
+                    p_url_up["URL"] = {"url": product_drive_url}
+                if "Link Drive bộ ảnh" in p_props and p_props["Link Drive bộ ảnh"].get("type") == "url":
+                    p_url_up["Link Drive bộ ảnh"] = {"url": product_drive_url}
+                if p_url_up and parent_page_id:
+                    try:
+                        call_notion_with_retry(notion.pages.update, page_id=parent_page_id, properties=p_url_up)
+                    except Exception as url_err:
+                        print(f"[Save Insight] Lỗi cập nhật Drive URL cho Insight cha: {url_err}")
+        except Exception as drive_find_err:
+            print(f"[Save Insight] Không tìm thấy link Drive cho sản phẩm: {drive_find_err}")
+
+        # Cập nhật Master DB: Content xong = True, Bài viết = True, Trạng thái = Content đang làm, Media sản phẩm
+        if parent_page_id:
             try:
                 import re
-                price_digits = re.sub(r"\D", "", price_raw)
+                price_digits = re.sub(r"\D", "", price_raw) if price_raw else ""
                 price_num = int(price_digits) if price_digits else None
-                save_shop = data.get("shop", "").strip()
-                if not save_shop and parent_page_id:
-                    try:
-                        p_info = (p_page.get("parent", {}) if 'p_page' in locals() and p_page else {})
-                        p_db = p_info.get("database_id", "").replace("-", "") or p_info.get("data_source_id", "").replace("-", "")
-                        if any(k in p_db for k in ["87208694", "a3289a37", "de109072", "9b02e81a"]):
-                            save_shop = "dermaskin86"
-                        else:
-                            save_shop = "dermapharm"
-                    except Exception:
-                        save_shop = "dermapharm"
+                if not save_shop:
+                    save_shop = "dermapharm"
                 if clean_shop_name(save_shop) in ["dermaskin86", "dermaskin"]:
                     master_db_id = os.getenv("NOTION_DATABASE_ID_DERMASKIN", "").strip() or "a3289a3772204a3ea26528a6ab3b370e"
                 else:
@@ -11599,12 +11625,23 @@ def api_save_insights_to_notion():
                 )
                 if res_m.get("results"):
                     m_page = res_m["results"][0]
+                    m_props = m_page.get("properties", {})
                     m_updates = {}
                     if price_num is not None:
                         m_updates["Giá biến thể 1"] = {"number": price_num}
                     if classification:
                         m_updates["Biến thể 1"] = {"rich_text": build_rich_text_safe(classification)}
-                    m_updates["Trạng thái"] = {"select": {"name": "Content đang làm"}}
+                    if "Trạng thái" in m_props and m_props["Trạng thái"].get("type") == "select":
+                        m_updates["Trạng thái"] = {"select": {"name": "Content đang làm"}}
+                    if "Content xong" in m_props and m_props["Content xong"].get("type") == "checkbox":
+                        m_updates["Content xong"] = {"checkbox": True}
+                    if "Bài viết" in m_props and m_props["Bài viết"].get("type") == "checkbox":
+                        m_updates["Bài viết"] = {"checkbox": True}
+                    if product_drive_url:
+                        if "Media sản phẩm" in m_props and m_props["Media sản phẩm"].get("type") == "url":
+                            m_updates["Media sản phẩm"] = {"url": product_drive_url}
+                        if "URL" in m_props and m_props["URL"].get("type") == "url":
+                            m_updates["URL"] = {"url": product_drive_url}
                     if m_updates:
                         call_notion_with_retry(notion.pages.update, page_id=m_page["id"], properties=m_updates)
             except Exception as m_err:
