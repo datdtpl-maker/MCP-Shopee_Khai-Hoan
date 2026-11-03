@@ -11604,6 +11604,7 @@ def api_save_insights_to_notion():
                         m_updates["Giá biến thể 1"] = {"number": price_num}
                     if classification:
                         m_updates["Biến thể 1"] = {"rich_text": build_rich_text_safe(classification)}
+                    m_updates["Trạng thái"] = {"select": {"name": "Content đang làm"}}
                     if m_updates:
                         call_notion_with_retry(notion.pages.update, page_id=m_page["id"], properties=m_updates)
             except Exception as m_err:

@@ -991,59 +991,6 @@ def sync_notion_to_bigseller_excel(
         if product_folder_id:
             online_drive_url = f"https://drive.google.com/drive/folders/{product_folder_id}"
             drive_url = online_drive_url
-            try:
-                # Tự động đồng bộ link Drive online lên trang sản phẩm Notion hiện tại
-                notion_drive_update = {}
-                if "URL" in properties and properties["URL"].get("type") == "url":
-                    notion_drive_update["URL"] = {"url": online_drive_url}
-                if "Link Drive bộ ảnh" in properties and properties["Link Drive bộ ảnh"].get("type") == "url":
-                    notion_drive_update["Link Drive bộ ảnh"] = {"url": online_drive_url}
-                if "Media sản phẩm" in properties and properties["Media sản phẩm"].get("type") == "url":
-                    notion_drive_update["Media sản phẩm"] = {"url": online_drive_url}
-                if notion_drive_update and page_id_str:
-                    update_notion_page_safe(notion, page_id=page_id_str, properties=notion_drive_update)
-                    logger.info(f"Đã cập nhật link Drive online vào Notion ({page_id_str}): {online_drive_url}")
-
-                # Nếu là trang Master DB và có quan hệ Insight Library, cập nhật trang Insight cha để Rollup Media sản phẩm luôn hiển thị đúng
-                ins_lib_rel = properties.get("Insight Library", {}).get("relation", [])
-                for rel in ins_lib_rel:
-                    r_id = rel.get("id")
-                    if r_id:
-                        try:
-                            rel_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=r_id)
-                            r_props = rel_page_obj.get("properties", {})
-                            r_up = {}
-                            if "URL" in r_props and r_props["URL"].get("type") == "url" and not r_props["URL"].get("url"):
-                                r_up["URL"] = {"url": online_drive_url}
-                            if "Link Drive bộ ảnh" in r_props and r_props["Link Drive bộ ảnh"].get("type") == "url" and not r_props["Link Drive bộ ảnh"].get("url"):
-                                r_up["Link Drive bộ ảnh"] = {"url": online_drive_url}
-                            if r_up:
-                                update_notion_page_safe(notion, page_id=r_id, properties=r_up)
-                                logger.info(f"Đã cập nhật link Drive online vào trang Insight liên kết ({r_id}): {online_drive_url}")
-                        except Exception as r_err:
-                            logger.warning(f"Lỗi cập nhật trang Insight liên kết {r_id}: {r_err}")
-
-                # Nếu có master_page liên kết, cập nhật cả master_page
-                m_page_obj = page.get("master_page")
-                if m_page_obj and m_page_obj.get("id"):
-                    mp_id = m_page_obj["id"]
-                    try:
-                        mp_data = call_notion_with_retry(notion.pages.retrieve, page_id=mp_id)
-                        mp_props = mp_data.get("properties", {})
-                        mp_up = {}
-                        if "Media sản phẩm" in mp_props and mp_props["Media sản phẩm"].get("type") == "url":
-                            mp_up["Media sản phẩm"] = {"url": online_drive_url}
-                        if "URL" in mp_props and mp_props["URL"].get("type") == "url":
-                            mp_up["URL"] = {"url": online_drive_url}
-                        cur_rels = [r.get("id") for r in mp_props.get("Insight Library", {}).get("relation", [])]
-                        if page_id_str and page_id_str not in cur_rels:
-                            mp_up["Insight Library"] = {"relation": [{"id": page_id_str}]}
-                        if mp_up:
-                            update_notion_page_safe(notion, page_id=mp_id, properties=mp_up)
-                    except Exception as mp_err:
-                        logger.warning(f"Lỗi cập nhật master page {mp_id}: {mp_err}")
-            except Exception as d_err:
-                logger.warning(f"Lỗi tự động cập nhật URL Drive lên Notion: {d_err}")
         else:
             if drive_url and "drive.google.com" not in drive_url:
                 logger.error(f"❌ Bạn đang dán đường dẫn local: '{drive_url}'. Để sử dụng đường dẫn local, vui lòng cấu hình DRIVE_ROOT_FOLDER_ID trong file .env hoặc dán trực tiếp link Google Drive trên web của thư mục sản phẩm.")
@@ -1516,7 +1463,7 @@ def sync_notion_to_bigseller_excel(
             p_props = p_data.get("properties", {})
             update_payload = {}
             if "Trạng thái" in p_props and p_props["Trạng thái"].get("type") == "select":
-                update_payload["Trạng thái"] = {"select": {"name": "Hoàn thành"}}
+                update_payload["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
             if "Trạng thái xử lý" in p_props and p_props["Trạng thái xử lý"].get("type") == "select":
                 update_payload["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
             if "Content xong" in p_props and p_props["Content xong"].get("type") == "checkbox":
