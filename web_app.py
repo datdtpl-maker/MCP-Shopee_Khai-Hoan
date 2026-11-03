@@ -11627,9 +11627,9 @@ def api_save_insights_to_notion():
                     m_page = res_m["results"][0]
                     m_props = m_page.get("properties", {})
                     m_updates = {}
-                    if price_num is not None:
+                    if price_num is not None and "Giá biến thể 1" in m_props:
                         m_updates["Giá biến thể 1"] = {"number": price_num}
-                    if classification:
+                    if classification and "Biến thể 1" in m_props:
                         m_updates["Biến thể 1"] = {"rich_text": build_rich_text_safe(classification)}
                     if "Trạng thái" in m_props and m_props["Trạng thái"].get("type") == "select":
                         m_updates["Trạng thái"] = {"select": {"name": "Content đang làm"}}
