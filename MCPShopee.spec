@@ -10,6 +10,11 @@ tmp_pandas = collect_all('pandas')
 datas += tmp_pandas[0]; binaries += tmp_pandas[1]; hiddenimports += tmp_pandas[2]
 tmp_openpyxl = collect_all('openpyxl')
 datas += tmp_openpyxl[0]; binaries += tmp_openpyxl[1]; hiddenimports += tmp_openpyxl[2]
+tmp_webview = collect_all('webview')
+datas += tmp_webview[0]; binaries += tmp_webview[1]; hiddenimports += tmp_webview[2]
+tmp_pythonnet = collect_all('pythonnet')
+datas += tmp_pythonnet[0]; binaries += tmp_pythonnet[1]; hiddenimports += tmp_pythonnet[2]
+hiddenimports += ['clr', 'clr._common']
 
 
 a = Analysis(

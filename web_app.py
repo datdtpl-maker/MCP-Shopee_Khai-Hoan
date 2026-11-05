@@ -31,6 +31,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 import photo_pipeline as pipeline
 
+try:
+    from shopee_sync.src import notion_sync
+except ImportError:
+    try:
+        from src import notion_sync
+    except ImportError:
+        import notion_sync
+
 
 if getattr(sys, 'frozen', False):
     ROOT = Path(sys.executable).resolve().parent
@@ -1843,7 +1851,8 @@ HTML = r"""
               </select>
               <select id="shopeeStatusFilter" onchange="filterShopeeProductsByStatus(this.value)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; background: var(--soft); border: 1px solid var(--panel-border); color: var(--text); font-weight: 600;">
                 <option value="">-- Tất cả trạng thái --</option>
-                <option value="Chờ đăng">⏳ Chờ đăng (Ưu tiên duyệt)</option>
+                <option value="Chờ đăng">⏳ Chờ đăng (Ưu tiên)</option>
+                <option value="Content đang làm">✏ Content đang làm</option>
                 <option value="Đã đăng">✅ Đã đăng</option>
                 <option value="Lên đơn">📝 Lên đơn</option>
                 <option value="Chưa đặt">⚪ Chưa đặt</option>
@@ -3274,6 +3283,28 @@ HTML = r"""
   let cachedShopeePendingProducts = [];
   let selectedShopeeShopFilter = "";
 
+  function updateStatusFilterDropdown() {
+    const filterEl = document.getElementById("shopeeStatusFilter");
+    if (!filterEl) return;
+    const currentVal = selectedShopeeStatusFilter;
+    const defaultStatuses = ["Chờ đăng", "Content đang làm", "Đã đăng", "Lên đơn", "Chưa đặt"];
+    const allStatuses = new Set(defaultStatuses);
+    cachedShopeePendingProducts.forEach(p => {
+      if (p.notion_status) allStatuses.add(p.notion_status);
+    });
+    let html = '<option value="">-- Tất cả trạng thái --</option>';
+    allStatuses.forEach(st => {
+      let icon = "🏷";
+      if (st === "Chờ đăng") icon = "⏳";
+      else if (st === "Content đang làm") icon = "✏";
+      else if (st === "Đã đăng") icon = "✅";
+      else if (st === "Lên đơn") icon = "📝";
+      else if (st === "Chưa đặt") icon = "⚪";
+      html += `<option value="${st}" ${st === currentVal ? "selected" : ""}>${icon} ${st}</option>`;
+    });
+    filterEl.innerHTML = html;
+  }
+
   async function loadPendingProducts() {
     const select = document.getElementById("shopeePendingProducts");
     const listContainer = document.getElementById("shopeePendingProductsList");
@@ -3286,6 +3317,7 @@ HTML = r"""
     try {
       const products = await api("/api/shopee/products/pending");
       cachedShopeePendingProducts = Array.isArray(products) ? products : [];
+      updateStatusFilterDropdown();
       renderShopeeProductsList(selectedShopeeShopFilter);
     } catch(e) {
       console.error("Lỗi load sản phẩm pending:", e);
@@ -3371,8 +3403,11 @@ HTML = r"""
       if (nStatus === "Chờ đăng") {
         nStatusBadge.style = "font-size: 10.5px; padding: 2px 7px; border-radius: 4px; background: rgba(245, 158, 11, 0.18); color: #f59e0b; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.35);";
         nStatusBadge.textContent = "⏳ Chờ đăng";
+      } else if (nStatus === "Content đang làm") {
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 7px; border-radius: 4px; background: rgba(234, 179, 8, 0.18); color: #eab308; font-weight: 700; border: 1px solid rgba(234, 179, 8, 0.35);";
+        nStatusBadge.textContent = "✏ Content đang làm";
       } else if (nStatus === "Đã đăng") {
-        nStatusBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(52, 211, 153, 0.15); color: #34d399; font-weight: 600;";
+        nStatusBadge.style = "font-size: 10.5px; padding: 2px 7px; border-radius: 4px; background: rgba(52, 211, 153, 0.18); color: #10b981; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.35);";
         nStatusBadge.textContent = "✅ Đã đăng";
       } else if (nStatus === "Lên đơn") {
         nStatusBadge.style = "font-size: 10.5px; padding: 2px 6px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 600;";
@@ -11316,7 +11351,7 @@ def api_get_pending_products():
                         "note": note,
                         "insight_lib_id": insight_lib_id,
                         "lib_title": lib_title,
-                        "shop": existing_shop or current_shop_name,
+                        "shop": current_shop_name,
                         "folder_name": matched_folder_name
                     })
             except Exception as query_err:
@@ -11328,11 +11363,12 @@ def api_get_pending_products():
         # 3. Đã đăng
         status_priority = {
             "Chờ đăng": 0,
-            "Chưa đặt": 1,
-            "Lên đơn": 2,
-            "Nội dung": 3,
-            "Đã đăng": 4,
-            "Hủy": 5
+            "Content đang làm": 1,
+            "Chưa đặt": 2,
+            "Lên đơn": 3,
+            "Nội dung": 4,
+            "Đã đăng": 5,
+            "Hủy": 6
         }
         pending_items.sort(key=lambda x: (
             status_priority.get(x["notion_status"], 9),
@@ -14244,8 +14280,56 @@ def start_media_watcher():
     threading.Thread(target=media_watcher_loop, daemon=True).start()
 
 
+def run_native_desktop_app():
+    port = int(os.environ.get("PORT", "8765"))
+    url = f"http://127.0.0.1:{port}"
+
+    # 1. Chạy Flask server trên thread nền
+    flask_thread = threading.Thread(
+        target=lambda: app.run(host="127.0.0.1", port=port, debug=False, threaded=True),
+        daemon=True
+    )
+    flask_thread.start()
+
+    # Đợi Flask khởi động sẵn sàng
+    wait_for_port(port, timeout=15.0)
+
+    # 2. Khởi chạy cửa sổ Native App Desktop bằng pywebview (Edge WebView2)
+    use_webview = False
+    try:
+        import webview
+        icon_file = ROOT / "app_icon.ico"
+        icon_path = str(icon_file) if icon_file.exists() else None
+
+        window = webview.create_window(
+            title="MCP SHOPEE - KHẢI HOÀN",
+            url=url,
+            width=1360,
+            height=900,
+            min_size=(1024, 700),
+            confirm_close=False,
+            text_select=True
+        )
+        use_webview = True
+        print("[Native App] Đang khởi động cửa sổ Desktop ứng dụng Native...")
+        webview.start(icon=icon_path, private_mode=False)
+        print("[Native App] Cửa sổ ứng dụng đã đóng. Thoát tiến trình.")
+        os._exit(0)
+    except Exception as wv_err:
+        print(f"[Native App] Không thể khởi chạy pywebview ({wv_err}), chuyển sang fallback...")
+        use_webview = False
+
+    if not use_webview:
+        # Fallback chế độ Edge/Chrome App Mode nếu hệ thống cũ không hỗ trợ WebView2
+        launch_desktop_gui()
+        while True:
+            time.sleep(1)
+
+
 if __name__ == "__main__":
     cleanup_old_instances()
     start_media_watcher()
-    threading.Thread(target=launch_desktop_gui, daemon=True).start()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "8765")), debug=False, threaded=True)
+    if os.environ.get("NO_GUI") == "1":
+        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "8765")), debug=False, threaded=True)
+    else:
+        run_native_desktop_app()
