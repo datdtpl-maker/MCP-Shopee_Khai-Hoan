@@ -7188,6 +7188,22 @@ def api_get_notion_insight_products():
                             pass
 
                 rel_insights = props.get("Danh sách Insight", {}).get("relation", [])
+                if not rel_insights:
+                    cha_insights = props.get("Insight cha", {}).get("relation", [])
+                    if cha_insights:
+                        rel_insights = cha_insights
+                        try:
+                            call_notion_with_retry(
+                                notion.pages.update,
+                                page_id=page.get("id"),
+                                properties={
+                                    "Danh sách Insight": {"relation": cha_insights},
+                                    "Insight cha": {"relation": []},
+                                    "Trạng thái": {"select": {"name": "Hoàn thành"}}
+                                }
+                            )
+                        except Exception as auto_fix_err:
+                            print(f"[Auto Fix Notion] Khong the tu dong dao nguoc relation: {auto_fix_err}")
                 if not insight_count:
                     insight_count = len(rel_insights)
 
@@ -7304,6 +7320,8 @@ def api_create_notion_product_folders():
         product_dir.mkdir(parents=True, exist_ok=True)
 
         rel_insights = props.get("Danh sách Insight", {}).get("relation", [])
+        if not rel_insights:
+            rel_insights = props.get("Insight cha", {}).get("relation", [])
         created_insights = []
 
         for idx, rel in enumerate(rel_insights, 1):
@@ -11323,6 +11341,8 @@ def api_get_pending_products():
                             )
                             lib_title = extract_notion_title(lt_list)
                             rel_ins = lib_props.get("Danh sách Insight", {}).get("relation", [])
+                            if not rel_ins:
+                                rel_ins = lib_props.get("Insight cha", {}).get("relation", [])
                             rel_insight_ids = [r.get("id") for r in rel_ins]
                             num_prop = lib_props.get("Số Insight", {}).get("rollup", {})
                             insight_count = int(num_prop.get("number") or len(rel_insight_ids))
@@ -14051,6 +14071,8 @@ def load_notion_insights_for_product(product_hint: str, shop_hint: str = "") -> 
 
         if best_match_page and best_score >= 0.6:
             rel_insights = best_match_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
+            if not rel_insights:
+                rel_insights = best_match_page.get("properties", {}).get("Insight cha", {}).get("relation", [])
             if rel_insights:
                 insights = []
                 for m_idx, rel in enumerate(rel_insights):

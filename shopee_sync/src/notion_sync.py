@@ -242,8 +242,11 @@ def _count_product_insights(properties: Dict[str, Any], notion_client=None) -> i
         if num is not None:
             return int(num)
     ds_prop = properties.get("Danh sách Insight", {})
-    if ds_prop.get("type") == "relation":
+    if ds_prop.get("type") == "relation" and ds_prop.get("relation"):
         return len(ds_prop.get("relation", []))
+    cha_prop = properties.get("Insight cha", {})
+    if cha_prop.get("type") == "relation" and cha_prop.get("relation"):
+        return len(cha_prop.get("relation", []))
     insight_prop = properties.get("Insight Library", {})
     prop_type = insight_prop.get("type")
     if prop_type == "relation":
@@ -255,6 +258,8 @@ def _count_product_insights(properties: Dict[str, Any], notion_client=None) -> i
                 lib_id = rel_list[0].get("id")
                 lib_page = call_notion_with_retry(notion_client.pages.retrieve, page_id=lib_id)
                 sub_rels = lib_page.get("properties", {}).get("Danh sách Insight", {}).get("relation", [])
+                if not sub_rels:
+                    sub_rels = lib_page.get("properties", {}).get("Insight cha", {}).get("relation", [])
                 if sub_rels:
                     return len(sub_rels)
             except Exception:
@@ -697,7 +702,7 @@ def adapt_insight_library_product(
         page = call_notion_with_retry(notion_client.pages.retrieve, page_id=target_page_id)
         parent_db = page.get("parent", {}).get("database_id", "").replace("-", "")
         props = page.get("properties", {})
-        has_insights = bool(props.get("Danh sách Insight", {}).get("relation", []))
+        has_insights = bool(props.get("Danh sách Insight", {}).get("relation", [])) or bool(props.get("Insight cha", {}).get("relation", []))
         is_insight_db = "88159c9046fb426db3c9a0d79358e76c".replace("-", "") in parent_db or has_insights
         if not is_insight_db:
             return None
@@ -788,8 +793,8 @@ def adapt_insight_library_product(
                 "Tên sản phẩm": {"type": "title", "title": [{"plain_text": final_title}]},
                 "Biến thể & giá": {"type": "rich_text", "rich_text": [{"plain_text": price_variant_text}]},
                 "Media sản phẩm": {"type": "url", "url": drive_url},
-                "Danh sách Insight": props.get("Danh sách Insight", {}),
-                "Insight Library": props.get("Danh sách Insight", {}),
+                "Danh sách Insight": props.get("Danh sách Insight", {}) if props.get("Danh sách Insight", {}).get("relation") else props.get("Insight cha", {}),
+                "Insight Library": props.get("Danh sách Insight", {}) if props.get("Danh sách Insight", {}).get("relation") else props.get("Insight cha", {}),
                 "Content xong": {"type": "checkbox", "checkbox": True},
                 "Bài viết": {"type": "checkbox", "checkbox": False},
                 "Biến thể": variant_prop,
@@ -1083,6 +1088,8 @@ def sync_notion_to_bigseller_excel(
 
                     # Kiểm tra xem rel_page này có relation "Danh sách Insight" trỏ tới các insight con không
                     sub_relations = rel_props.get("Danh sách Insight", {}).get("relation", [])
+                    if not sub_relations:
+                        sub_relations = rel_props.get("Insight cha", {}).get("relation", [])
                     if sub_relations:
                         logger.info(f"Phát hiện thư viện '{rel_title}' có {len(sub_relations)} Insight con.")
                         for sub_r in sub_relations:
@@ -1896,6 +1903,8 @@ def sync_only_image_links_to_notion(
                             break
 
                     sub_relations = rel_props.get("Danh sách Insight", {}).get("relation", [])
+                    if not sub_relations:
+                        sub_relations = rel_props.get("Insight cha", {}).get("relation", [])
                     if sub_relations:
                         for sub_r in sub_relations:
                             sub_id = sub_r.get("id")
