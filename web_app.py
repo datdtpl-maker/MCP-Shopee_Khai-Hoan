@@ -12,16 +12,78 @@ from pathlib import Path
 from typing import Any
 import sys
 
-if sys.stdout is not None:
-    try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
-    except Exception:
+class _SafeDummyStream:
+    def write(self, s: str):
+        return len(s) if s else 0
+    def flush(self):
         pass
-if sys.stderr is not None:
-    try:
-        sys.stderr.reconfigure(encoding='utf-8', errors='backslashreplace')
-    except Exception:
-        pass
+    def isatty(self):
+        return False
+
+
+class SafeStreamWrapper:
+    """Wrapper bao boc sys.stdout / sys.stderr ngan chan triet de moi loi UnicodeEncodeError tren Windows."""
+    def __init__(self, target):
+        self._target = target if target is not None else _SafeDummyStream()
+        self.encoding = getattr(target, 'encoding', 'utf-8') or 'utf-8'
+        self.errors = 'replace'
+
+    def write(self, s: str):
+        if not s:
+            return 0
+        if not isinstance(s, str):
+            s = str(s)
+        try:
+            if hasattr(self._target, 'write'):
+                return self._target.write(s)
+        except UnicodeEncodeError:
+            try:
+                target_enc = getattr(self._target, 'encoding', 'ascii') or 'ascii'
+                safe_s = s.encode(target_enc, errors='replace').decode(target_enc, errors='replace')
+                return self._target.write(safe_s)
+            except Exception:
+                pass
+        except Exception:
+            pass
+        return len(s)
+
+    def flush(self):
+        try:
+            if hasattr(self._target, 'flush'):
+                self._target.flush()
+        except Exception:
+            pass
+
+    def isatty(self):
+        try:
+            return getattr(self._target, 'isatty', lambda: False)()
+        except Exception:
+            return False
+
+    def fileno(self):
+        if hasattr(self._target, 'fileno'):
+            return self._target.fileno()
+        raise OSError("fileno not supported")
+
+    def __getattr__(self, name):
+        return getattr(self._target, name)
+
+
+def enforce_safe_io():
+    for name in ('stdout', 'stderr'):
+        cur = getattr(sys, name, None)
+        if not isinstance(cur, SafeStreamWrapper):
+            if cur is not None and hasattr(cur, 'reconfigure'):
+                try:
+                    cur.reconfigure(encoding='utf-8', errors='replace')
+                except Exception:
+                    pass
+            try:
+                setattr(sys, name, SafeStreamWrapper(cur))
+            except Exception:
+                pass
+
+enforce_safe_io()
 
 from flask import Flask, jsonify, render_template_string, request
 
@@ -14311,12 +14373,14 @@ def run_native_desktop_app():
             text_select=True
         )
         use_webview = True
-        print("[Native App] Đang khởi động cửa sổ Desktop ứng dụng Native...")
+        enforce_safe_io()
+        print("[Native App] Dang khoi dong cua so Desktop ung dung Native...")
         webview.start(icon=icon_path, private_mode=False)
-        print("[Native App] Cửa sổ ứng dụng đã đóng. Thoát tiến trình.")
+        print("[Native App] Cua so ung dung da dong. Thoat tien trinh.")
         os._exit(0)
     except Exception as wv_err:
-        print(f"[Native App] Không thể khởi chạy pywebview ({wv_err}), chuyển sang fallback...")
+        enforce_safe_io()
+        print(f"[Native App] Khong the khoi chay pywebview: {wv_err}, chuyen sang fallback...")
         use_webview = False
 
     if not use_webview:
