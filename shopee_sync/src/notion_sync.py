@@ -39,6 +39,38 @@ def get_rich_text_content(property_data: Dict[str, Any]) -> str:
         return ""
     return "".join([t.get("plain_text", "") for t in rich_text_list]).strip()
 
+def extract_selling_price_from_note(note_text: str) -> Optional[int]:
+    """
+    Trích xuất giá bán từ nội dung cột 'Ghi chú' trên Notion.
+    Định dạng hỗ trợ:
+    - Giá bán: 450.000₫/biến thể. Giá vốn: 190.000₫/biến thể.
+    - Giá vốn: 190.000 . Giá bán: 450.000
+    - Giá bán: 450000
+    - Giá bán: 450k
+    - Gia ban: 450,000 đ
+    """
+    if not note_text:
+        return None
+    match = re.search(r"(?:giá\s*bán|gia\s*ban|giaban)\s*[:=\-]?\s*([0-9.,]+(?:\s*[kK])?)", note_text, re.IGNORECASE)
+    if match:
+        raw_val = match.group(1).strip()
+        if raw_val.lower().endswith("k"):
+            num_part = re.sub(r"[^\d.]", "", raw_val[:-1])
+            try:
+                return int(float(num_part) * 1000)
+            except Exception:
+                pass
+        digits = re.sub(r"\D", "", raw_val)
+        if digits:
+            try:
+                price = int(digits)
+                if price > 0:
+                    return price
+            except Exception:
+                pass
+    return None
+
+
 def parse_price_and_variants(price_variant_text: str) -> List[Dict[str, Any]]:
     """
     Phân tích cột 'Biến thể & giá' để xác định xem sản phẩm có biến thể hay không.
@@ -713,21 +745,26 @@ def adapt_insight_library_product(
         if master_page:
             mp_props = master_page.get("properties", {})
             master_title = "".join([t.get("plain_text", "") for t in mp_props.get("Tên sản phẩm", {}).get("title", [])]).strip()
-            v1 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 1", {}).get("rich_text", [])]).strip()
-            p1 = mp_props.get("Giá biến thể 1", {}).get("number")
-            v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
-            p2 = mp_props.get("Giá biến thể 2", {}).get("number")
-            if not p1 and v1:
-                digits = re.sub(r"\D", "", v1)
-                if len(digits) >= 4:
-                    p1 = int(digits)
-                    v1 = "Mặc định"
-            if v1 and p1:
-                price_lines.append(f"{v1}: {int(p1)}")
-            elif p1:
-                price_lines.append(f"Mặc định: {int(p1)}")
-            if v2 and p2:
-                price_lines.append(f"{v2}: {int(p2)}")
+            mp_note = get_rich_text_content(mp_props.get("Ghi chú", {}))
+            sp_note = extract_selling_price_from_note(mp_note)
+            if sp_note:
+                price_lines.append(f"Mặc định: {sp_note}")
+            else:
+                v1 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 1", {}).get("rich_text", [])]).strip()
+                p1 = mp_props.get("Giá biến thể 1", {}).get("number")
+                v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+                p2 = mp_props.get("Giá biến thể 2", {}).get("number")
+                if not p1 and v1:
+                    digits = re.sub(r"\D", "", v1)
+                    if len(digits) >= 4:
+                        p1 = int(digits)
+                        v1 = "Mặc định"
+                if v1 and p1:
+                    price_lines.append(f"{v1}: {int(p1)}")
+                elif p1:
+                    price_lines.append(f"Mặc định: {int(p1)}")
+                if v2 and p2:
+                    price_lines.append(f"{v2}: {int(p2)}")
             variant_prop = mp_props.get("Biến thể", {})
 
         if not price_lines:
@@ -755,7 +792,8 @@ def adapt_insight_library_product(
                 "Insight Library": props.get("Danh sách Insight", {}),
                 "Content xong": {"type": "checkbox", "checkbox": True},
                 "Bài viết": {"type": "checkbox", "checkbox": False},
-                "Biến thể": variant_prop
+                "Biến thể": variant_prop,
+                "Ghi chú": mp_props.get("Ghi chú", {}) if master_page else {}
             },
             "master_page": master_page
         }
@@ -905,7 +943,13 @@ def sync_notion_to_bigseller_excel(
             extract_property_url(properties.get("Link Drive bộ ảnh"))
         )
         
-        # Lấy giá và biến thể từ properties của Notion DB1
+        # Lấy giá bán từ cột Ghi chú trên Notion (Hỗ trợ cú pháp: 'Giá bán: 450.000 . Giá vốn: 190.000')
+        note_text = get_rich_text_content(properties.get("Ghi chú", {}))
+        if not note_text and page.get("master_page"):
+            note_text = get_rich_text_content(page["master_page"].get("properties", {}).get("Ghi chú", {}))
+        selling_price = extract_selling_price_from_note(note_text)
+
+        # Lấy giá và biến thể từ properties của Notion DB1 (legacy nếu còn)
         p1 = properties.get("Giá biến thể 1", {}).get("number")
         v1 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
         p2 = properties.get("Giá biến thể 2", {}).get("number")
@@ -927,7 +971,11 @@ def sync_notion_to_bigseller_excel(
         # Lấy văn bản biến thể và giá (cột legacy nếu có)
         price_variant_text = get_rich_text_content(properties.get("Biến thể & giá", {}))
         variants = parse_price_and_variants(price_variant_text)
-        if not variants:
+        
+        # Ưu tiên số 1: Giá bán trích xuất từ cột Ghi chú
+        if selling_price:
+            variants = [{"name": "Mặc định", "price": int(selling_price)}]
+        elif not variants:
             if p1 and p2:
                 variants = [
                     {"name": v1 or "Phân loại 1", "price": int(p1)},
@@ -935,8 +983,10 @@ def sync_notion_to_bigseller_excel(
                 ]
             elif p1:
                 variants = [{"name": v1 or "Mặc định", "price": int(p1)}]
+            elif note_text:
+                variants = parse_price_and_variants(note_text)
             
-        logger.info(f"Đang xử lý sản phẩm: {title} (Giá biến thể: {variants})")
+        logger.info(f"Đang xử lý sản phẩm: {title} (Giá bán / biến thể: {variants})")
         
         # Tìm thư mục sản phẩm từ thư mục gốc lớn cấu hình trong .env hoặc mặc định
         root_folder_id = os.getenv("DRIVE_ROOT_FOLDER_ID", "1XrOmOCqdZ3xfkeVaBc0Vr77Q7yRW0PxZ").strip()
@@ -1349,7 +1399,7 @@ def sync_notion_to_bigseller_excel(
                     rows_to_export.append(row)
             else:
                 # Sản phẩm đơn lẻ (Không có biến thể)
-                single_price = variants[0]["price"] if variants else (int(p1) if p1 else 90000)
+                single_price = variants[0]["price"] if variants else (selling_price or (int(p1) if p1 else 90000))
                 
                 row = {}
                 for col in columns:
@@ -1360,7 +1410,7 @@ def sync_notion_to_bigseller_excel(
                 row["SKU sản phẩm"] = ""
                 row["Mô tả sản phẩm*"] = v_desc
                 row["SKU"] = ""
-                row["Giá*"] = single_price
+                row["Giá*"] = int(single_price)
                 row["Tồn kho*"] = 100
                 
                 row["Ảnh bìa*"] = cover_image

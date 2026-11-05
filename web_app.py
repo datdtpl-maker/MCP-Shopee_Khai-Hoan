@@ -11202,6 +11202,9 @@ def api_get_pending_products():
                     v2 = "".join([x.get("plain_text", "") for x in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
                     media_url = extract_property_url(properties.get("Media sản phẩm")) or extract_property_url(properties.get("URL"))
                     note = "".join([x.get("plain_text", "") for x in properties.get("Ghi chú", {}).get("rich_text", [])]).strip()
+                    sp_from_note = notion_sync.extract_selling_price_from_note(note)
+                    if sp_from_note and not p1:
+                        p1 = sp_from_note
 
                     # Relation trỏ sang database Shopee Insight Library (88159c9046fb426db3c9a0d79358e76c)
                     rel_lib = properties.get("Insight Library", {}).get("relation", [])
@@ -12806,6 +12809,9 @@ def api_get_product_details():
             v1 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 1", {}).get("rich_text", [])]).strip()
             p2 = properties.get("Giá biến thể 2", {}).get("number")
             v2 = "".join([t.get("plain_text", "") for t in properties.get("Biến thể 2", {}).get("rich_text", [])]).strip()
+            sp_from_note = notion_sync.extract_selling_price_from_note(note)
+            if sp_from_note and not p1:
+                p1 = sp_from_note
 
             classification = v1 or "Mặc định"
             price = f"{int(p1):,}đ" if p1 else ""
@@ -12894,6 +12900,10 @@ def api_get_product_details():
                 p1 = mp_props.get("Giá biến thể 1", {}).get("number")
                 v2 = "".join([t.get("plain_text", "") for t in mp_props.get("Biến thể 2", {}).get("rich_text", [])]).strip()
                 p2 = mp_props.get("Giá biến thể 2", {}).get("number")
+                mp_note = "".join([x.get("plain_text", "") for x in mp_props.get("Ghi chú", {}).get("rich_text", [])]).strip()
+                sp_from_note = notion_sync.extract_selling_price_from_note(mp_note)
+                if sp_from_note and not p1:
+                    p1 = sp_from_note
 
                 classification = v1 or "Mặc định"
                 price = f"{int(p1):,}đ" if p1 else ""
