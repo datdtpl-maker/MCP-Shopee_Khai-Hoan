@@ -886,6 +886,7 @@ def sync_notion_to_bigseller_excel(
     processed_titles = []
     processed_page_ids = []
     page_id_to_desc = {}
+    page_id_to_drive_url = {}
     
     # Tạo SKU gốc tăng dần hoặc ngẫu nhiên
     import random
@@ -1376,6 +1377,7 @@ def sync_notion_to_bigseller_excel(
         processed_titles.append(title)
         processed_page_ids.append(page_id_str)
         page_id_to_desc[page_id_str] = "\n==============================\n".join(desc_logs)
+        page_id_to_drive_url[page_id_str] = drive_url
         
     # 6. Tạo và lưu file Excel
     export_dir_env = os.getenv("BIGSELLER_EXPORT_DIR")
@@ -1457,29 +1459,46 @@ def sync_notion_to_bigseller_excel(
         p_id = p_page_dict.get("id")
         if not p_id:
             continue
+        prod_drive_url = page_id_to_drive_url.get(p_id) or drive_url
         logger.info(f"Đang cập nhật trạng thái hoàn thành trên Notion cho page_id: {p_id}")
         try:
             p_data = call_notion_with_retry(notion.pages.retrieve, page_id=p_id)
             p_props = p_data.get("properties", {})
-            update_payload = {}
-            if "Trạng thái" in p_props and p_props["Trạng thái"].get("type") == "select":
-                update_payload["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
-            if "Trạng thái xử lý" in p_props and p_props["Trạng thái xử lý"].get("type") == "select":
-                update_payload["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
-            if "Content xong" in p_props and p_props["Content xong"].get("type") == "checkbox":
-                update_payload["Content xong"] = {"checkbox": True}
-            if "Bài viết" in p_props and p_props["Bài viết"].get("type") == "checkbox":
-                update_payload["Bài viết"] = {"checkbox": True}
-            if "Trạng thái đăng bài Shopee" in p_props and p_props["Trạng thái đăng bài Shopee"].get("type") == "checkbox":
-                update_payload["Trạng thái đăng bài Shopee"] = {"checkbox": True}
-            if "Trạng thái đăng bài shopee" in p_props and p_props["Trạng thái đăng bài shopee"].get("type") == "checkbox":
-                update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
+            
+            # Phân biệt trang Master DB hay trang Insight Library
+            is_insight_page = (
+                "Tên post Shopee" in p_props
+                or "Công việc Shopee" in p_props
+                or "Số Insight" in p_props
+            )
 
-            if drive_url and "drive.google.com" in drive_url:
-                if "URL" in p_props and p_props["URL"].get("type") == "url":
-                    update_payload["URL"] = {"url": drive_url}
-                if "Link Drive bộ ảnh" in p_props and p_props["Link Drive bộ ảnh"].get("type") == "url":
-                    update_payload["Link Drive bộ ảnh"] = {"url": drive_url}
+            update_payload = {}
+            if is_insight_page:
+                if "Trạng thái" in p_props and p_props["Trạng thái"].get("type") == "select":
+                    update_payload["Trạng thái"] = {"select": {"name": "Hoàn thành"}}
+                if prod_drive_url and "drive.google.com" in prod_drive_url:
+                    if "URL" in p_props and p_props["URL"].get("type") == "url":
+                        update_payload["URL"] = {"url": prod_drive_url}
+                    if "Link Drive bộ ảnh" in p_props and p_props["Link Drive bộ ảnh"].get("type") == "url":
+                        update_payload["Link Drive bộ ảnh"] = {"url": prod_drive_url}
+            else:
+                if "Trạng thái" in p_props and p_props["Trạng thái"].get("type") == "select":
+                    update_payload["Trạng thái"] = {"select": {"name": "Chờ đăng"}}
+                if "Trạng thái xử lý" in p_props and p_props["Trạng thái xử lý"].get("type") == "select":
+                    update_payload["Trạng thái xử lý"] = {"select": {"name": "Chờ đăng"}}
+                if "Content xong" in p_props and p_props["Content xong"].get("type") == "checkbox":
+                    update_payload["Content xong"] = {"checkbox": True}
+                if "Bài viết" in p_props and p_props["Bài viết"].get("type") == "checkbox":
+                    update_payload["Bài viết"] = {"checkbox": True}
+                if "Trạng thái đăng bài Shopee" in p_props and p_props["Trạng thái đăng bài Shopee"].get("type") == "checkbox":
+                    update_payload["Trạng thái đăng bài Shopee"] = {"checkbox": True}
+                if "Trạng thái đăng bài shopee" in p_props and p_props["Trạng thái đăng bài shopee"].get("type") == "checkbox":
+                    update_payload["Trạng thái đăng bài shopee"] = {"checkbox": True}
+                if prod_drive_url and "drive.google.com" in prod_drive_url:
+                    if "Media sản phẩm" in p_props and p_props["Media sản phẩm"].get("type") == "url":
+                        update_payload["Media sản phẩm"] = {"url": prod_drive_url}
+                    if "URL" in p_props and p_props["URL"].get("type") == "url":
+                        update_payload["URL"] = {"url": prod_drive_url}
 
             if update_payload:
                 update_notion_page_safe(
@@ -1488,15 +1507,54 @@ def sync_notion_to_bigseller_excel(
                     properties=update_payload
                 )
 
-            # Đồng thời cập nhật trạng thái cho trang Master tương ứng nếu có
-            master_page = p_page_dict.get("master_page") if isinstance(p_page_dict, dict) else None
-            if not master_page:
-                cw_rel = p_props.get("Công việc Shopee", {}).get("relation", [])
-                if cw_rel:
-                    master_page = {"id": cw_rel[0].get("id")}
+            # Cập nhật liên kết 2 chiều:
+            # 1. Nếu là Master DB -> Cập nhật các trang Insight Library liên kết (để rollup 'Media sản phẩm' hiển thị link)
+            if not is_insight_page:
+                related_insight_ids = set()
+                ins_lib_prop = p_props.get("Insight Library", {})
+                if ins_lib_prop.get("type") == "relation":
+                    for rel in ins_lib_prop.get("relation", []):
+                        if rel.get("id"):
+                            related_insight_ids.add(rel.get("id"))
+                elif ins_lib_prop.get("type") == "rich_text":
+                    for mention in parse_insight_mentions(ins_lib_prop.get("rich_text", [])):
+                        if mention.get("page_id"):
+                            related_insight_ids.add(mention.get("page_id"))
 
-            if master_page:
-                m_id = master_page.get("id")
+                ds_prop = p_props.get("Danh sách Insight", {})
+                if ds_prop.get("type") == "relation":
+                    for rel in ds_prop.get("relation", []):
+                        if rel.get("id"):
+                            related_insight_ids.add(rel.get("id"))
+
+                for ins_id in related_insight_ids:
+                    try:
+                        ins_data = call_notion_with_retry(notion.pages.retrieve, page_id=ins_id)
+                        ins_props = ins_data.get("properties", {})
+                        ins_update = {}
+                        if prod_drive_url and "drive.google.com" in prod_drive_url:
+                            if "URL" in ins_props and ins_props["URL"].get("type") == "url":
+                                ins_update["URL"] = {"url": prod_drive_url}
+                            if "Link Drive bộ ảnh" in ins_props and ins_props["Link Drive bộ ảnh"].get("type") == "url":
+                                ins_update["Link Drive bộ ảnh"] = {"url": prod_drive_url}
+                        if "Trạng thái" in ins_props and ins_props["Trạng thái"].get("type") == "select":
+                            ins_update["Trạng thái"] = {"select": {"name": "Hoàn thành"}}
+                        if ins_update:
+                            update_notion_page_safe(notion, page_id=ins_id, properties=ins_update)
+                    except Exception as ins_err:
+                        logger.warning(f"Lỗi cập nhật Insight Library page {ins_id}: {ins_err}")
+
+            # 2. Nếu là Insight Library -> Cập nhật trang Master DB liên kết
+            master_page = p_page_dict.get("master_page") if isinstance(p_page_dict, dict) else None
+            master_page_ids = set()
+            if master_page and master_page.get("id"):
+                master_page_ids.add(master_page.get("id"))
+            cw_rel = p_props.get("Công việc Shopee", {}).get("relation", [])
+            for rel in cw_rel:
+                if rel.get("id"):
+                    master_page_ids.add(rel.get("id"))
+
+            for m_id in master_page_ids:
                 try:
                     m_data = call_notion_with_retry(notion.pages.retrieve, page_id=m_id)
                     m_props = m_data.get("properties", {})
@@ -1509,11 +1567,15 @@ def sync_notion_to_bigseller_excel(
                         m_update["Content xong"] = {"checkbox": True}
                     if "Bài viết" in m_props and m_props["Bài viết"].get("type") == "checkbox":
                         m_update["Bài viết"] = {"checkbox": True}
-                    if drive_url and "drive.google.com" in drive_url:
+                    if "Trạng thái đăng bài shopee" in m_props and m_props["Trạng thái đăng bài shopee"].get("type") == "checkbox":
+                        m_update["Trạng thái đăng bài shopee"] = {"checkbox": True}
+                    if "Trạng thái đăng bài Shopee" in m_props and m_props["Trạng thái đăng bài Shopee"].get("type") == "checkbox":
+                        m_update["Trạng thái đăng bài Shopee"] = {"checkbox": True}
+                    if prod_drive_url and "drive.google.com" in prod_drive_url:
                         if "Media sản phẩm" in m_props and m_props["Media sản phẩm"].get("type") == "url":
-                            m_update["Media sản phẩm"] = {"url": drive_url}
+                            m_update["Media sản phẩm"] = {"url": prod_drive_url}
                         if "URL" in m_props and m_props["URL"].get("type") == "url":
-                            m_update["URL"] = {"url": drive_url}
+                            m_update["URL"] = {"url": prod_drive_url}
                     if m_update:
                         update_notion_page_safe(notion, page_id=m_id, properties=m_update)
                 except Exception as m_err:
@@ -1727,22 +1789,30 @@ def sync_only_image_links_to_notion(
                 update_notion_page_safe(notion, page_id=page_id_str, properties=notion_drive_update)
 
             # Nếu là trang Master DB và có quan hệ Insight Library, cập nhật trang Insight cha
-            ins_lib_rel = properties.get("Insight Library", {}).get("relation", [])
-            for rel in ins_lib_rel:
-                r_id = rel.get("id")
-                if r_id:
-                    try:
-                        rel_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=r_id)
-                        r_props = rel_page_obj.get("properties", {})
-                        r_up = {}
-                        if "URL" in r_props and r_props["URL"].get("type") == "url" and not r_props["URL"].get("url"):
-                            r_up["URL"] = {"url": online_drive_url}
-                        if "Link Drive bộ ảnh" in r_props and r_props["Link Drive bộ ảnh"].get("type") == "url" and not r_props["Link Drive bộ ảnh"].get("url"):
-                            r_up["Link Drive bộ ảnh"] = {"url": online_drive_url}
-                        if r_up:
-                            update_notion_page_safe(notion, page_id=r_id, properties=r_up)
-                    except Exception:
-                        pass
+            drive_ins_ids = set()
+            ins_lib_prop = properties.get("Insight Library", {})
+            if ins_lib_prop.get("type") == "relation":
+                for rel in ins_lib_prop.get("relation", []):
+                    if rel.get("id"):
+                        drive_ins_ids.add(rel.get("id"))
+            elif ins_lib_prop.get("type") == "rich_text":
+                for mention in parse_insight_mentions(ins_lib_prop.get("rich_text", [])):
+                    if mention.get("page_id"):
+                        drive_ins_ids.add(mention.get("page_id"))
+
+            for r_id in drive_ins_ids:
+                try:
+                    rel_page_obj = call_notion_with_retry(notion.pages.retrieve, page_id=r_id)
+                    r_props = rel_page_obj.get("properties", {})
+                    r_up = {}
+                    if "URL" in r_props and r_props["URL"].get("type") == "url":
+                        r_up["URL"] = {"url": online_drive_url}
+                    if "Link Drive bộ ảnh" in r_props and r_props["Link Drive bộ ảnh"].get("type") == "url":
+                        r_up["Link Drive bộ ảnh"] = {"url": online_drive_url}
+                    if r_up:
+                        update_notion_page_safe(notion, page_id=r_id, properties=r_up)
+                except Exception:
+                    pass
         except Exception as d_err:
             logger.warning(f"Lỗi cập nhật URL Drive cho trang cha Notion: {d_err}")
             
